@@ -1,0 +1,12 @@
+# robots.txt — controls search engine crawling
+# https://www.robotstxt.org/
+
+# Default: allow all standard crawlers
+User-agent: *
+Allow: /
+# Block raw asset file extensions (they're already embedded in HTML)
+Disallow: /*.webp$
+Disallow: /*.png$
+
+# Sitemap location (update if you add one later)
+# Sitemap: https://allarohith.github.io/sitemap.xml

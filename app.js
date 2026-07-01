@@ -890,12 +890,45 @@ if (aboutImage) {
 // INIT
 // ============================================
 
+// ============================================
+// EMAIL OBFUSCATION DECODER
+// Decodes the char-code-encoded contact email
+// stored in data-uc / data-dc attributes and
+// sets both the visible text and the mailto: href.
+// Defeats scrapers that look for "user@domain"
+// patterns in raw HTML.
+// ============================================
+function revealContactEmail() {
+    const decode = (encoded) => encoded
+        .split(',')
+        .map(n => String.fromCharCode(parseInt(n, 10)))
+        .join('');
+
+    document.querySelectorAll('.contact-email[data-uc]').forEach(link => {
+        try {
+            const user = decode(link.dataset.uc);
+            const domain = decode(link.dataset.dc);
+            const email = `${user}@${domain}`;
+            link.href = `mailto:${email}`;
+            const textEl = link.querySelector('.email-text');
+            if (textEl) textEl.textContent = email;
+        } catch (e) {
+            // Fallback: leave the link inert if decoding fails.
+            link.removeAttribute('href');
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     new Cursor();
     new CursorTrail();
     new ParticleSystem();
     new FieldLines();
     new Animations();
+
+    // Decode obfuscated contact email (must run before users
+    // can click it — placed last so all other inits happen first).
+    revealContactEmail();
 
     console.log('🚀 Creative Portfolio Loaded!');
 });

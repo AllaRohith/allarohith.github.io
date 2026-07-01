@@ -111,3 +111,40 @@ In `styles.css`, modify the `:root` section:
 ---
 
 Built with ❤️ — Designed to impress.
+
+---
+
+## 🔒 Security
+
+This site implements **defense-in-depth** security suitable for a public-facing portfolio:
+
+### HTTP / Transport
+- ✅ **HTTPS only** — GitHub Pages enforces HTTPS for all resources
+- ✅ **HSTS-ready** — `upgrade-insecure-requests` CSP directive forces HTTPS
+
+### Content Security
+- ✅ **Content Security Policy (CSP)** — restricts scripts/styles to known origins (`self`, Google Fonts, cdnjs); blocks `frame-src`, `object-src`, unauthorized inline scripts
+- ✅ **Subresource Integrity (SRI)** — SHA-384 hashes on all CDN scripts (GSAP, ScrollTrigger); browser refuses tampered content
+- ✅ **`X-Content-Type-Options: nosniff`** — prevents MIME-sniffing attacks
+- ✅ **`Referrer-Policy: strict-origin-when-cross-origin`** — leaks minimal referrer info to external sites
+- ✅ **`Permissions-Policy`** — disables unused browser features (camera, mic, geolocation, payment, USB, sensors)
+
+### Phishing / Scraping Defenses
+- ✅ **Email obfuscation** — contact email stored as char codes in `data-*` attributes, decoded by JavaScript on page load; HTML scrapers that grep for `user@domain` patterns won't find it
+- ✅ **No forms, no auth, no backend** — no attack surface for credential theft or session hijacking
+
+### Responsible Disclosure
+- ✅ **security.txt** at `/.well-known/security.txt` (RFC 9116) — gives security researchers a clear contact for reporting vulnerabilities
+- ✅ **robots.txt** — controls crawler access; hides demo/internal files from indexing
+
+### Repository Hardening (recommendations)
+- 🔐 Enable **2FA** on the GitHub account that owns this repo
+- 🔐 Require **signed commits** for any future contributors
+- 🔐 Enable **branch protection** on `main` — require PR reviews before merge
+- 🔐 Regularly rotate the SSH key listed at https://github.com/settings/keys
+
+### Reporting a Vulnerability
+
+If you discover a security issue, please email **allarohithnaidu@gmail.com** or open a private advisory at https://github.com/AllaRohith/allarohith.github.io/security/advisories/new. Allow up to 90 days for remediation before public disclosure.
+
+See `/.well-known/security.txt` for the machine-readable version.

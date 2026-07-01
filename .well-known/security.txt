@@ -1,0 +1,14 @@
+# security.txt — RFC 9116
+# Standard location for security researchers to report vulnerabilities.
+# https://www.rfc-editor.org/rfc/rfc9116
+
+Contact: mailto:allarohithnaidu@gmail.com
+Contact: https://github.com/AllaRohith/allarohith.github.io/security/advisories/new
+Expires: 2027-07-02T23:59:59z
+Preferred-Languages: en
+Canonical: https://allarohith.github.io/.well-known/security.txt
+
+# Acknowledgments
+# If you find a security issue, please report it privately via the
+# contact above before disclosing it publicly. Allow 90 days for
+# remediation before public disclosure.
