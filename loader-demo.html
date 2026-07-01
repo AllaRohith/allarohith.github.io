@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rohith — Particle Burst Loader</title>
+
+    <!-- Read portfolio CSS variables for colors -->
+    <link rel="preconnect" href="https://use.typekit.net" crossorigin>
+    <link rel="stylesheet" href="https://use.typekit.net/gog2lyt.css">
+
+    <style>
+        /* ════════════════════════════════════════════════
+           DESIGN TOKENS — mirrors the portfolio's :root
+        ════════════════════════════════════════════════ */
+        :root {
+            --ink: #07070A;
+            --surface: #111114;
+            --surface-2: #1A1A1F;
+            --bone: #F5F4EE;
+            --text-muted: #A1A1AA;
+            --text-dim: #71717A;
+            --violet: #7C3AED;
+            --violet-light: #A78BFA;
+            --cyan: #06B6D4;
+            --cyan-light: #67E8F9;
+            --lime: #D4FF3A;
+            --lime-dim: #84CC16;
+            --gradient: linear-gradient(135deg, var(--violet) 0%, var(--cyan) 100%);
+            --gradient-accent: linear-gradient(135deg, var(--lime) 0%, var(--cyan) 100%);
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'Space Grotesk', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+            --font-script: 'museo-script', 'gog2lyt', cursive;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            background: var(--ink);
+            color: var(--bone);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* The page behind the loader — visible after fade-out */
+        .page {
+            position: fixed;
+            inset: 0;
+            background: var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.8s ease 0.2s;
+            z-index: 1;
+        }
+
+        .page.visible { opacity: 1; }
+
+        .page-content {
+            text-align: center;
+            max-width: 600px;
+            padding: 2rem;
+        }
+
+        .page-eyebrow {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--lime);
+            margin-bottom: 1.5rem;
+            padding: 0.4rem 0.85rem;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            display: inline-block;
+            background: rgba(212, 255, 58, 0.04);
+        }
+
+        .page h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 7vw, 5rem);
+            font-weight: 700;
+            line-height: 0.95;
+            letter-spacing: -0.04em;
+            margin-bottom: 1.5rem;
+        }
+
+        .page h1 .accent {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        /* Status bar (matches portfolio) */
+        .status-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1.5rem;
+            background: rgba(7, 7, 10, 0.7);
+            backdrop-filter: blur(16px) saturate(140%);
+            border-bottom: 1px solid rgba(38, 38, 43, 1);
+            font-family: var(--font-mono);
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.6s ease 0.5s;
+        }
+
+        .page.visible .status-bar { opacity: 1; }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--lime);
+            box-shadow: 0 0 8px var(--lime);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%      { opacity: 0.6; transform: scale(1.2); }
+        }
+
+        .status-item {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .status-label { color: var(--text-dim); }
+        .status-value { color: var(--bone); }
+        .status-available { color: var(--lime); }
+        .status-sep { color: rgba(38, 38, 43, 1); }
+
+        /* ════════════════════════════════════════════════
+           THE CANVAS — particle burst stage
+        ════════════════════════════════════════════════ */
+        canvas#particles {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            transition: opacity 1.2s ease;
+        }
+
+        canvas#particles.fading {
+            opacity: 0;
+        }
+
+        /* Skip button — appears at 3s, matches portfolio button style */
+        .skip-btn {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            z-index: 150;
+            padding: 0.75rem 1.75rem;
+            background: rgba(7, 7, 10, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid rgba(38, 38, 43, 1);
+            border-radius: 999px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s var(--ease-out-expo);
+        }
+
+        .skip-btn.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .skip-btn:hover {
+            color: var(--lime);
+            border-color: var(--lime);
+            box-shadow: 0 0 20px rgba(212, 255, 58, 0.3);
+        }
+
+        .skip-btn .skip-icon {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-right: 1.5px solid currentColor;
+            border-bottom: 1.5px solid currentColor;
+            transform: rotate(-45deg);
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        /* Reduced motion fallback */
+        @media (prefers-reduced-motion: reduce) {
+            canvas#particles { display: none; }
+            .skip-btn { display: none; }
+            .page { opacity: 1 !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- The page that shows after the loader -->
+    <div class="page" id="page">
+        <div class="status-bar">
+            <span class="status-dot"></span>
+            <span class="status-item">
+                <span class="status-label">STATUS</span>
+                <span class="status-value status-available">Open to work</span>
+            </span>
+            <span class="status-sep">/</span>
+            <span class="status-item">
+                <span class="status-label">LOC</span>
+                <span class="status-value">Remote · IST</span>
+            </span>
+        </div>
+
+        <div class="page-content">
+            <p class="page-eyebrow">Creative Developer · Available 2026</p>
+            <h1>Building <span class="accent">experiences</span><br>that earn attention.</h1>
+            <p>Craft, motion, and intent — interfaces that hold attention and reward curiosity.</p>
+            <a href="#contact" class="skip-btn show" style="position:static; transform:none; opacity:1; pointer-events:auto;">
+                Get in touch →
+            </a>
+        </div>
+    </div>
+
+    <!-- Skip button (visible during loader) -->
+    <button class="skip-btn" id="skipBtn" type="button">
+        <span class="skip-icon"></span>
+        Skip intro
+    </button>
+
+    <!-- Particle canvas -->
+    <canvas id="particles"></canvas>
+
+    <script>
+    (function () {
+        'use strict';
+
+        // ════════════════════════════════════════════════
+        // READ DESIGN TOKENS FROM CSS VARIABLES
+        // (with fallbacks if file is standalone)
+        // ════════════════════════════════════════════════
+        const css = (name, fallback) => {
+            const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            return v || fallback;
+        };
+        const COLORS = {
+            bg:       css('--ink', '#07070A'),
+            surface:  css('--surface', '#111114'),
+            bone:     css('--bone', '#F5F4EE'),
+            violet:   css('--violet', '#7C3AED'),
+            violetLt: css('--violet-light', '#A78BFA'),
+            cyan:     css('--cyan', '#06B6D4'),
+            cyanLt:   css('--cyan-light', '#67E8F9'),
+            lime:     css('--lime', '#D4FF3A'),
+            limeDim:  css('--lime-dim', '#84CC16')
+        };
+
+        // ════════════════════════════════════════════════
+        // CANVAS SETUP
+        // ════════════════════════════════════════════════
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let W = 0, H = 0, CX = 0, CY = 0;
+
+        function resize() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            W = window.innerWidth;
+            H = window.innerHeight;
+            canvas.width  = W * dpr;
+            canvas.height = H * dpr;
+            canvas.style.width  = W + 'px';
+            canvas.style.height = H + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            CX = W / 2;
+            CY = H / 2;
+        }
+        resize();
+        window.addEventListener('resize', () => {
+            resize();
+            // Re-sample targets on resize
+            sampleTargets();
+        });
+
+        // ════════════════════════════════════════════════
+        // SAMPLE TARGET POSITIONS — "Rohith" rendered to canvas
+        // We render the text off-screen, read pixel data, and use
+        // only the bright pixels as target positions for particles.
+        // ════════════════════════════════════════════════
+        let targetPositions = []; // array of {x, y}
+
+        function sampleTargets() {
+            targetPositions = [];
+
+            // Off-screen canvas for sampling
+            const off = document.createElement('canvas');
+            const offCtx = off.getContext('2d');
+
+            // Scale font size to viewport
+            const fontSize = Math.min(W * 0.18, H * 0.22, 220);
+            off.width  = W;
+            off.height = H;
+
+            // Try to use Typekit script font if loaded, else fallback
+            const scriptFont = `'museo-script', 'gog2lyt', 'Brush Script MT', cursive`;
+            const displayFont = `'Syne', sans-serif`;
+
+            // Render text — try script font first
+            offCtx.fillStyle = '#fff';
+            offCtx.textAlign = 'center';
+            offCtx.textBaseline = 'middle';
+
+            // Use script font for the name
+            offCtx.font = `700 ${fontSize}px ${scriptFont}`;
+            offCtx.fillText('Rohith', CX, CY);
+
+            // Also try Syne bold if script font isn't loaded yet
+            // (will be drawn over the script version)
+            offCtx.font = `800 ${fontSize}px ${displayFont}`;
+            // No additional fill — keep the script version
+
+            // Read pixel data
+            const data = offCtx.getImageData(0, 0, W, H).data;
+
+            // Step size — sample every N pixels for performance
+            const step = Math.max(2, Math.floor(fontSize / 80));
+
+            for (let y = 0; y < H; y += step) {
+                for (let x = 0; x < W; x += step) {
+                    const i = (y * W + x) * 4;
+                    // If pixel is bright (text was drawn here)
+                    if (data[i] > 128) {
+                        targetPositions.push({ x, y });
+                    }
+                }
+            }
+        }
+        sampleTargets();
+
+        // ════════════════════════════════════════════════
+        // PARTICLE INITIALIZATION
+        // ════════════════════════════════════════════════
+        const PARTICLE_COUNT = 2200;
+        const particles = [];
+
+        // Random spawn from edges
+        function spawnParticle(p) {
+            const edge = Math.floor(Math.random() * 4); // 0=top, 1=right, 2=bottom, 3=left
+            const margin = 80;
+            switch (edge) {
+                case 0: p.x = Math.random() * W; p.y = -margin; break;
+                case 1: p.x = W + margin; p.y = Math.random() * H; break;
+                case 2: p.x = Math.random() * W; p.y = H + margin; break;
+                case 3: p.x = -margin; p.y = Math.random() * H; break;
+            }
+        }
+
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            const p = {};
+            spawnParticle(p);
+            p.vx = (Math.random() - 0.5) * 0.4;
+            p.vy = (Math.random() - 0.5) * 0.4;
+            p.size = Math.random() * 2 + 1;
+            p.baseSize = p.size;
+            p.opacity = Math.random() * 0.5 + 0.5;
+
+            // Assign a target — each particle pulls toward a different text pixel
+            if (targetPositions.length > 0) {
+                const target = targetPositions[i % targetPositions.length];
+                p.targetX = target.x;
+                p.targetY = target.y;
+            } else {
+                p.targetX = CX + (Math.random() - 0.5) * 400;
+                p.targetY = CY + (Math.random() - 0.5) * 100;
+            }
+
+            // Per-particle arrival time — staggers how quickly particles reach target
+            p.arrivalDelay = Math.random() * 1.8; // 0–1.8s variation within phase
+
+            // Color: blend from violet (edge) → lime (center) based on a random anchor
+            // (locked at init so each particle has consistent color)
+            const t = Math.random();
+            p.colorMix = t;
+
+            // Phase flags
+            p.phase = 'drift';   // drift → form → hold → shockwave → disperse → explode
+            p.arrived = false;
+
+            particles.push(p);
+        }
+
+        // ════════════════════════════════════════════════
+        // EASING
+        // ════════════════════════════════════════════════
+        const easeInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        const easeOut = t => 1 - Math.pow(1 - t, 3);
+
+        // ════════════════════════════════════════════════
+        // COLOR MIXING (reads COLORS from CSS variables)
+        // ════════════════════════════════════════════════
+        function hexToRgb(hex) {
+            const h = hex.replace('#', '');
+            return {
+                r: parseInt(h.substring(0, 2), 16),
+                g: parseInt(h.substring(2, 4), 16),
+                b: parseInt(h.substring(4, 6), 16)
+            };
+        }
+        function lerpColor(c1, c2, t) {
+            return {
+                r: Math.round(c1.r + (c2.r - c1.r) * t),
+                g: Math.round(c1.g + (c2.g - c1.g) * t),
+                b: Math.round(c1.b + (c2.b - c1.b) * t)
+            };
+        }
+        function rgbStr(c, a) {
+            return `rgba(${c.r}, ${c.g}, ${c.b}, ${a})`;
+        }
+        const C = {
+            violet:   hexToRgb(COLORS.violet),
+            violetLt: hexToRgb(COLORS.violetLt),
+            cyan:     hexToRgb(COLORS.cyan),
+            lime:     hexToRgb(COLORS.lime),
+            bone:     hexToRgb(COLORS.bone)
+        };
+
+        function getParticleColor(p) {
+            // During drift/disperse: violet → cyan
+            // During form/hold/shockwave: lime → cyan
+            const t = p.colorMix;
+            if (p.phase === 'drift' || p.phase === 'disperse' || p.phase === 'explode') {
+                return lerpColor(C.violet, C.cyan, t);
+            } else {
+                // Form/hold/shockwave: lime dominant with cyan accent
+                return lerpColor(C.lime, C.cyan, t * 0.6);
+            }
+        }
+
+        // ════════════════════════════════════════════════
+        // PHASE TIMING (10s total)
+        // ════════════════════════════════════════════════
+        const startTime = performance.now();
+        const PHASE = {
+            drift:        { start: 0,    end: 1.0  }, // particles drift in from edges
+            form:         { start: 1.0,  end: 3.0  }, // magnetic pull toward letters
+            hold:         { start: 3.0,  end: 5.0  }, // fully formed, breathing
+            shockwave:    { start: 5.0,  end: 7.0  }, // pulse ripple + glow
+            disperse:     { start: 7.0,  end: 8.5  }, // particles break away
+            explode:      { start: 8.5,  end: 10.0 }  // explosion + fade out
+        };
+
+        function getPhase(t) {
+            for (const [name, range] of Object.entries(PHASE)) {
+                if (t >= range.start && t < range.end) return name;
+            }
+            return 'done';
+        }
+
+        // Shockwave ring
+        let shockwaveRadius = 0;
+        let shockwaveActive = false;
+
+        // ════════════════════════════════════════════════
+        // ANIMATION LOOP
+        // ════════════════════════════════════════════════
+        let rafId;
+        function draw(now) {
+            const t = (now - startTime) / 1000; // seconds
+            const phase = getPhase(t);
+
+            // Trail effect: draw semi-transparent bg
+            // Using the INK color from CSS variables
+            const bgRgb = hexToRgb(COLORS.bg);
+            ctx.fillStyle = `rgba(${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b}, 0.18)`;
+            ctx.fillRect(0, 0, W, H);
+
+            // Glow composite for bloom
+            ctx.globalCompositeOperation = 'lighter';
+
+            // ─── SHOCKWAVE RING (at 5s) ───
+            if (phase === 'shockwave' && !shockwaveActive) {
+                shockwaveActive = true;
+            }
+            if (phase === 'shockwave' || (phase === 'disperse' && shockwaveRadius < Math.max(W, H))) {
+                shockwaveRadius += 8;
+                if (shockwaveRadius > 0 && shockwaveRadius < Math.max(W, H) * 1.2) {
+                    ctx.strokeStyle = `rgba(${C.lime.r}, ${C.lime.g}, ${C.lime.b}, ${Math.max(0, 0.4 - shockwaveRadius / (Math.max(W, H) * 1.5))})`;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(CX, CY, shockwaveRadius, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            }
+
+            // ─── PARTICLES ───
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+
+                // Update phase
+                p.phase = phase;
+
+                if (phase === 'drift') {
+                    // Gentle drift inward — small velocity toward center
+                    const dx = CX - p.x;
+                    const dy = CY - p.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                    p.vx += (dx / dist) * 0.03;
+                    p.vy += (dy / dist) * 0.03;
+                    // Dampen
+                    p.vx *= 0.95;
+                    p.vy *= 0.95;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.opacity = Math.min(1, p.opacity + 0.005);
+
+                } else if (phase === 'form') {
+                    // Magnetic pull to target
+                    const phaseT = (t - 1.0) / 2.0;
+                    // Per-particle arrival delay within the form phase
+                    const personalT = Math.max(0, Math.min(1, (phaseT - p.arrivalDelay / 2.0) * 1.5));
+                    const eased = easeInOut(personalT);
+
+                    if (!p.arrived) {
+                        const dx = p.targetX - p.x;
+                        const dy = p.targetY - p.y;
+                        // Lerp toward target
+                        p.x += dx * (0.04 + eased * 0.08);
+                        p.y += dy * (0.04 + eased * 0.08);
+
+                        // Add a tiny orbital jitter
+                        p.x += Math.sin(t * 6 + p.colorMix * 10) * 0.4;
+                        p.y += Math.cos(t * 5 + p.colorMix * 8) * 0.4;
+
+                        if (personalT >= 1) p.arrived = true;
+                    } else {
+                        // Subtle floating jitter once arrived
+                        p.x = p.targetX + Math.sin(t * 4 + p.colorMix * 12) * 0.8;
+                        p.y = p.targetY + Math.cos(t * 3 + p.colorMix * 9) * 0.8;
+                    }
+
+                } else if (phase === 'hold') {
+                    // Breathing effect — size pulses
+                    const breath = 1 + Math.sin(t * 2.5) * 0.15;
+                    p.size = p.baseSize * breath;
+                    // Slow floating
+                    p.x = p.targetX + Math.sin(t * 2 + p.colorMix * 8) * 1.2;
+                    p.y = p.targetY + Math.cos(t * 1.8 + p.colorMix * 6) * 1.2;
+
+                } else if (phase === 'shockwave') {
+                    // Glow intensifies, particles get pushed by the shockwave
+                    const swT = (t - 5.0) / 2.0;
+                    const swForce = (1 - swT) * 2; // strongest at start
+                    const dx = p.x - CX;
+                    const dy = p.y - CY;
+                    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                    // Push outward as shockwave passes
+                    p.x += (dx / dist) * swForce * 1.5;
+                    p.y += (dy / dist) * swForce * 1.5;
+                    // Update target so they settle in new positions
+                    p.targetX = p.x;
+                    p.targetY = p.y;
+
+                } else if (phase === 'disperse') {
+                    // Slow drift outward
+                    const dx = p.x - CX;
+                    const dy = p.y - CY;
+                    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                    p.vx = (dx / dist) * 0.8;
+                    p.vy = (dy / dist) * 0.8;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.opacity = Math.max(0, p.opacity - 0.005);
+
+                } else if (phase === 'explode') {
+                    // Fast explosion outward
+                    const dx = p.x - CX;
+                    const dy = p.y - CY;
+                    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                    p.vx = (dx / dist) * 6;
+                    p.vy = (dy / dist) * 6;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.opacity = Math.max(0, p.opacity - 0.02);
+                }
+
+                // Draw particle
+                const color = getParticleColor(p);
+                ctx.fillStyle = rgbStr(color, p.opacity);
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = rgbStr(color, p.opacity);
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            ctx.globalCompositeOperation = 'source-over';
+
+            // Continue or end
+            if (t < 10.5) {
+                rafId = requestAnimationFrame(draw);
+            } else {
+                finish();
+            }
+        }
+
+        // ════════════════════════════════════════════════
+        // FINISH — fade canvas, reveal page
+        // ════════════════════════════════════════════════
+        const page = document.getElementById('page');
+        const skipBtn = document.getElementById('skipBtn');
+
+        function finish() {
+            cancelAnimationFrame(rafId);
+            // Fade canvas to page background color (CSS variable)
+            canvas.classList.add('fading');
+            // Show the page behind
+            page.classList.add('visible');
+            // Hide skip button
+            skipBtn.classList.remove('show');
+        }
+
+        // ════════════════════════════════════════════════
+        // SKIP BUTTON — appears at 3s, matches portfolio style
+        // ════════════════════════════════════════════════
+        skipBtn.addEventListener('click', () => {
+            cancelAnimationFrame(rafId);
+            finish();
+        });
+
+        // Show skip button at 3s (matches spec)
+        setTimeout(() => {
+            if (!page.classList.contains('visible')) {
+                skipBtn.classList.add('show');
+            }
+        }, 3000);
+
+        // ════════════════════════════════════════════════
+        // START
+        // ════════════════════════════════════════════════
+        rafId = requestAnimationFrame(draw);
+
+    })();
+    </script>
+</body>
+</html>

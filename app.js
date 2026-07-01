@@ -3,6 +3,71 @@
    Creative Effects • Particles • Animations
 ======================================== */
 
+// ============================================
+// DEVICE + VIEWPORT HELPERS (responsive-safe)
+// ============================================
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Touch detection — only true for actual touch-first devices (no fine pointer).
+// Checking maxTouchPoints alone is unreliable (touch-screen laptops report it too).
+const isTouchDevice = (('ontouchstart' in window) || (navigator.maxTouchPoints > 0))
+                      && window.matchMedia('(pointer: coarse)').matches;
+// isMobile as a getter — stays accurate across resize / device-rotate.
+const isMobile = () => window.innerWidth < 768;
+// visualViewport avoids iOS Safari's classic 100vh bug (address-bar collapse).
+const viewportH = () => (window.visualViewport && window.visualViewport.height)
+    ? window.visualViewport.height : window.innerHeight;
+const viewportW = () => window.innerWidth;
+// rAF throttle — at most one execution per frame, no matter how many events fire.
+const rafThrottle = (fn) => {
+    let queued = false;
+    return function(...args) {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => {
+            queued = false;
+            fn.apply(this, args);
+        });
+    };
+};
+
+// ============================================
+// TEXT → LETTER SPANS
+// Walks every text node inside `el`, wraps each non-whitespace
+// character in a <span class="title-letter">, and returns them.
+// Preserves existing HTML structure (so <span class="accent">
+// stays intact and inherits its background-clip color).
+// ============================================
+function splitTitleToLetters(el) {
+    const letters = [];
+    // Collect all text nodes (skip elements like <br>).
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+    const textNodes = [];
+    let node;
+    while ((node = walker.nextNode())) textNodes.push(node);
+
+    textNodes.forEach(textNode => {
+        const text = textNode.textContent;
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < text.length; i++) {
+            const ch = text[i];
+            // Keep spaces, newlines, and tabs as plain text — they
+            // handle word wrapping naturally. Only letters/digits get wrapped.
+            if (ch === ' ' || ch === '\n' || ch === '\t') {
+                frag.appendChild(document.createTextNode(ch));
+            } else {
+                const span = document.createElement('span');
+                span.className = 'title-letter';
+                span.textContent = ch;
+                frag.appendChild(span);
+                letters.push(span);
+            }
+        }
+        textNode.parentNode.replaceChild(frag, textNode);
+    });
+
+    return letters;
+}
+
 // Global state
 let mouseX = 0, mouseY = 0;
 let cursorX = 0, cursorY = 0;
@@ -49,10 +114,95 @@ class Cursor {
         followerX += (this.pos.x - followerX) * 0.1;
         followerY += (this.pos.y - followerY) * 0.1;
 
-        this.follower.style.left = followerX - 4 + 'px';
-        this.follower.style.top = followerY - 4 + 'px';
+        this.follower.style.left = followerX - 18 + 'px';
+        this.follower.style.top = followerY - 18 + 'px';
 
         requestAnimationFrame(() => this.animate());
+    }
+}
+
+
+// ============================================
+// CURSOR TRAIL
+// Spawns a small colored dot at the cursor on every
+// mousemove. Dots fade + shrink over ~550ms creating
+// a comet-like trail that matches the page palette.
+//
+// Skipped on touch devices and when reduced-motion
+// is preferred (it's a decorative effect, not content).
+// ============================================
+
+class CursorTrail {
+    constructor() {
+        this.particles = [];
+        this.maxParticles = 35;       // hard cap to keep DOM small
+        this.spawnInterval = 25;      // ms between spawns (≈40 dots/sec)
+        this.lastSpawn = 0;
+        // Same palette the ParticleSystem uses — keeps the visual language unified.
+        this.palette = ['#7C3AED', '#06B6D4', '#D4FF3A', '#A78BFA', '#67E8F9'];
+
+        // Skip on touch devices and reduced-motion users.
+        if (isTouchDevice || reducedMotion) return;
+
+        this.init();
+    }
+
+    init() {
+        document.addEventListener('mousemove', (e) => {
+            const now = performance.now();
+            // Throttle spawn rate so rapid mouse moves don't flood the DOM.
+            if (now - this.lastSpawn < this.spawnInterval) return;
+            this.lastSpawn = now;
+            this.spawn(e.clientX, e.clientY);
+        });
+
+        // Periodic cleanup of expired particles (avoids setTimeout-per-particle).
+        setInterval(() => this.cleanup(), 1000);
+    }
+
+    spawn(x, y) {
+        const dot = document.createElement('div');
+        dot.className = 'cursor-trail-dot';
+        // Random size 2–5px — variety keeps the trail organic.
+        const size = 2 + Math.random() * 3;
+        const color = this.palette[Math.floor(Math.random() * this.palette.length)];
+
+        // Inline styles for size/position/color — keeps the class itself reusable.
+        dot.style.width = size + 'px';
+        dot.style.height = size + 'px';
+        dot.style.left = x + 'px';
+        dot.style.top = y + 'px';
+        dot.style.background = color;
+        // Soft glow halo — uses the dot's own color.
+        dot.style.boxShadow = `0 0 ${size * 2}px ${color}`;
+
+        document.body.appendChild(dot);
+        this.particles.push({ el: dot, born: performance.now() });
+
+        // Kick the fade on the next frame so the initial state
+        // (opacity 0.85, scale 1) paints before the transition starts.
+        requestAnimationFrame(() => {
+            dot.style.opacity = '0';
+            dot.style.transform = 'translate(-50%, -50%) scale(0.15)';
+        });
+
+        // Enforce max-particles cap by removing the oldest.
+        while (this.particles.length > this.maxParticles) {
+            const old = this.particles.shift();
+            old.el.remove();
+        }
+    }
+
+    cleanup() {
+        const now = performance.now();
+        const ttl = 650;       // matches the CSS transition duration
+        this.particles = this.particles.filter(p => {
+            if (now - p.born > ttl) {
+                p.el.remove();
+                return false;
+            }
+            return true;
+        });
     }
 }
 
@@ -82,32 +232,44 @@ class ParticleSystem {
     }
 
     resize() {
-        this.width = window.innerWidth;
-        this.height = window.innerHeight;
+        this.width = viewportW();
+        this.height = viewportH();
         this.canvas.width = this.width;
         this.canvas.height = this.height;
     }
 
     createParticles() {
+        // Page-matching palette: violet, cyan, lime, plus 2 soft variants
+        // for visual variety. Picks one per particle randomly.
+        const palette = [
+            '#7C3AED',  // violet   — primary accent
+            '#06B6D4',  // cyan     — secondary accent
+            '#D4FF3A',  // lime     — highlight accent
+            '#A78BFA',  // violet-light — softer
+            '#67E8F9',  // cyan-light  — softer
+        ];
+
         this.particles = [];
         for (let i = 0; i < this.particleCount; i++) {
             this.particles.push({
                 x: Math.random() * this.width,
                 y: Math.random() * this.height,
-                size: Math.random() * 2 + 1,
+                // Middle-ground size — between original 1–3px and previous 2–5px.
+                // Now 1.5–4px, each particle picks a random size in this range.
+                size: Math.random() * 2.5 + 1.5,
                 speedX: (Math.random() - 0.5) * 0.5,
                 speedY: (Math.random() - 0.5) * 0.5,
-                color: Math.random() > 0.5 ? '#6366f1' : '#0ea5e9',
-                opacity: Math.random() * 0.5 + 0.2
+                color: palette[Math.floor(Math.random() * palette.length)],
+                opacity: Math.random() * 0.5 + 0.3   // slightly more opaque so colors show
             });
         }
     }
 
     setupEventListeners() {
-        window.addEventListener('resize', () => {
+        window.addEventListener('resize', rafThrottle(() => {
             this.resize();
             this.createParticles();
-        });
+        }), { passive: true });
 
         window.addEventListener('mousemove', (e) => {
             this.mouse.x = e.clientX;
@@ -150,13 +312,13 @@ class ParticleSystem {
                 const p2 = this.particles[j];
                 const d = Math.sqrt((p.x - p2.x) ** 2 + (p.y - p2.y) ** 2);
 
-                if (d < 120) {
+                if (d < 150) {
                     this.ctx.beginPath();
                     this.ctx.moveTo(p.x, p.y);
                     this.ctx.lineTo(p2.x, p2.y);
                     this.ctx.strokeStyle = p.color;
-                    this.ctx.globalAlpha = (1 - d / 120) * 0.2;
-                    this.ctx.lineWidth = 0.5;
+                    this.ctx.globalAlpha = (1 - d / 150) * 0.5;
+                    this.ctx.lineWidth = 0.8;
                     this.ctx.stroke();
                 }
             }
@@ -190,13 +352,13 @@ class FieldLines {
         this.resize();
 
         // Create magnetic nodes
-        const nodeCount = Math.min(5, Math.floor(window.innerWidth / 300));
+        const nodeCount = Math.min(5, Math.floor(viewportW() / 300));
         this.nodes = [];
 
         for (let i = 0; i < nodeCount; i++) {
             this.nodes.push({
-                x: (window.innerWidth / (nodeCount + 1)) * (i + 1),
-                y: window.innerHeight / 2 + (Math.random() - 0.5) * 200,
+                x: (viewportW() / (nodeCount + 1)) * (i + 1),
+                y: viewportH() / 2 + (Math.random() - 0.5) * 200,
                 radius: 50 + Math.random() * 50,
                 phase: Math.random() * Math.PI * 2
             });
@@ -204,14 +366,14 @@ class FieldLines {
     }
 
     resize() {
-        this.width = window.innerWidth;
-        this.height = window.innerHeight;
+        this.width = viewportW();
+        this.height = viewportH();
         this.canvas.width = this.width;
         this.canvas.height = this.height;
     }
 
     setupEventListeners() {
-        window.addEventListener('resize', () => this.init());
+        window.addEventListener('resize', rafThrottle(() => this.init()), { passive: true });
     }
 
     animate() {
@@ -261,56 +423,168 @@ class Animations {
     constructor() {
         if (typeof gsap === 'undefined') return;
 
+        // Respect users who have set "Reduce Motion" in their OS — skip all
+        // scroll-triggered motion. The static layout is still perfectly readable.
+        if (reducedMotion) {
+            gsap.config({ nullTargetWarn: false });
+            return;
+        }
+
         gsap.registerPlugin(ScrollTrigger);
         this.init();
     }
 
     init() {
         this.setupLoader();
+        this.setupLetterReveal();    // split section titles BEFORE other scroll animations
+        this.setupFontWeightScroll(); // weight morph — runs alongside letter reveal
         this.setupScrollAnimations();
         this.setupSkillBars();
         this.setupStatCounters();
         this.setupNavToggle();
     }
 
+    // ============================================
+    // VARIABLE FONT WEIGHT ON SCROLL
+    // Each .section-title morphs from weight 400 (thin)
+    // to 800 (bold) as it scrolls through the viewport.
+    // Subtle, cinematic — users feel the design breathe
+    // without knowing why.
+    //
+    // Uses a CSS custom property --title-wght so GSAP can
+    // interpolate a single number (400 → 800) instead of
+    // animating the font-variation-settings string itself.
+    // ============================================
+    setupFontWeightScroll() {
+        if (typeof gsap === 'undefined' || reducedMotion) return;
+
+        gsap.utils.toArray('.section-title').forEach(title => {
+            gsap.fromTo(title,
+                { '--title-wght': 400 },     // thin when far from center
+                {
+                    '--title-wght': 800,     // bold when in focus
+                    ease: 'none',            // linear — pure scroll-driven
+                    scrollTrigger: {
+                        trigger: title,
+                        // Starts morphing just before the title enters,
+                        // finishes as it crosses the upper third.
+                        start: 'top 95%',
+                        end: 'bottom 30%',
+                        scrub: 0.5            // small lag → organic, not snappy
+                    }
+                }
+            );
+        });
+    }
+
+    // ============================================
+    // LETTER-BY-LETTER REVEAL ON SCROLL
+    // Splits each .section-title into per-character spans,
+    // then animates them in with a violet → cyan → lime color cascade.
+    // ============================================
+    setupLetterReveal() {
+        if (typeof gsap === 'undefined' || reducedMotion) return;
+
+        const titles = document.querySelectorAll('.section-title');
+        if (!titles.length) return;
+
+        titles.forEach(title => {
+            const letters = splitTitleToLetters(title);
+            if (!letters.length) return;
+
+            // Cache each letter's computed color BEFORE the animation runs,
+            // so the cascade can flash a tint and then settle back to
+            // its real color (white for normal, lime/violet for .accent).
+            letters.forEach(letter => {
+                letter.dataset.naturalColor = window.getComputedStyle(letter).color;
+            });
+
+            // Page-matching palette: violet → cyan → lime, repeating.
+            // This is the "color cascade" — each letter briefly takes the
+            // next palette color as it reveals, then settles back.
+            const palette = ['#7C3AED', '#06B6D4', '#D4FF3A'];
+
+            // Hidden + offset down — the start state of the reveal.
+            gsap.set(letters, { opacity: 0, y: 30 });
+
+            ScrollTrigger.create({
+                trigger: title,
+                start: 'top 85%',
+                once: true,
+                onEnter: () => {
+                    letters.forEach((letter, i) => {
+                        const tint = palette[i % palette.length];
+                        const natural = letter.dataset.naturalColor;
+
+                        // Position + opacity reveal — staggered cascade.
+                        gsap.to(letter, {
+                            opacity: 1,
+                            y: 0,
+                            duration: 0.6,
+                            delay: i * 0.022,
+                            ease: 'power3.out'
+                        });
+
+                        // Color flash: current color → tint → natural color.
+                        // Built as a tiny timeline so the tint peaks when
+                        // the letter finishes its rise, then fades back.
+                        gsap.timeline({ delay: i * 0.022 })
+                            .fromTo(letter,
+                                { color: natural },
+                                { color: tint, duration: 0.25, ease: 'power2.out' }
+                            )
+                            .to(letter, {
+                                color: natural,
+                                duration: 0.9,
+                                ease: 'power2.out'
+                            });
+                    });
+                }
+            });
+        });
+    }
+
     setupLoader() {
-        const loader = document.getElementById('loader');
+        const loader = document.getElementById('pageLoader');
         const progress = document.getElementById('loaderProgress');
         if (!loader) return;
 
-        // Simulate loading
+        // Simulate loading — paced so users can appreciate the cinematic reveal.
+        // Total: ~2.6s fill + 700ms hold = ~3.3s before the dramatic exit.
         let width = 0;
         const interval = setInterval(() => {
-            width += Math.random() * 30;
+            width += Math.random() * 10;       // slower fill rate
             if (width >= 100) {
                 width = 100;
                 clearInterval(interval);
 
                 setTimeout(() => {
-                    gsap.to(loader, {
-                        opacity: 0,
-                        duration: 0.6,
-                        onComplete: () => {
-                            loader.classList.add('hidden');
-                            this.triggerHeroAnimations();
-                        }
-                    });
-                }, 300);
+                    // Add .leaving so the CSS .page-loader.leaving .loader-content
+                    // animation (scale 1 → 2.5, blur 0 → 14px) actually fires —
+                    // this is the "Netflix zoom-out" burst.
+                    loader.classList.add('leaving');
+
+                    // After the CSS exit animation completes, hide fully + reveal hero.
+                    setTimeout(() => {
+                        loader.classList.add('hidden');
+                        this.triggerHeroAnimations();
+                    }, 1000);                  // matches loaderExit duration
+                }, 700);                       // hold the filled loader longer
             }
             if (progress) progress.style.width = width + '%';
-        }, 100);
+        }, 180);                               // slower tick rate
     }
 
     triggerHeroAnimations() {
-        const tl = gsap.timeline();
-
-        tl.from('.hero-badge', { opacity: 0, y: 30, duration: 0.8, ease: 'power3.out' })
-          .from('.title-line:nth-child(1)', { opacity: 0, y: 60, duration: 0.8, ease: 'power3.out' }, '-=0.4')
-          .from('.title-line:nth-child(2)', { opacity: 0, y: 60, duration: 0.8, ease: 'power3.out' }, '-=0.6')
-          .from('.title-line:nth-child(3)', { opacity: 0, y: 60, duration: 0.8, ease: 'power3.out' }, '-=0.6')
-          .from('.hero-desc', { opacity: 0, y: 30, duration: 0.8, ease: 'power3.out' }, '-=0.4')
-          .from('.hero-cta', { opacity: 0, y: 30, duration: 0.8, ease: 'power3.out' }, '-=0.4')
-          .from('.scroll-indicator', { opacity: 0, y: 20, duration: 0.6, ease: 'power3.out' }, '-=0.2');
+        // The hero now only contains the .hero-image — animate that as the reveal.
+        // All other targets (.hero-badge, .title-line, .hero-desc, .hero-cta,
+        // .scroll-indicator) were removed when the hero content was stripped.
+        gsap.from('.hero-image', {
+            opacity: 0,
+            y: 40,
+            duration: 0.9,
+            ease: 'power3.out'
+        });
     }
 
     setupScrollAnimations() {
@@ -501,11 +775,11 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
         if (target) {
-            gsap.to(window, {
-                duration: 1.2,
-                scrollTo: { y: target, offsetY: 80 },
-                ease: 'power3.inOut'
-            });
+            // Native smooth scroll — no GSAP ScrollToPlugin dependency required.
+            // CSS html { scroll-behavior: smooth } handles the easing.
+            // offsetY 80 accounts for the fixed nav/status bar at top.
+            const top = target.getBoundingClientRect().top + window.pageYOffset - 80;
+            window.scrollTo({ top, behavior: 'smooth' });
         }
     });
 });
@@ -618,6 +892,7 @@ if (aboutImage) {
 
 document.addEventListener('DOMContentLoaded', () => {
     new Cursor();
+    new CursorTrail();
     new ParticleSystem();
     new FieldLines();
     new Animations();

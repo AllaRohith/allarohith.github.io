@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="rgrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#D4FF3A"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Gradient background plate -->
+  <rect width="100" height="100" rx="20" fill="url(#bg)"/>
+
+  <!-- Slowly rotating dashed ring -->
+  <g transform-origin="50 50">
+    <circle cx="50" cy="50" r="42" stroke="#D4FF3A" stroke-width="1.5"
+            fill="none" stroke-dasharray="5 11" opacity="0.7">
+      <animateTransform attributeName="transform"
+        type="rotate" from="0 50 50" to="360 50 50"
+        dur="8s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Pulsing inner halo (breathes) -->
+  <circle cx="50" cy="50" r="30" fill="#FFFFFF" opacity="0.12">
+    <animate attributeName="r"
+      values="30;36;30" dur="2.4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity"
+      values="0.10;0.22;0.10" dur="2.4s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- R letterform with subtle scale pulse -->
+  <text x="50" y="71" font-family="-apple-system, 'Inter', Arial, sans-serif"
+        font-size="60" font-weight="900" text-anchor="middle"
+        fill="url(#rgrad)">
+    R
+    <animate attributeName="opacity"
+      values="0.92;1;0.92" dur="2.4s" repeatCount="indefinite"/>
+  </text>
+</svg>
