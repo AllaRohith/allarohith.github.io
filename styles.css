@@ -37,10 +37,13 @@
     --gradient-accent: linear-gradient(135deg, var(--lime) 0%, var(--cyan) 100%);
     --gradient-text: linear-gradient(135deg, var(--bone) 0%, var(--cyan) 50%, var(--violet) 100%);
 
-    /* Type */
-    --font-display: 'Syne', sans-serif;
-    --font-body: 'Space Grotesk', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    /* Type
+       Order matters: custom first, then -apple-system (Safari specific
+       fallback), then standard system fonts. This guarantees sensible
+       rendering during the FOIT (flash-of-invisible-text) window on iOS. */
+    --font-display: 'Syne', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: 'Space Grotesk', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
     --font-script: 'museo-script', 'gog2lyt', cursive;
 
     /* Motion */
@@ -54,11 +57,45 @@
     box-sizing: border-box;
 }
 
+/* Safari iOS ships default button styling (gradient, border, padding) that
+   leaks through even with class-based styling. Reset it everywhere. */
+button,
+button[type="button"],
+button[type="submit"],
+button[type="reset"] {
+    -webkit-appearance: none;
+    appearance: none;
+    /* Safari draws a 2px inset border on form elements by default. */
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+
+/* Safari iOS doesn't honor :focus-ring removal on form elements
+   automatically — this ensures keyboard/outline styling is consistent. */
+button:focus { outline: none; }
+button:focus-visible {
+    outline: 2px solid var(--lime, #d4ff3a);
+    outline-offset: 2px;
+}
+
 html {
     scroll-behavior: smooth;
     /* Belt-and-braces: kill horizontal scroll on the root too.
        Some browsers ignore overflow-x:hidden on body and scroll the html element. */
     overflow-x: hidden;
+    /* iOS Safari font rendering — antialiased makes the heavy display fonts
+       (Syne) read crisper. -moz is required for older Firefox. */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Disable iOS Safari "smart" hyphenation / kerning choices that fight the
+       custom letter-spacing on .hero-name. */
+    text-rendering: optimizeLegibility;
+    /* Prevent overscroll "white flash" on iOS Safari when at top/bottom. */
+    overscroll-behavior: none;
 }
 
 body {
@@ -72,6 +109,11 @@ body {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     max-width: 100vw;
+    /* iOS Safari momentum-scroll for any overflowed child containers. */
+    -webkit-overflow-scrolling: touch;
+    /* Kill the gray tap-highlight box that Safari draws on every interactive
+       element. */
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* Hide custom cursor and restore native cursor on touch / coarse-pointer devices */
@@ -105,6 +147,7 @@ body {
        collapsing URL bar doesn't break centering. 100vh is the fallback. */
     display: grid;
     place-items: center;
+    min-height: -webkit-fill-available;
     min-height: 100dvh;
     min-height: 100vh;
     transition: opacity 0.5s ease, visibility 0.5s ease;
@@ -719,6 +762,7 @@ body.hero-ready .hero-image {
 .nav.scrolled {
     background: rgba(7, 7, 10, 0.8);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     padding: 0.75rem 3rem;
 }
 
@@ -807,6 +851,10 @@ body.hero-ready .hero-image {
    HERO — full viewport, single centered cutout
    ======================================== */
 .hero {
+    /* CSS stacking: -webkit-fill-available → 100dvh → 100vh. Safari iOS reads
+       the first one it understands. */
+    min-height: -webkit-fill-available;
+    min-height: 100dvh;
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -1125,6 +1173,8 @@ body.hero-ready .hero-image {
 
 /* Sections */
 .section {
+    min-height: -webkit-fill-available;
+    min-height: 100dvh;
     min-height: 100vh;
     padding: 8rem 3rem;
     position: relative;
@@ -2387,6 +2437,7 @@ button:focus-visible {
         /* dvh = dynamic viewport height — iOS Safari collapses 100vh when the
            URL bar hides, leaving a gap at the bottom of the panel. 100vh
            is the fallback for older browsers. */
+        height: -webkit-fill-available;
         height: 100dvh;
         height: 100vh;
         background: var(--dark);
