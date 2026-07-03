@@ -447,44 +447,10 @@ class Animations {
     init() {
         this.setupLoader();
         this.setupLetterReveal();    // split section titles BEFORE other scroll animations
-        this.setupFontWeightScroll(); // weight morph — runs alongside letter reveal
         this.setupScrollAnimations();
         this.setupSkillBars();
         this.setupStatCounters();
         this.setupNavToggle();
-    }
-
-    // ============================================
-    // VARIABLE FONT WEIGHT ON SCROLL
-    // Each .section-title morphs from weight 400 (thin)
-    // to 800 (bold) as it scrolls through the viewport.
-    // Subtle, cinematic — users feel the design breathe
-    // without knowing why.
-    //
-    // Uses a CSS custom property --title-wght so GSAP can
-    // interpolate a single number (400 → 800) instead of
-    // animating the font-variation-settings string itself.
-    // ============================================
-    setupFontWeightScroll() {
-        if (typeof gsap === 'undefined' || reducedMotion) return;
-
-        gsap.utils.toArray('.section-title').forEach(title => {
-            gsap.fromTo(title,
-                { '--title-wght': 400 },     // thin when far from center
-                {
-                    '--title-wght': 800,     // bold when in focus
-                    ease: 'none',            // linear — pure scroll-driven
-                    scrollTrigger: {
-                        trigger: title,
-                        // Starts morphing just before the title enters,
-                        // finishes as it crosses the upper third.
-                        start: 'top 95%',
-                        end: 'bottom 30%',
-                        scrub: 0.5            // small lag → organic, not snappy
-                    }
-                }
-            );
-        });
     }
 
     // ============================================
