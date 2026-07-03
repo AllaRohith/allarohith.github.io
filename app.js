@@ -30,44 +30,6 @@ const rafThrottle = (fn) => {
     };
 };
 
-// ============================================
-// TEXT → LETTER SPANS
-// Walks every text node inside `el`, wraps each non-whitespace
-// character in a <span class="title-letter">, and returns them.
-// Preserves existing HTML structure (so <span class="accent">
-// stays intact and inherits its background-clip color).
-// ============================================
-function splitTitleToLetters(el) {
-    const letters = [];
-    // Collect all text nodes (skip elements like <br>).
-    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
-    const textNodes = [];
-    let node;
-    while ((node = walker.nextNode())) textNodes.push(node);
-
-    textNodes.forEach(textNode => {
-        const text = textNode.textContent;
-        const frag = document.createDocumentFragment();
-        for (let i = 0; i < text.length; i++) {
-            const ch = text[i];
-            // Keep spaces, newlines, and tabs as plain text — they
-            // handle word wrapping naturally. Only letters/digits get wrapped.
-            if (ch === ' ' || ch === '\n' || ch === '\t') {
-                frag.appendChild(document.createTextNode(ch));
-            } else {
-                const span = document.createElement('span');
-                span.className = 'title-letter';
-                span.textContent = ch;
-                frag.appendChild(span);
-                letters.push(span);
-            }
-        }
-        textNode.parentNode.replaceChild(frag, textNode);
-    });
-
-    return letters;
-}
-
 // Global state
 let mouseX = 0, mouseY = 0;
 let cursorX = 0, cursorY = 0;
@@ -446,7 +408,6 @@ class Animations {
 
     init() {
         this.setupLoader();
-        this.setupLetterReveal();    // split section titles BEFORE other scroll animations
         this.setupScrollAnimations();
         this.setupSkillBars();
         this.setupStatCounters();
@@ -454,72 +415,8 @@ class Animations {
     }
 
     // ============================================
-    // LETTER-BY-LETTER REVEAL ON SCROLL
-    // Splits each .section-title into per-character spans,
-    // then animates them in with a violet → cyan → lime color cascade.
+    // LOADER + REST BELOW
     // ============================================
-    setupLetterReveal() {
-        if (typeof gsap === 'undefined' || reducedMotion) return;
-
-        const titles = document.querySelectorAll('.section-title');
-        if (!titles.length) return;
-
-        titles.forEach(title => {
-            const letters = splitTitleToLetters(title);
-            if (!letters.length) return;
-
-            // Cache each letter's computed color BEFORE the animation runs,
-            // so the cascade can flash a tint and then settle back to
-            // its real color (white for normal, lime/violet for .accent).
-            letters.forEach(letter => {
-                letter.dataset.naturalColor = window.getComputedStyle(letter).color;
-            });
-
-            // Page-matching palette: violet → cyan → lime, repeating.
-            // This is the "color cascade" — each letter briefly takes the
-            // next palette color as it reveals, then settles back.
-            const palette = ['#7C3AED', '#06B6D4', '#D4FF3A'];
-
-            // Hidden + offset down — the start state of the reveal.
-            gsap.set(letters, { opacity: 0, y: 30 });
-
-            ScrollTrigger.create({
-                trigger: title,
-                start: 'top 85%',
-                once: true,
-                onEnter: () => {
-                    letters.forEach((letter, i) => {
-                        const tint = palette[i % palette.length];
-                        const natural = letter.dataset.naturalColor;
-
-                        // Position + opacity reveal — staggered cascade.
-                        gsap.to(letter, {
-                            opacity: 1,
-                            y: 0,
-                            duration: 0.6,
-                            delay: i * 0.022,
-                            ease: 'power3.out'
-                        });
-
-                        // Color flash: current color → tint → natural color.
-                        // Built as a tiny timeline so the tint peaks when
-                        // the letter finishes its rise, then fades back.
-                        gsap.timeline({ delay: i * 0.022 })
-                            .fromTo(letter,
-                                { color: natural },
-                                { color: tint, duration: 0.25, ease: 'power2.out' }
-                            )
-                            .to(letter, {
-                                color: natural,
-                                duration: 0.9,
-                                ease: 'power2.out'
-                            });
-                    });
-                }
-            });
-        });
-    }
-
     setupLoader() {
         const loader = document.getElementById('pageLoader');
         const progress = document.getElementById('loaderProgress');

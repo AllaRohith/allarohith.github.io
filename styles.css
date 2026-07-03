@@ -1228,18 +1228,6 @@ html, body, main, .hero, .section, .container {
     -webkit-text-fill-color: transparent;
 }
 
-/* Per-letter span injected by JS for the scroll reveal.
-   inline-block lets each letter animate independently,
-   but text nodes for spaces stay un-wrapped so words still
-   break naturally at the right places (no mid-word wraps). */
-.section-title .title-letter {
-    display: inline-block;
-    /* Slight line-height buffer so the rise-up animation doesn't clip descenders. */
-    line-height: 1.2;
-    /* Will-change speeds up the GPU compositing during reveal. */
-    will-change: transform, opacity, color;
-}
-
 /* About Section */
 .about-grid {
     display: grid;
