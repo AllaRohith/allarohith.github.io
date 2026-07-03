@@ -183,15 +183,23 @@ body {
 }
 
 /* "Portfolio" tag — drops in just under the word */
+/* "PORTFOLIO" tag — drops in just under the word.
+   Was letter-spacing 0.65em + opacity 0.55 + font-size 14px, which
+   spread the 9 letters across ~925px and read as scattered dots
+   rather than a tag. Tightened to 0.32em and bumped opacity + size
+   so the word reads cleanly as a single label. */
 .loader-tag {
     font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: rgba(245, 244, 238, 0.85);
     margin: 2.75rem 0 0;
     text-transform: uppercase;
-    letter-spacing: 0.65em;
-    /* Optical alignment for wide letter-spacing */
-    padding-left: 0.65em;
+    letter-spacing: 0.32em;
+    /* Optical alignment for the wide letter-spacing */
+    padding-left: 0.32em;
+    /* Block-level centers reliably across all browsers */
+    display: inline-block;
     opacity: 0;
     animation: loaderTagFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
 }
@@ -1058,7 +1066,9 @@ body.hero-ready .hero-image {
     }
     .loader-tag {
         margin-top: 1.5rem;
-        font-size: 0.75rem;
+        font-size: 0.8rem;
+        letter-spacing: 0.28em;
+        padding-left: 0.28em;
     }
 }
 
@@ -1068,7 +1078,9 @@ body.hero-ready .hero-image {
         padding: 0.5rem 0;
     }
     .loader-tag {
-        font-size: 0.65rem;
+        font-size: 0.7rem;
+        letter-spacing: 0.24em;
+        padding-left: 0.24em;
         margin-top: 1.25rem;
     }
 }
