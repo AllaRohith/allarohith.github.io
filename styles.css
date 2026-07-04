@@ -91,8 +91,6 @@ html {
        (Syne) read crisper. -moz is required for older Firefox. */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Disable iOS Safari "smart" hyphenation / kerning choices that fight the
-       custom letter-spacing on .hero-name. */
     text-rendering: optimizeLegibility;
     /* Prevent overscroll "white flash" on iOS Safari when at top/bottom. */
     overscroll-behavior: none;
@@ -840,104 +838,6 @@ body.hero-ready .hero-image {
     z-index: 1;
 }
 
-/* ========================================
-   HERO NAME BACKDROP — massive stylish heading
-   that sits BEHIND the image cutout. Syne is
-   already loaded via Google Fonts (display face).
-   Uses clamp() + responsive wrapping to fit
-   every aspect ratio without overflow.
-   ======================================== */
-.hero-name {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
-    font-family: var(--font-display);   /* unified with the rest of the page */
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    line-height: 0.9;
-    text-align: center;
-    text-transform: uppercase;
-
-    /* clamp() ensures it never gets too small to read or too large to overflow.
-       - Min 48px (smallest readable size)
-       - Preferred 13vw (scales with viewport)
-       - Max 220px (caps dramatic size on huge screens) */
-    font-size: clamp(48px, 13vw, 220px);
-
-    /* Subtle violet-tinted white fill — image stays the focal point */
-    color: rgba(255, 255, 255, 0.07);
-
-    /* Outline effect: thin gradient-tinted stroke for definition without brightness.
-       -webkit-text-stroke is the cross-browser way to add text outline. */
-    -webkit-text-stroke: 0.75px rgba(124, 58, 237, 0.45);
-
-    /* Soft outer glow using text-shadow — gives the letters a gentle aura
-       that matches the page's violet→cyan palette. */
-    text-shadow:
-        0 0 20px rgba(124, 58, 237, 0.18),
-        0 0 40px rgba(6, 182, 212, 0.10);
-
-    /* Behind the image */
-    z-index: 0;
-    pointer-events: none;
-    user-select: none;
-
-    /* Width forces natural wrap on narrow viewports without overflow.
-       max-width caps it on ultra-wide so text doesn't span 5000px. */
-    width: 92%;
-    max-width: 1600px;
-    margin: 0;
-}
-
-/* Mobile — slightly smaller, tighter line-height, allow wrap */
-@media (max-width: 860px) {
-    .hero-name {
-        font-size: clamp(38px, 12.5vw, 100px);
-        line-height: 1.05;
-        width: 92%;
-        /* Reduce stroke on touch — pixel-thin strokes disappear on screens */
-        -webkit-text-stroke: 0.4px rgba(124, 58, 237, 0.35);
-    }
-}
-
-/* Very small phones — even tighter. Critical for 320–360px devices where the
-   full name previously overflowed the viewport. Lower bound holds at 28px
-   so it never crowds the page. */
-@media (max-width: 480px) {
-    .hero-name {
-        font-size: clamp(28px, 10.5vw, 64px);
-        line-height: 1.08;
-        width: 94%;
-        letter-spacing: -1px;
-        -webkit-text-stroke: 0.3px rgba(124, 58, 237, 0.3);
-    }
-}
-
-@media (max-width: 380px) {
-    .hero-name {
-        font-size: clamp(26px, 9.5vw, 56px);
-        width: 96%;
-        -webkit-text-stroke: 0.3px rgba(124, 58, 237, 0.3);
-    }
-}
-
-@media (max-width: 320px) {
-    .hero-name {
-        font-size: clamp(22px, 9vw, 48px);
-        width: 100%;
-        letter-spacing: -0.5px;
-    }
-}
-
-/* Landscape phones — accommodate the wide-but-short viewport */
-@media (max-height: 500px) and (orientation: landscape) {
-    .hero-name {
-        font-size: clamp(32px, 8vw, 80px);
-        line-height: 1;
-    }
-}
 
 /* ========================================
    PROFILE IMAGE — floating cutout, centered.
@@ -952,7 +852,7 @@ body.hero-ready .hero-image {
     aspect-ratio: 2 / 3;              /* original portrait cutout ratio (600×903) */
     align-self: center;               /* explicit vertical anchor */
     margin-top: 13vh;                 /* push down from center */
-    z-index: 1;                       /* sits above the hero-name backdrop */
+    z-index: 1;                       /* sits above the page background */
     will-change: transform;
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
 }
