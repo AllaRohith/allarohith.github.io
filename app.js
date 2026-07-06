@@ -36,82 +36,316 @@ let cursorX = 0, cursorY = 0;
 let followerX = 0, followerY = 0;
 
 // ============================================
-// SPLINE SCENE — interactive 3D background in the hero.
-// The Spline runtime is an ES module on jsdelivr, so we dynamic-
-// import it the first time SplineScene runs. If the import fails
-// (offline, CSP block, bad version) we log a warning and leave
-// the hero as a flat portrait — no broken state.
-const SPLINE_RUNTIME_URL =
-    'https://cdn.jsdelivr.net/npm/@splinetool/runtime@1.12.98/build/runtime.js';
+// PAGE-WIDE 3D BACKGROUND
+// Custom Three.js particle field pinned to the viewport. Sits behind
+// every section (z-index 0). Built in-house rather than loading a
+// .splinecode file because the exported Spline scene's text mesh
+// was rendering as raw geometry strokes (its Urbanist font wasn't
+// loading through the runtime) and its particles were too dim to
+// register — the result looked like static, not design. This is the
+// same idea — ambient 3D depth behind the content — done with full
+// control over geometry, color, and performance.
+//
+// Three.js is loaded once at startup as an ES module from jsdelivr.
+// If the import fails (offline, CSP, version drift) the page falls
+// back to the flat dark background silently.
+const THREE_MODULE_URL =
+    'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
-class SplineScene {
+// Site accent colors, sampled from styles.css CSS variables. The
+// field is mostly bone-white so it doesn't fight the content, with
+// occasional lime + cyan particles for visual life.
+const PARTICLE_COLORS = {
+    bone:  [0.96, 0.96, 0.93],
+    lime:  [0.83, 1.00, 0.23],   // --lime #D4FF3A
+    cyan:  [0.02, 0.71, 0.83],   // --cyan #06B6D4
+};
+
+class Background3D {
     constructor() {
         this.container = document.getElementById('heroScene');
         this.canvas = document.getElementById('heroSceneCanvas');
         if (!this.container || !this.canvas) return;
+
+        // Smoothed mouse position (normalized -1..+1). Drives the
+        // camera offset for the parallax effect.
+        this.target = { x: 0, y: 0 };
+        this.current = { x: 0, y: 0 };
+        // Pause the rAF loop when the tab is hidden — there's no point
+        // burning GPU cycles for a background the user can't see.
+        this.paused = document.hidden;
+        document.addEventListener('visibilitychange', () => {
+            this.paused = document.hidden;
+        });
+
         this.init();
     }
 
     async init() {
         try {
-            const { Application } = await import(SPLINE_RUNTIME_URL);
-            this.app = new Application(this.canvas);
-            // Expose for debugging in DevTools
-            window.__splineApp = this.app;
-            await this.app.load('/assets/scenes/scene.splinecode');
-
-            // The exported .splinecode from the user has its camera parked
-            // ~1000 units away from the content (camera pos ~(1058, 113, 80),
-            // content at ~(1.68, -199, 183)). The scene "loads" but renders
-            // as a few pixels. Pull the camera in close enough that the Text
-            // mesh + Particles fill the hero.
-            this.frameScene();
-
+            const THREE = await import(THREE_MODULE_URL);
+            this.THREE = THREE;
+            this.setup();
+            // Expose for DevTools poking
+            window.__bg3d = this;
             this.container.classList.add('is-ready');
-            this.handleResize();
             window.addEventListener('resize', () => this.handleResize());
+            window.addEventListener('mousemove', (e) => this.onMouseMove(e));
+            this.animate();
         } catch (err) {
-            // Runtime fetch failed, scene file missing, parse error — fall back
-            // to the flat hero. Canvas stays in the DOM but at opacity 0.
-            console.warn('Spline scene failed to load:', err);
+            // Network failure, CSP, version gone — page is fine, the
+            // background is just empty. The canvas stays in the DOM
+            // at opacity 0.
+            console.warn('Background3D failed to load:', err);
         }
     }
 
-    frameScene() {
-        // The Spline runtime doesn't expose THREE on the app/window, so we
-        // can't import { Box3, Vector3 }. We work with raw numbers + the
-        // Three.js Vector3-like on the camera.
-        const camera = this.app._camera;
-        const root = this.app._scene;
-        if (!camera || !root) return;
+    onMouseMove(e) {
+        this.target.x = (e.clientX / window.innerWidth) * 2 - 1;
+        this.target.y = -((e.clientY / window.innerHeight) * 2 - 1);
+    }
 
-        // Content lives around (1.68, -199, 183). Center the camera on it
-        // and use the camera's `zoom` property to scale everything up
-        // (zoom multiplies the projection matrix, so it's the reliable
-        // way to make a small scene appear larger — modifying the scene's
-        // scale didn't propagate to descendant world matrices in this
-        // runtime version).
-        const FOCAL_X = 1.68;
-        const FOCAL_Y = -199.27;
-        const FOCAL_Z = 183.69;
+    setup() {
+        const THREE = this.THREE;
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const isMobile = w < 768;
+        // DPR clamp: full pixel ratio on retina is 2-3x the fragment work
+        // for almost no visible benefit on a soft particle field. Cap at
+        // 1.5 on desktop, 1 on mobile.
+        const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 1.5);
 
-        camera.position.set(FOCAL_X, FOCAL_Y, FOCAL_Z + 220);
-        if (typeof camera.lookAt === 'function') camera.lookAt(FOCAL_X, FOCAL_Y, FOCAL_Z);
-        // zoom > 1 magnifies; 5x makes the small scene content fill the
-        // page around the portrait. updateProjectionMatrix is required
-        // after changing zoom.
-        camera.zoom = 5;
-        if (camera.updateProjectionMatrix) camera.updateProjectionMatrix();
+        // Renderer — transparent so the body background shows through.
+        // antialias: false because the particles are circular gradients
+        // (no edges to alias) and AA costs frame time.
+        this.renderer = new THREE.WebGLRenderer({
+            canvas: this.canvas,
+            alpha: true,
+            antialias: false,
+            powerPreference: 'high-performance',
+        });
+        this.renderer.setPixelRatio(dpr);
+        // Third arg false = don't touch the canvas's CSS size. The
+        // stylesheet already sets it to 100vw/100vh.
+        this.renderer.setSize(w, h, false);
+        this.renderer.setClearColor(0x000000, 0);
 
-        console.log(`[Spline] framed at focal (${FOCAL_X},${FOCAL_Y},${FOCAL_Z}), zoom=5`);
+        this.scene = new THREE.Scene();
+
+        this.camera = new THREE.PerspectiveCamera(60, w / h, 1, 3000);
+        this.camera.position.z = 500;
+
+        this.buildParticles(isMobile);
+        this.buildAccentOrbs(isMobile);
+
+        this.clock = new THREE.Clock();
+    }
+
+    buildParticles(isMobile) {
+        const THREE = this.THREE;
+        // 800 on phones, 1800 on desktop. The whole field is one Points
+        // object = one draw call, so the GPU cost is mostly fragment
+        // shader work, which is cheap for a disc.
+        const count = isMobile ? 800 : 1800;
+
+        const positions = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
+        const sizes = new Float32Array(count);
+
+        for (let i = 0; i < count; i++) {
+            // Distribute in a box that covers the viewport at the
+            // camera's z=500. Width/height match the visible area with
+            // margin; depth is varied for parallax.
+            positions[i * 3 + 0] = (Math.random() - 0.5) * 1400;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 900;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 900;
+
+            // Color mix: 78% bone (background filler), 11% lime, 11% cyan
+            // (accent sparks). Brightness randomized so particles don't
+            // all look identical.
+            const r = Math.random();
+            const palette = r < 0.78 ? PARTICLE_COLORS.bone
+                         : r < 0.895 ? PARTICLE_COLORS.lime
+                         : PARTICLE_COLORS.cyan;
+            const brightness = 0.4 + Math.random() * 0.6;
+            colors[i * 3 + 0] = palette[0] * brightness;
+            colors[i * 3 + 1] = palette[1] * brightness;
+            colors[i * 3 + 2] = palette[2] * brightness;
+
+            // Size distribution: 70% "small" background dots (1.0-2.2),
+            // 30% larger foreground dots (2.5-4.5). The mix gives
+            // depth — most particles read as fine grain, a few pop.
+            sizes[i] = Math.random() < 0.7
+                ? 1.0 + Math.random() * 1.2
+                : 2.5 + Math.random() * 2.0;
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        // Custom shader: each particle is a soft circular gradient that
+        // fades by distance from the camera. The vertex shader handles
+        // per-particle drift, the fragment shader handles the disc shape.
+        const vertexShader = /* glsl */ `
+            attribute float size;
+            attribute vec3 color;
+            varying vec3 vColor;
+            varying float vAlpha;
+            uniform float uTime;
+            void main() {
+                vec3 pos = position;
+                // Slow vertical drift, phase-offset by x so the field
+                // doesn't move as one block.
+                pos.y += sin(uTime * 0.4 + position.x * 0.01) * 8.0;
+                pos.x += cos(uTime * 0.3 + position.y * 0.008) * 6.0;
+
+                vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+                // Perspective scaling: closer = larger. Constant tuned so
+                // a size=1 particle near the focal plane reads ~2-3px on
+                // screen. The previous 220 was way too small — the field
+                // looked like dust.
+                gl_PointSize = size * (1200.0 / -mv.z);
+                gl_Position = projectionMatrix * mv;
+
+                // Fade with distance so far particles don't crowd the
+                // view, and very near particles don't become huge blobs.
+                vAlpha = clamp(1.0 - (-mv.z - 150.0) / 1200.0, 0.0, 1.0);
+                vColor = color;
+            }
+        `;
+        const fragmentShader = /* glsl */ `
+            varying vec3 vColor;
+            varying float vAlpha;
+            void main() {
+                // Circular point sprite: distance from center, smooth
+                // falloff to zero at the disc edge.
+                vec2 c = gl_PointCoord - vec2(0.5);
+                float d = length(c);
+                if (d > 0.5) discard;
+                // Brighter core, soft edge falloff. Max alpha 0.95 so
+                // the brightest particles are nearly opaque — the
+                // field reads as solid specks, not ghosts.
+                float a = pow(smoothstep(0.5, 0.0, d), 1.5) * 0.95 * vAlpha;
+                gl_FragColor = vec4(vColor, a);
+            }
+        `;
+
+        const material = new THREE.ShaderMaterial({
+            uniforms: { uTime: { value: 0 } },
+            vertexShader,
+            fragmentShader,
+            transparent: true,
+            depthWrite: false,
+            // NormalBlending (not Additive) so overlapping particles don't
+            // blow out to white. Additive would look "energy field"-y but
+            // competes with the page text.
+            blending: THREE.NormalBlending,
+        });
+
+        this.particles = new THREE.Points(geometry, material);
+        this.scene.add(this.particles);
+    }
+
+    buildAccentOrbs(isMobile) {
+        const THREE = this.THREE;
+        // A handful of larger glowing dots that drift slowly. These give
+        // the eye anchor points in the field so the page doesn't look
+        // like static. Each orb is a small sphere + a soft sprite for
+        // a glow halo, both controlled together.
+        const orbCount = isMobile ? 3 : 6;
+        const orbs = [];
+        for (let i = 0; i < orbCount; i++) {
+            const isLime = i % 2 === 0;
+            const color = isLime ? 0xD4FF3A : 0x06B6D4;
+            // Core sphere — small, bright
+            const coreGeo = new THREE.SphereGeometry(2.5, 16, 16);
+            const coreMat = new THREE.MeshBasicMaterial({
+                color,
+                transparent: true,
+                opacity: 0.85,
+            });
+            const core = new THREE.Mesh(coreGeo, coreMat);
+
+            // Halo — a larger transparent sphere around the core that
+            // reads as a soft glow. Cheap because it's just one extra
+            // sphere with low opacity.
+            const haloGeo = new THREE.SphereGeometry(7, 16, 16);
+            const haloMat = new THREE.MeshBasicMaterial({
+                color,
+                transparent: true,
+                opacity: 0.18,
+                depthWrite: false,
+            });
+            const halo = new THREE.Mesh(haloGeo, haloMat);
+            halo.add(core);
+
+            halo.position.set(
+                (Math.random() - 0.5) * 1100,
+                (Math.random() - 0.5) * 500,
+                (Math.random() - 0.5) * 500,
+            );
+            halo.userData.driftX = (Math.random() - 0.5) * 0.4;
+            halo.userData.driftY = (Math.random() - 0.5) * 0.3;
+            halo.userData.phase = Math.random() * Math.PI * 2;
+            halo.userData.baseY = halo.position.y;
+            this.scene.add(halo);
+            orbs.push(halo);
+        }
+        this.orbs = orbs;
     }
 
     handleResize() {
-        // Spline runtime sizes its canvas via the WebGL viewport. We pass
-        // the viewport size so the scene fills the full window.
-        if (this.app) {
-            this.app.setSize(window.innerWidth, window.innerHeight);
+        if (!this.camera || !this.renderer) return;
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        this.camera.aspect = w / h;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(w, h, false);
+    }
+
+    animate() {
+        // rAF runs every frame regardless of pause, so the resume is
+        // instant when the tab becomes visible again. The actual work
+        // is gated on `this.paused`.
+        requestAnimationFrame(() => this.animate());
+        if (this.paused) return;
+        if (!this.renderer) return;
+
+        const t = this.clock.getElapsedTime();
+
+        // Critically-damped mouse follow. 0.05 is the lerp factor — lower
+        // = snappier, higher = more sluggish. 0.05 reads as "responsive
+        // but smooth."
+        this.current.x += (this.target.x - this.current.x) * 0.05;
+        this.current.y += (this.target.y - this.current.y) * 0.05;
+
+        // Camera offset. Range: ±40 horizontal, ±25 vertical. Big enough
+        // to feel, small enough to never make the field look unmoored.
+        this.camera.position.x = this.current.x * 40;
+        this.camera.position.y = this.current.y * 25;
+        this.camera.lookAt(0, 0, 0);
+
+        // Whole-field rotation: glacial, so it never looks like a
+        // screensaver.
+        this.particles.rotation.y += 0.00012;
+        this.particles.rotation.x += 0.00004;
+
+        // Drift the orbs vertically with a slow sine wave. Each orb's
+        // phase is different so they don't all bob in lockstep.
+        for (const orb of this.orbs) {
+            orb.position.y = orb.userData.baseY
+                + Math.sin(t * 0.25 + orb.userData.phase) * 30;
+            orb.position.x += orb.userData.driftX;
+            orb.position.y += orb.userData.driftY;
+            // Wrap horizontally so the orbs never drift off forever.
+            if (orb.position.x > 800) orb.position.x = -800;
+            if (orb.position.x < -800) orb.position.x = 800;
         }
+
+        this.particles.material.uniforms.uTime.value = t;
+        this.renderer.render(this.scene, this.camera);
     }
 }
 
@@ -567,7 +801,7 @@ function revealContactEmail() {
 document.addEventListener('DOMContentLoaded', () => {
     new Cursor();
     new Animations();
-    new SplineScene();
+    new Background3D();
 
     // Decode obfuscated contact email (must run before users
     // can click it — placed last so all other inits happen first).

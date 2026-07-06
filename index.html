@@ -163,11 +163,12 @@
 
     <main id="main">
 
-    <!-- Full-page 3D Spline background. Pinned to the viewport, sits behind
+    <!-- Page-wide 3D background. Pinned to the viewport, sits behind
          every section (z-index 0). Section content (z-index 1+) reads in
          front; the canvas is transparent in empty space so the body bg
          shows through.
-         Scene file: /assets/scenes/scene.splinecode -->
+         Scene is built in app.js (Background3D class) — a custom Three.js
+         particle field with accent orbs and mouse parallax. -->
     <div class="hero-scene" id="heroScene" aria-hidden="true">
         <canvas id="heroSceneCanvas"></canvas>
     </div>
