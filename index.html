@@ -27,11 +27,11 @@
          ============================================ -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
         font-src 'self' https://fonts.gstatic.com;
         img-src 'self' data: blob:;
-        connect-src 'self';
+        connect-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com;
         frame-src 'none';
         object-src 'none';
         base-uri 'self';
@@ -163,8 +163,14 @@
 
     <main id="main">
 
-    <!-- Hero Section — centered profile cutout -->
+    <!-- Hero Section — centered profile cutout with interactive 3D scene behind -->
     <section class="hero" id="home">
+
+        <!-- Interactive 3D Spline scene, full-bleed behind the portrait.
+             Scene file: /assets/scenes/scene.splinecode (downloaded from spline.design). -->
+        <div class="hero-scene" id="heroScene" aria-hidden="true">
+            <canvas id="heroSceneCanvas"></canvas>
+        </div>
 
         <div class="hero-image" data-parallax>
             <!-- Image itself (transparent-bg cutout: WebP → PNG fallback) -->
@@ -737,6 +743,8 @@
             integrity="sha384-poC0r6usQOX2Ayt/VGA+t81H6V3iN9L+Irz9iO8o+s0X20tLpzc9DOOtnKxhaQSE"
             crossorigin="anonymous"
             referrerpolicy="no-referrer"></script>
+    <!-- app.js dynamically imports the Spline runtime (ES module)
+         via jsdelivr when initializing the hero scene. -->
     <script src="app.js"></script>
 </body>
 </html>

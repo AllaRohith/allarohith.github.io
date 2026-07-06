@@ -836,6 +836,54 @@ body.hero-ready .hero-image {
     padding: 6rem 1.5rem 3rem;
     position: relative;
     z-index: 1;
+    overflow: hidden;                 /* clip the Spline scene at hero edges */
+}
+
+/* ========================================
+   HERO SCENE — interactive 3D Spline canvas
+   pinned to the full hero area, sitting
+   behind the portrait cutout (z-index 0 vs
+   .hero-image z-index 1). Pointer events
+   stay enabled so users can drag the scene
+   in the empty space around the portrait;
+   the portrait itself blocks the scene
+   underneath it.
+   ======================================== */
+.hero-scene {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: auto;
+    opacity: 0;                       /* hidden until the runtime finishes loading */
+    transition: opacity 0.8s ease;
+}
+.hero-scene.is-ready {
+    opacity: 1;
+}
+.hero-scene canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Subtle dimmer over the scene so the portrait reads against it */
+.hero-scene::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 0%,
+        transparent 45%,
+        rgba(10, 10, 20, 0.45) 100%
+    );
+    pointer-events: none;
+}
+
+/* Reduced-motion: still show scene, but make it non-interactive so it
+   can't trap focus or follow the cursor. */
+@media (prefers-reduced-motion: reduce) {
+    .hero-scene { pointer-events: none; }
 }
 
 

@@ -36,6 +36,48 @@ let cursorX = 0, cursorY = 0;
 let followerX = 0, followerY = 0;
 
 // ============================================
+// SPLINE SCENE — interactive 3D background in the hero.
+// The Spline runtime is an ES module on jsdelivr, so we dynamic-
+// import it the first time SplineScene runs. If the import fails
+// (offline, CSP block, bad version) we log a warning and leave
+// the hero as a flat portrait — no broken state.
+const SPLINE_RUNTIME_URL =
+    'https://cdn.jsdelivr.net/npm/@splinetool/runtime@1.12.98/build/runtime.js';
+
+class SplineScene {
+    constructor() {
+        this.container = document.getElementById('heroScene');
+        this.canvas = document.getElementById('heroSceneCanvas');
+        if (!this.container || !this.canvas) return;
+        this.init();
+    }
+
+    async init() {
+        try {
+            const { Application } = await import(SPLINE_RUNTIME_URL);
+            this.app = new Application(this.canvas);
+            await this.app.load('/assets/scenes/scene.splinecode');
+            this.container.classList.add('is-ready');
+            this.handleResize();
+            window.addEventListener('resize', () => this.handleResize());
+        } catch (err) {
+            // Runtime fetch failed, scene file missing, parse error — fall back
+            // to the flat hero. Canvas stays in the DOM but at opacity 0.
+            console.warn('Spline scene failed to load:', err);
+        }
+    }
+
+    handleResize() {
+        // Spline runtime sizes its canvas via the WebGL viewport. We pass
+        // the container's pixel size so the scene fills it crisply.
+        const rect = this.container.getBoundingClientRect();
+        if (this.app && rect.width && rect.height) {
+            this.app.setSize(rect.width, rect.height);
+        }
+    }
+}
+
+// ============================================
 // CURSOR
 // ============================================
 
@@ -487,6 +529,7 @@ function revealContactEmail() {
 document.addEventListener('DOMContentLoaded', () => {
     new Cursor();
     new Animations();
+    new SplineScene();
 
     // Decode obfuscated contact email (must run before users
     // can click it — placed last so all other inits happen first).
