@@ -56,7 +56,17 @@ class SplineScene {
         try {
             const { Application } = await import(SPLINE_RUNTIME_URL);
             this.app = new Application(this.canvas);
+            // Expose for debugging in DevTools
+            window.__splineApp = this.app;
             await this.app.load('/assets/scenes/scene.splinecode');
+
+            // The exported .splinecode from the user has its camera parked
+            // ~1000 units away from the content (camera pos ~(1058, 113, 80),
+            // content at ~(1.68, -199, 183)). The scene "loads" but renders
+            // as a few pixels. Pull the camera in close enough that the Text
+            // mesh + Particles fill the hero.
+            this.frameScene();
+
             this.container.classList.add('is-ready');
             this.handleResize();
             window.addEventListener('resize', () => this.handleResize());
@@ -67,12 +77,40 @@ class SplineScene {
         }
     }
 
+    frameScene() {
+        // The Spline runtime doesn't expose THREE on the app/window, so we
+        // can't import { Box3, Vector3 }. We work with raw numbers + the
+        // Three.js Vector3-like on the camera.
+        const camera = this.app._camera;
+        const root = this.app._scene;
+        if (!camera || !root) return;
+
+        // Content lives around (1.68, -199, 183). Center the camera on it
+        // and use the camera's `zoom` property to scale everything up
+        // (zoom multiplies the projection matrix, so it's the reliable
+        // way to make a small scene appear larger — modifying the scene's
+        // scale didn't propagate to descendant world matrices in this
+        // runtime version).
+        const FOCAL_X = 1.68;
+        const FOCAL_Y = -199.27;
+        const FOCAL_Z = 183.69;
+
+        camera.position.set(FOCAL_X, FOCAL_Y, FOCAL_Z + 220);
+        if (typeof camera.lookAt === 'function') camera.lookAt(FOCAL_X, FOCAL_Y, FOCAL_Z);
+        // zoom > 1 magnifies; 5x makes the small scene content fill the
+        // page around the portrait. updateProjectionMatrix is required
+        // after changing zoom.
+        camera.zoom = 5;
+        if (camera.updateProjectionMatrix) camera.updateProjectionMatrix();
+
+        console.log(`[Spline] framed at focal (${FOCAL_X},${FOCAL_Y},${FOCAL_Z}), zoom=5`);
+    }
+
     handleResize() {
         // Spline runtime sizes its canvas via the WebGL viewport. We pass
-        // the container's pixel size so the scene fills it crisply.
-        const rect = this.container.getBoundingClientRect();
-        if (this.app && rect.width && rect.height) {
-            this.app.setSize(rect.width, rect.height);
+        // the viewport size so the scene fills the full window.
+        if (this.app) {
+            this.app.setSize(window.innerWidth, window.innerHeight);
         }
     }
 }

@@ -841,17 +841,21 @@ body.hero-ready .hero-image {
 
 /* ========================================
    HERO SCENE — interactive 3D Spline canvas
-   pinned to the full hero area, sitting
-   behind the portrait cutout (z-index 0 vs
-   .hero-image z-index 1). Pointer events
-   stay enabled so users can drag the scene
-   in the empty space around the portrait;
-   the portrait itself blocks the scene
-   underneath it.
+   pinned to the FULL VIEWPORT (fixed, full-bleed)
+   so it acts as a page-wide background.
+   z-index 0 keeps it behind every section
+   (.section, nav, etc. are z-index 1+). Pointer
+   events stay enabled so users can drag the
+   scene in the empty page area; clicks on
+   actual content land on the content because
+   content sits at a higher stacking level.
    ======================================== */
 .hero-scene {
-    position: absolute;
-    inset: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     z-index: 0;
     pointer-events: auto;
     opacity: 0;                       /* hidden until the runtime finishes loading */
@@ -862,22 +866,8 @@ body.hero-ready .hero-image {
 }
 .hero-scene canvas {
     display: block;
-    width: 100% !important;
-    height: 100% !important;
-}
-
-/* Subtle dimmer over the scene so the portrait reads against it */
-.hero-scene::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-        ellipse at center,
-        transparent 0%,
-        transparent 45%,
-        rgba(10, 10, 20, 0.45) 100%
-    );
-    pointer-events: none;
+    width: 100vw !important;
+    height: 100vh !important;
 }
 
 /* Reduced-motion: still show scene, but make it non-interactive so it

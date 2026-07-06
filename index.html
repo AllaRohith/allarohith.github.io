@@ -163,14 +163,18 @@
 
     <main id="main">
 
-    <!-- Hero Section — centered profile cutout with interactive 3D scene behind -->
-    <section class="hero" id="home">
+    <!-- Full-page 3D Spline background. Pinned to the viewport, sits behind
+         every section (z-index 0). Section content (z-index 1+) reads in
+         front; the canvas is transparent in empty space so the body bg
+         shows through.
+         Scene file: /assets/scenes/scene.splinecode -->
+    <div class="hero-scene" id="heroScene" aria-hidden="true">
+        <canvas id="heroSceneCanvas"></canvas>
+    </div>
 
-        <!-- Interactive 3D Spline scene, full-bleed behind the portrait.
-             Scene file: /assets/scenes/scene.splinecode (downloaded from spline.design). -->
-        <div class="hero-scene" id="heroScene" aria-hidden="true">
-            <canvas id="heroSceneCanvas"></canvas>
-        </div>
+    <!-- Hero Section — centered profile cutout (the scene is now page-wide,
+         not just inside this section). -->
+    <section class="hero" id="home">
 
         <div class="hero-image" data-parallax>
             <!-- Image itself (transparent-bg cutout: WebP → PNG fallback) -->
