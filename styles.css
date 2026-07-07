@@ -1188,24 +1188,20 @@ body.hero-ready .hero-image {
     position: relative;
     width: 100%;
     /* Big centerpiece, but constrained by BOTH width AND height so the
-       portrait never crowds out the h1 / pitch / CTAs below it.
-       Two independent caps:
-         - max-width: clamp(260px, 28vw, 420px) → at 1500px viewport = 420px
-         - max-height: 58vh → caps the tall side at 58% of viewport
-       At 2:3 ratio, a 420px-wide image is 630px tall; 58vh at 900px = 522px,
-       so the HEIGHT cap wins and the image shrinks to ~348px wide.
-       This guarantees the eyebrow + image + h1 + pitch + CTAs + meta
-       all fit in 100vh without scrolling. */
+       portrait never crowds out the h1 / pitch / CTAs below it. */
     max-width: clamp(260px, 28vw, 420px);
     max-height: 58vh;
-    aspect-ratio: 2 / 3;              /* original portrait cutout ratio (600×903) */
+    aspect-ratio: 2 / 3;
     margin: 0 auto;
-    z-index: 2;                       /* was 1 — bump over the name backdrop */
-    will-change: transform;
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
-    /* Soft rim glow — reads as a cinematic studio light behind the portrait. */
-    filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.55))
-            drop-shadow(0 0 40px rgba(124, 58, 237, 0.12));
+    z-index: 2;
+    /* NO CSS transition on transform — GSAP owns the transform now (3D tilt).
+       A 0.6s CSS transition here fought every rAF-throttled tween and made
+       the element feel "stuck" because it was always interpolating toward
+       the next mouse position. */
+    transform: translateZ(0);          /* force a stable GPU layer for the tilt */
+    /* Single drop-shadow instead of two stacked — drop-shadow is expensive
+       on large rotated elements, especially on lower-end GPUs. */
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.55));
 }
 
 /* Image itself — fills the centered container, no stroke */
