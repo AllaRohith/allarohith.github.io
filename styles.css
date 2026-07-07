@@ -45,6 +45,12 @@
     --font-body: 'Space Grotesk', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
     --font-script: 'museo-script', 'gog2lyt', cursive;
+    /* Hero watermark font — user will provide the final woff2 (oligeh/kagesumi).
+       Defaults to Archivo Black (Google Fonts, free, very heavy) which
+       matches the "outlined name behind portrait" aesthetic. Swap by:
+         1. Add @font-face near top of this file pointing at the woff2
+         2. Change the first family name below */
+    --font-hero-name: 'Archivo Black', 'Syne', sans-serif;
 
     /* ============================================================
        SPACING SCALE — 4px base, ~1.5x rhythm.
@@ -1118,23 +1124,79 @@ body.hero-ready .hero-image {
 .hero-meta-sep { color: var(--border); }
 
 /* ========================================
-   PROFILE IMAGE — anchored to the right column.
-   The 3D scene reads as a backdrop; the portrait
-   sits on top of it as the visual thesis.
+   HERO NAME BACKDROP — 3 outline lines stacked
+   behind the portrait. Reads as a graphic
+   watermark, not a heading. The portrait sits
+   in front and the text peeks out around its edges.
+   ======================================== */
+.hero-name-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.4rem, 1.5vw, 1.25rem);
+    pointer-events: none;
+    user-select: none;
+    overflow: hidden;
+    padding: 0 1rem;
+}
+
+.hero-name-bg-line {
+    font-family: var(--font-hero-name), var(--font-display), sans-serif;
+    font-weight: 900;
+    font-size: clamp(4.5rem, 14vw, 12rem);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--bone);
+    text-stroke: 1.5px var(--bone);
+    opacity: 0.18;                       /* outline only — faint watermark */
+    white-space: nowrap;
+    will-change: opacity;
+    /* Subtle film-grain feel — a faint gradient mask fades the lines
+       at top and bottom so they don't clip harshly against the hero edges. */
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .hero-name-bg-line {
+        /* Very slow breathing so the watermark feels alive without distracting. */
+        animation: heroNameFloat 9s ease-in-out infinite;
+    }
+    .hero-name-bg-line:nth-child(2) { animation-delay: -3s; }
+    .hero-name-bg-line:nth-child(3) { animation-delay: -6s; }
+}
+
+@keyframes heroNameFloat {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+}
+
+/* ========================================
+   PROFILE IMAGE — the visual thesis.
+   Bumped from 240px → 560px max so it actually
+   dominates the hero. The name backdrop sits
+   behind it (z-index 0), the portrait at z-index 2,
+   the verbal identity at z-index 3+ (in front).
    ======================================== */
 .hero-image {
     position: relative;
     width: 100%;
-    /* Centerpiece: tight enough that portrait + name + pitch +
-       CTAs + meta all fit in 100vh without scroll. At 240px
-       wide × 2:3 ratio that's 360px tall — leaves ~480px
-       below for the verbal identity, which is plenty. */
-    max-width: clamp(160px, 22vw, 240px);
+    /* Big centerpiece: ~560px on desktop, scales down on mobile. */
+    max-width: clamp(280px, 42vw, 560px);
     aspect-ratio: 2 / 3;              /* original portrait cutout ratio (600×903) */
     margin: 0 auto;
-    z-index: 1;
+    z-index: 2;                       /* was 1 — bump over the name backdrop */
     will-change: transform;
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
+    /* Soft rim glow — reads as a cinematic studio light behind the portrait. */
+    filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.55))
+            drop-shadow(0 0 40px rgba(124, 58, 237, 0.12));
 }
 
 /* Image itself — fills the centered container, no stroke */
@@ -1243,11 +1305,16 @@ body.hero-ready .hero-image {
     }
     .hero-image {
         display: inline-block;        /* lets margin: 0 auto center horizontally */
-        /* Dual-constraint max-width per web.dev: pick the smaller of (320px,
-           50vh). Prevents bleed-below on ANY viewport, not just those caught
-           by the landscape media query. */
-        max-width: min(320px, 50vh);
-        margin: 36vh auto 0;          /* a touch below middle */
+        /* Dual-constraint max-width per web.dev: pick the smaller of (380px,
+           55vh). Bumped from 320px so the portrait still reads as the hero
+           centerpiece on mobile. Prevents bleed-below on ANY viewport. */
+        max-width: min(380px, 55vh);
+        margin: 30vh auto 0;          /* a touch below middle */
+    }
+    .hero-name-bg-line {
+        /* Scale the watermark down so 3 lines fit on a phone screen.
+           clamp(3rem, 16vw, 5.5rem) keeps it readable but not overflowing. */
+        font-size: clamp(3rem, 16vw, 5.5rem);
     }
     .hero-image-dot-1, .hero-image-dot-2, .hero-image-dot-3 { left: auto; right: 6%; }
     .hero-image-dot-2 { bottom: 35%; right: auto; left: 6%; }

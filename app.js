@@ -372,7 +372,7 @@ class Cursor {
         });
 
         // Add cursor:active on interactive elements
-        document.querySelectorAll('a, button, .work-card, .skill-item').forEach(el => {
+        document.querySelectorAll('a, button, .work-card, .skill-item, .hero-image').forEach(el => {
             el.addEventListener('mouseenter', () => this.cursor.classList.add('active'));
             el.addEventListener('mouseleave', () => this.cursor.classList.remove('active'));
         });
@@ -462,6 +462,16 @@ class Animations {
             opacity: 0,
             y: 40,
             duration: 0.9,
+            ease: 'power3.out'
+        });
+        // New: fade up the 3-line name backdrop in sync. Stagger so the lines
+        // cascade slightly behind the portrait for a layered reveal.
+        gsap.from('.hero-name-bg-line', {
+            opacity: 0,
+            y: 30,
+            duration: 1.1,
+            stagger: 0.12,
+            delay: 0.15,
             ease: 'power3.out'
         });
     }
@@ -727,6 +737,47 @@ document.querySelectorAll('.btn, .social-link, .contact-link').forEach(btn => {
         });
     });
 });
+
+
+// ============================================
+// HERO PORTRAIT — cursor-driven 3D tilt
+// Subtle, rAF-throttled (one transform per frame
+// regardless of mousemove rate). Mouse position is
+// normalized to [-0.5, 0.5] so the tilt range is
+// stable regardless of image size.
+// ============================================
+
+const heroPortrait = document.querySelector('.hero-image');
+if (heroPortrait) {
+    let heroRaf = 0;
+    heroPortrait.addEventListener('mousemove', (e) => {
+        if (heroRaf) return;
+        heroRaf = requestAnimationFrame(() => {
+            heroRaf = 0;
+            const rect = heroPortrait.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+            // Cap tilt at ±8° so it stays subtle on huge portraits.
+            gsap.to(heroPortrait, {
+                rotateY: x * 8,
+                rotateX: -y * 8,
+                transformPerspective: 1200,
+                duration: 0.4,
+                ease: 'power2.out',
+                overwrite: 'auto'
+            });
+        });
+    });
+
+    heroPortrait.addEventListener('mouseleave', () => {
+        gsap.to(heroPortrait, {
+            rotateX: 0,
+            rotateY: 0,
+            duration: 0.8,
+            ease: 'elastic.out(1, 0.4)'
+        });
+    });
+}
 
 
 // ============================================
