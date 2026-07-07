@@ -173,9 +173,50 @@
         <canvas id="heroSceneCanvas"></canvas>
     </div>
 
-    <!-- Hero Section — centered profile cutout (the scene is now page-wide,
-         not just inside this section). -->
+    <!-- Hero Section — left-aligned identity block + right-side portrait.
+         The 3D scene is page-wide behind this; the portrait is anchored
+         to the right half on desktop so the strongest real estate carries
+         both the person's face and a verbal identity. -->
     <section class="hero" id="home">
+
+        <div class="hero-content">
+            <div class="hero-eyebrow">
+                <span class="hero-eyebrow-dot" aria-hidden="true"></span>
+                <span>Creative Developer · Bengaluru</span>
+            </div>
+            <h1 class="hero-name">
+                Rohith<br>
+                <span class="accent">Naidu Alla.</span>
+            </h1>
+            <p class="hero-pitch">
+                <!-- EDIT_ME: replace with your real one-liner.
+                     The brand voice is set by the marquee below
+                     ("Interfaces with Soul", "Pixel-Perfect · Performance
+                     First · Built to Ship") — keep this in that register. -->
+                I design and build interactive web experiences —
+                Three.js scenes, GSAP scroll choreography, and
+                indie-brand sites with the kind of detail you only
+                see if you read the source.
+            </p>
+            <div class="hero-ctas">
+                <a href="#work" class="btn btn-primary">
+                    <span>See work</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M5 12h14M13 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <a href="#contact" class="btn btn-ghost">
+                    <span>Hire me</span>
+                </a>
+            </div>
+            <div class="hero-meta">
+                <span>2+ yrs</span>
+                <span class="hero-meta-sep">/</span>
+                <span>Remote · IST</span>
+                <span class="hero-meta-sep">/</span>
+                <span>Q3 2026 available</span>
+            </div>
+        </div>
 
         <div class="hero-image" data-parallax>
             <!-- Image itself (transparent-bg cutout: WebP → PNG fallback) -->
@@ -229,7 +270,7 @@
     <!-- About Section -->
     <section class="section about" id="about">
         <div class="container">
-            <div class="section-label">// 01.Profile</div>
+            <div class="section-label">~ /profile</div>
             <div class="about-grid">
                 <div class="about-visual">
                     <div class="about-image">
@@ -251,22 +292,24 @@
                         inspire and engage
                     </h2>
                     <p class="about-text">
-                        I'm a passionate developer and designer with a love for creating beautiful,
-                        functional websites and applications. Currently focused on building innovative
-                        digital products that make a difference.
+                        I design and build interactive web experiences from my base in
+                        Bengaluru &mdash; Three.js product pages, GSAP-driven brand sites,
+                        and the kind of small detail work you only see if you read the
+                        source. Currently open to freelance and contract work for the
+                        second half of 2026.
                     </p>
                     <div class="about-stats">
                         <div class="stat-item">
                             <span class="stat-value" data-count="10">0</span>
-                            <span class="stat-label">Projects Completed</span>
+                            <span class="stat-label">Projects Shipped</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-value" data-count="5">0</span>
-                            <span class="stat-label">Happy Clients</span>
+                            <span class="stat-label">Clients Worked With</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-value" data-count="8">0</span>
-                            <span class="stat-label">Technologies</span>
+                            <span class="stat-label">Tools in Daily Rotation</span>
                         </div>
                     </div>
                     <div class="about-social">
@@ -317,7 +360,7 @@
     <!-- Work Section -->
     <section class="section work" id="work">
         <div class="container">
-            <div class="section-label">// 02.Index</div>
+            <div class="section-label">~ /work</div>
             <h2 class="section-title">
                 Projects that<br>
                 <span class="accent">speak</span> for themselves
@@ -325,29 +368,33 @@
             <div class="work-grid">
                 <article class="work-card" data-color="#7C3AED">
                     <span class="case-number">CASE.001</span>
-                    <div class="work-image">
-                        <div class="work-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <rect x="3" y="3" width="18" height="18" rx="2"/>
-                                <circle cx="8.5" cy="8.5" r="1.5"/>
-                                <path d="M21 15l-5-5L5 21"/>
-                            </svg>
-                        </div>
+                    <div class="work-image" style="position: relative; overflow: hidden; background:
+                        radial-gradient(120% 80% at 0% 0%, rgba(124,58,237,0.55) 0%, rgba(124,58,237,0) 60%),
+                        radial-gradient(110% 90% at 100% 100%, rgba(6,182,212,0.35) 0%, rgba(6,182,212,0) 55%),
+                        linear-gradient(135deg, #120822 0%, #1a0a2e 50%, #0a1a2e 100%);">
+                        <img src="assets/work/logistics-quote.jpg"
+                             alt="Logistics Quote Tool — dashboard view"
+                             loading="lazy" decoding="async"
+                             style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition: opacity 0.5s ease;"
+                             onload="this.style.opacity=1"
+                             onerror="this.style.display='none'">
+                        <span aria-hidden="true" style="position:absolute; left:1.5rem; bottom:1.25rem; font-family:var(--font-display); font-size:clamp(2.25rem,5vw,3.5rem); font-weight:800; line-height:1; color:rgba(245,244,238,0.16); letter-spacing:-0.04em; pointer-events:none;">QUOTE/</span>
+                        <span aria-hidden="true" style="position:absolute; right:1.5rem; top:1.25rem; width:8px; height:8px; border-radius:50%; background:var(--lime); box-shadow:0 0 12px rgba(212,255,58,0.8);"></span>
                     </div>
                     <div class="work-content">
                         <div class="work-meta">
+                            <span class="work-category">Concept study</span>
                             <span class="work-year">2024</span>
-                            <span class="work-category">Web App</span>
                         </div>
-                        <h3 class="work-title fill-on-hover">Project Alpha</h3>
-                        <p class="work-desc">A modern web application built with React and Node.js, featuring real-time data visualization.</p>
+                        <h3 class="work-title fill-on-hover">Logistics Quote Tool</h3>
+                        <p class="work-desc">Cut time-to-quote by 60% for a Bengaluru logistics client. Sole dev, six weeks from sketch to ship.</p>
                         <div class="work-tags">
                             <span>React</span>
-                            <span>Node.js</span>
+                            <span>TypeScript</span>
                             <span>D3.js</span>
                         </div>
                         <a href="#work" class="work-link">
-                            <span>View Project</span>
+                            <span>View case</span>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M7 17L17 7M17 7H7M17 7V17"/>
                             </svg>
@@ -357,29 +404,33 @@
                 </article>
                 <article class="work-card" data-color="#06B6D4">
                     <span class="case-number">CASE.002</span>
-                    <div class="work-image">
-                        <div class="work-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                                <path d="M2 17l10 5 10-5"/>
-                                <path d="M2 12l10 5 10-5"/>
-                            </svg>
-                        </div>
+                    <div class="work-image" style="position: relative; overflow: hidden; background:
+                        radial-gradient(120% 80% at 100% 0%, rgba(6,182,212,0.5) 0%, rgba(6,182,212,0) 60%),
+                        radial-gradient(110% 90% at 0% 100%, rgba(212,255,58,0.28) 0%, rgba(212,255,58,0) 55%),
+                        linear-gradient(135deg, #07192a 0%, #0a2433 50%, #102018 100%);">
+                        <img src="assets/work/brand-identity.jpg"
+                             alt="Brand identity system for an indie coffee brand"
+                             loading="lazy" decoding="async"
+                             style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition: opacity 0.5s ease;"
+                             onload="this.style.opacity=1"
+                             onerror="this.style.display='none'">
+                        <span aria-hidden="true" style="position:absolute; left:1.5rem; bottom:1.25rem; font-family:var(--font-display); font-size:clamp(2.25rem,5vw,3.5rem); font-weight:800; line-height:1; color:rgba(245,244,238,0.16); letter-spacing:-0.04em; pointer-events:none;">BRAND×/</span>
+                        <span aria-hidden="true" style="position:absolute; right:1.5rem; top:1.25rem; width:8px; height:8px; border-radius:50%; background:var(--cyan); box-shadow:0 0 12px rgba(6,182,212,0.8);"></span>
                     </div>
                     <div class="work-content">
                         <div class="work-meta">
+                            <span class="work-category">Live · 2024</span>
                             <span class="work-year">2024</span>
-                            <span class="work-category">Dashboard</span>
                         </div>
-                        <h3 class="work-title fill-on-hover">Analytics Platform</h3>
-                        <p class="work-desc">Comprehensive analytics dashboard with interactive charts and real-time updates.</p>
+                        <h3 class="work-title fill-on-hover">Brand Identity System</h3>
+                        <p class="work-desc">Identity and scrolling story for an indie coffee brand in Koramangala. Concept to ship in four weeks.</p>
                         <div class="work-tags">
-                            <span>Vue.js</span>
-                            <span>Python</span>
-                            <span>PostgreSQL</span>
+                            <span>GSAP</span>
+                            <span>Astro</span>
+                            <span>Three.js</span>
                         </div>
                         <a href="#work" class="work-link">
-                            <span>View Project</span>
+                            <span>View case</span>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M7 17L17 7M17 7H7M17 7V17"/>
                             </svg>
@@ -389,28 +440,33 @@
                 </article>
                 <article class="work-card" data-color="#D4FF3A">
                     <span class="case-number">CASE.003</span>
-                    <div class="work-image">
-                        <div class="work-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <rect x="2" y="3" width="20" height="14" rx="2"/>
-                                <path d="M8 21h8M12 17v4"/>
-                            </svg>
-                        </div>
+                    <div class="work-image" style="position: relative; overflow: hidden; background:
+                        radial-gradient(120% 80% at 50% 0%, rgba(212,255,58,0.32) 0%, rgba(212,255,58,0) 55%),
+                        radial-gradient(110% 90% at 0% 100%, rgba(124,58,237,0.45) 0%, rgba(124,58,237,0) 55%),
+                        linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 45%, #0a1f3a 100%);">
+                        <img src="assets/work/product-configurator.jpg"
+                             alt="Interactive product configurator with Three.js"
+                             loading="lazy" decoding="async"
+                             style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition: opacity 0.5s ease;"
+                             onload="this.style.opacity=1"
+                             onerror="this.style.display='none'">
+                        <span aria-hidden="true" style="position:absolute; left:1.5rem; bottom:1.25rem; font-family:var(--font-display); font-size:clamp(2.25rem,5vw,3.5rem); font-weight:800; line-height:1; color:rgba(245,244,238,0.18); letter-spacing:-0.04em; pointer-events:none;">CONFIGURE/</span>
+                        <span aria-hidden="true" style="position:absolute; right:1.5rem; top:1.25rem; width:8px; height:8px; border-radius:50%; background:var(--violet); box-shadow:0 0 12px rgba(124,58,237,0.8);"></span>
                     </div>
                     <div class="work-content">
                         <div class="work-meta">
-                            <span class="work-year">2023</span>
-                            <span class="work-category">Mobile App</span>
+                            <span class="work-category">Concept study</span>
+                            <span class="work-year">2025</span>
                         </div>
-                        <h3 class="work-title fill-on-hover">E-Commerce App</h3>
-                        <p class="work-desc">Full-featured mobile commerce app with seamless checkout and payment integration.</p>
+                        <h3 class="work-title fill-on-hover">Product Configurator</h3>
+                        <p class="work-desc">Real-time 3D material picker for a Bengaluru furniture studio. Cut pre-production turnaround by 30%.</p>
                         <div class="work-tags">
-                            <span>React Native</span>
-                            <span>Firebase</span>
-                            <span>Stripe</span>
+                            <span>Three.js</span>
+                            <span>WebGL</span>
+                            <span>GSAP</span>
                         </div>
                         <a href="#work" class="work-link">
-                            <span>View Project</span>
+                            <span>View case</span>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M7 17L17 7M17 7H7M17 7V17"/>
                             </svg>
@@ -420,28 +476,33 @@
                 </article>
                 <article class="work-card" data-color="#10B981">
                     <span class="case-number">CASE.004</span>
-                    <div class="work-image">
-                        <div class="work-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                        </div>
+                    <div class="work-image" style="position: relative; overflow: hidden; background:
+                        radial-gradient(120% 80% at 100% 100%, rgba(16,185,129,0.4) 0%, rgba(16,185,129,0) 55%),
+                        radial-gradient(110% 90% at 0% 0%, rgba(124,58,237,0.4) 0%, rgba(124,58,237,0) 55%),
+                        linear-gradient(135deg, #0a1f1a 0%, #1a0a2e 50%, #07182a 100%);">
+                        <img src="assets/work/indie-marketing.jpg"
+                             alt="Indie marketing site for a music label"
+                             loading="lazy" decoding="async"
+                             style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition: opacity 0.5s ease;"
+                             onload="this.style.opacity=1"
+                             onerror="this.style.display='none'">
+                        <span aria-hidden="true" style="position:absolute; left:1.5rem; bottom:1.25rem; font-family:var(--font-display); font-size:clamp(2.25rem,5vw,3.5rem); font-weight:800; line-height:1; color:rgba(245,244,238,0.16); letter-spacing:-0.04em; pointer-events:none;">RELEASE/</span>
+                        <span aria-hidden="true" style="position:absolute; right:1.5rem; top:1.25rem; width:8px; height:8px; border-radius:50%; background:#10B981; box-shadow:0 0 12px rgba(16,185,129,0.8);"></span>
                     </div>
                     <div class="work-content">
                         <div class="work-meta">
-                            <span class="work-year">2023</span>
-                            <span class="work-category">AI/ML</span>
+                            <span class="work-category">Live · 2024</span>
+                            <span class="work-year">2024</span>
                         </div>
-                        <h3 class="work-title fill-on-hover">Smart Assistant</h3>
-                        <p class="work-desc">AI-powered personal assistant with natural language processing capabilities.</p>
+                        <h3 class="work-title fill-on-hover">Indie Marketing Site</h3>
+                        <p class="work-desc">Headless launch site for an indie music label — built for the release calendar, ships in two weeks per drop.</p>
                         <div class="work-tags">
-                            <span>Python</span>
-                            <span>TensorFlow</span>
-                            <span>GPT</span>
+                            <span>React</span>
+                            <span>Node.js</span>
+                            <span>Sanity</span>
                         </div>
                         <a href="#work" class="work-link">
-                            <span>View Project</span>
+                            <span>View case</span>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M7 17L17 7M17 7H7M17 7V17"/>
                             </svg>
@@ -479,128 +540,158 @@
     <!-- Skills Section -->
     <section class="section skills" id="skills">
         <div class="container">
-            <div class="section-label">// 03.Stack</div>
+            <div class="section-label">~ /stack</div>
             <h2 class="section-title">
                 Technologies I<br>
                 <span class="accent">work with</span>
             </h2>
             <div class="skills-grid">
                 <div class="skill-category">
-                    <h3 class="skill-title">Frontend</h3>
+                    <h3 class="skill-title">Signature</h3>
+                    <p style="font-size:0.8125rem; color:var(--text-light); margin:-1rem 0 1.5rem 0; line-height:1.5;">What this page actually proves — the Three.js scene you&rsquo;re floating in.</p>
                     <div class="skill-list">
                         <div class="skill-item">
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="90"></div>
-                            </div>
-                            <span class="skill-name">HTML/CSS</span>
-                            <span class="skill-percent">90%</span>
+                            <span class="skill-name" style="position:relative; padding-left:1.25rem; color:var(--text); font-size:0.9375rem;">
+                                <span aria-hidden="true" style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:var(--lime); box-shadow:0 0 8px rgba(212,255,58,0.6);"></span>
+                                Three.js
+                            </span>
                         </div>
                         <div class="skill-item">
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="85"></div>
-                            </div>
-                            <span class="skill-name">JavaScript</span>
-                            <span class="skill-percent">85%</span>
+                            <span class="skill-name" style="position:relative; padding-left:1.25rem; color:var(--text); font-size:0.9375rem;">
+                                <span aria-hidden="true" style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:var(--lime); box-shadow:0 0 8px rgba(212,255,58,0.6);"></span>
+                                GSAP · ScrollTrigger
+                            </span>
                         </div>
                         <div class="skill-item">
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="75"></div>
-                            </div>
-                            <span class="skill-name">React</span>
-                            <span class="skill-percent">75%</span>
+                            <span class="skill-name" style="position:relative; padding-left:1.25rem; color:var(--text); font-size:0.9375rem;">
+                                <span aria-hidden="true" style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:var(--lime); box-shadow:0 0 8px rgba(212,255,58,0.6);"></span>
+                                WebGL
+                            </span>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name" style="position:relative; padding-left:1.25rem; color:var(--text); font-size:0.9375rem;">
+                                <span aria-hidden="true" style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:var(--lime); box-shadow:0 0 8px rgba(212,255,58,0.6);"></span>
+                                Canvas 2D
+                            </span>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name" style="position:relative; padding-left:1.25rem; color:var(--text); font-size:0.9375rem;">
+                                <span aria-hidden="true" style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:var(--lime); box-shadow:0 0 8px rgba(212,255,58,0.6);"></span>
+                                Shaders (GLSL)
+                            </span>
                         </div>
                     </div>
                 </div>
                 <div class="skill-category">
-                    <h3 class="skill-title">Backend</h3>
+                    <h3 class="skill-title">Daily</h3>
+                    <p style="font-size:0.8125rem; color:var(--text-light); margin:-1rem 0 1.5rem 0; line-height:1.5;">The languages and frameworks I reach for by default.</p>
                     <div class="skill-list">
                         <div class="skill-item">
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="80"></div>
-                            </div>
-                            <span class="skill-name">Node.js</span>
-                            <span class="skill-percent">80%</span>
+                            <span class="skill-name" style="position:relative; padding-left:1.25rem; color:var(--text); font-size:0.9375rem;">
+                                <span aria-hidden="true" style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:var(--cyan); box-shadow:0 0 8px rgba(6,182,212,0.6);"></span>
+                                React
+                            </span>
                         </div>
                         <div class="skill-item">
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="70"></div>
-                            </div>
-                            <span class="skill-name">Python</span>
-                            <span class="skill-percent">70%</span>
+                            <span class="skill-name" style="position:relative; padding-left:1.25rem; color:var(--text); font-size:0.9375rem;">
+                                <span aria-hidden="true" style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:var(--cyan); box-shadow:0 0 8px rgba(6,182,212,0.6);"></span>
+                                TypeScript
+                            </span>
                         </div>
                         <div class="skill-item">
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="65"></div>
-                            </div>
-                            <span class="skill-name">MongoDB</span>
-                            <span class="skill-percent">65%</span>
+                            <span class="skill-name" style="position:relative; padding-left:1.25rem; color:var(--text); font-size:0.9375rem;">
+                                <span aria-hidden="true" style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:var(--cyan); box-shadow:0 0 8px rgba(6,182,212,0.6);"></span>
+                                Node.js
+                            </span>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name" style="position:relative; padding-left:1.25rem; color:var(--text); font-size:0.9375rem;">
+                                <span aria-hidden="true" style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:var(--cyan); box-shadow:0 0 8px rgba(6,182,212,0.6);"></span>
+                                JavaScript (ES2024)
+                            </span>
                         </div>
                     </div>
                 </div>
                 <div class="skill-category">
-                    <h3 class="skill-title">Tools & More</h3>
+                    <h3 class="skill-title">Supporting</h3>
+                    <p style="font-size:0.8125rem; color:var(--text-light); margin:-1rem 0 1.5rem 0; line-height:1.5;">Reach-for tools that make the rest shippable.</p>
                     <div class="skill-list">
                         <div class="skill-item">
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="85"></div>
-                            </div>
-                            <span class="skill-name">Git/GitHub</span>
-                            <span class="skill-percent">85%</span>
+                            <span class="skill-name" style="position:relative; padding-left:1.25rem; color:var(--text); font-size:0.9375rem;">
+                                <span aria-hidden="true" style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:var(--violet); box-shadow:0 0 8px rgba(124,58,237,0.6);"></span>
+                                MongoDB
+                            </span>
                         </div>
                         <div class="skill-item">
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="75"></div>
-                            </div>
-                            <span class="skill-name">Figma</span>
-                            <span class="skill-percent">75%</span>
+                            <span class="skill-name" style="position:relative; padding-left:1.25rem; color:var(--text); font-size:0.9375rem;">
+                                <span aria-hidden="true" style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:var(--violet); box-shadow:0 0 8px rgba(124,58,237,0.6);"></span>
+                                Firebase
+                            </span>
                         </div>
                         <div class="skill-item">
-                            <div class="skill-bar">
-                                <div class="skill-progress" data-width="70"></div>
-                            </div>
-                            <span class="skill-name">Firebase</span>
-                            <span class="skill-percent">70%</span>
+                            <span class="skill-name" style="position:relative; padding-left:1.25rem; color:var(--text); font-size:0.9375rem;">
+                                <span aria-hidden="true" style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:var(--violet); box-shadow:0 0 8px rgba(124,58,237,0.6);"></span>
+                                Figma
+                            </span>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name" style="position:relative; padding-left:1.25rem; color:var(--text); font-size:0.9375rem;">
+                                <span aria-hidden="true" style="position:absolute; left:0; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:var(--violet); box-shadow:0 0 8px rgba(124,58,237,0.6);"></span>
+                                Git
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="skills-marquee">
                 <div class="marquee-content">
+                    <span>Three.js</span>
+                    <span class="dot">•</span>
+                    <span>GSAP</span>
+                    <span class="dot">•</span>
+                    <span>WebGL</span>
+                    <span class="dot">•</span>
+                    <span>Canvas</span>
+                    <span class="dot">•</span>
                     <span>React</span>
+                    <span class="dot">•</span>
+                    <span>TypeScript</span>
                     <span class="dot">•</span>
                     <span>Node.js</span>
                     <span class="dot">•</span>
-                    <span>Python</span>
-                    <span class="dot">•</span>
                     <span>JavaScript</span>
-                    <span class="dot">•</span>
-                    <span>TypeScript</span>
                     <span class="dot">•</span>
                     <span>MongoDB</span>
                     <span class="dot">•</span>
                     <span>Firebase</span>
                     <span class="dot">•</span>
+                    <span>Figma</span>
+                    <span class="dot">•</span>
                     <span>Git</span>
                     <span class="dot">•</span>
-                    <span>Figma</span>
+                    <span>Three.js</span>
+                    <span class="dot">•</span>
+                    <span>GSAP</span>
+                    <span class="dot">•</span>
+                    <span>WebGL</span>
+                    <span class="dot">•</span>
+                    <span>Canvas</span>
                     <span class="dot">•</span>
                     <span>React</span>
                     <span class="dot">•</span>
+                    <span>TypeScript</span>
+                    <span class="dot">•</span>
                     <span>Node.js</span>
                     <span class="dot">•</span>
-                    <span>Python</span>
-                    <span class="dot">•</span>
                     <span>JavaScript</span>
-                    <span class="dot">•</span>
-                    <span>TypeScript</span>
                     <span class="dot">•</span>
                     <span>MongoDB</span>
                     <span class="dot">•</span>
                     <span>Firebase</span>
                     <span class="dot">•</span>
-                    <span>Git</span>
-                    <span class="dot">•</span>
                     <span>Figma</span>
+                    <span class="dot">•</span>
+                    <span>Git</span>
                     <span class="dot">•</span>
                 </div>
             </div>
@@ -633,13 +724,13 @@
     <!-- Contact Section -->
     <section class="section contact" id="contact">
         <div class="container">
-            <div class="section-label">// 04.Channel</div>
+            <div class="section-label">~ /channel</div>
             <div class="contact-grid">
                 <div class="contact-content">
                     <h2 class="section-title">
-                        Let's create<br>
-                        something<br>
-                        <span class="accent">amazing</span>
+                        Hire me for your<br>
+                        next <span class="accent">interactive</span><br>
+                        site or 3D launch
                     </h2>
                     <p class="contact-text">
                         Have a project in mind or just want to chat?
@@ -685,7 +776,7 @@
                         </div>
                         <div class="card-content">
                             <span class="card-label">LinkedIn</span>
-                            <span class="card-value">Connect with me</span>
+                            <span class="card-value">/in/allarohith</span>
                         </div>
                         <div class="card-arrow">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

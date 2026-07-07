@@ -46,9 +46,94 @@
     --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
     --font-script: 'museo-script', 'gog2lyt', cursive;
 
-    /* Motion */
+    /* ============================================================
+       SPACING SCALE — 4px base, ~1.5x rhythm.
+       Formalizes the freehand rem values (0.25…8rem) that were
+       scattered across padding / margin / gap into one retunable
+       scale. Named steps map to px for quick reference.
+       ============================================================ */
+    --space-1: 0.25rem;   /* 4px  */
+    --space-2: 0.5rem;    /* 8px  */
+    --space-3: 0.75rem;   /* 12px */
+    --space-4: 1rem;      /* 16px */
+    --space-6: 1.5rem;    /* 24px */
+    --space-8: 2rem;      /* 32px */
+    --space-12: 3rem;     /* 48px */
+    --space-16: 4rem;     /* 64px */
+    --space-20: 5rem;     /* 80px */
+    --space-24: 6rem;     /* 96px */
+    --space-32: 8rem;     /* 128px */
+
+    /* ============================================================
+       ALPHA COLOR LAYER — color-mix(in oklab) over the brand
+       primitives. Replaces the ~79 raw rgba() duplicates that
+       hard-coded the same hues at scattered alphas. One edit here
+       retunes the entire translucent surface / border / glow system.
+       ============================================================ */
+    --violet-a08: color-mix(in oklab, var(--violet) 8%, transparent);
+    --violet-a12: color-mix(in oklab, var(--violet) 12%, transparent);
+    --violet-a20: color-mix(in oklab, var(--violet) 20%, transparent);
+    --violet-a40: color-mix(in oklab, var(--violet) 40%, transparent);
+    --violet-a60: color-mix(in oklab, var(--violet) 60%, transparent);
+
+    --lime-a12: color-mix(in oklab, var(--lime) 12%, transparent);
+    --lime-a20: color-mix(in oklab, var(--lime) 20%, transparent);
+    --lime-a40: color-mix(in oklab, var(--lime) 40%, transparent);
+
+    --ink-a60: color-mix(in oklab, var(--ink) 60%, transparent);
+    --ink-a40: color-mix(in oklab, var(--ink) 40%, transparent);
+    --ink-a20: color-mix(in oklab, var(--ink) 20%, transparent);
+
+    --bone-a08: color-mix(in oklab, var(--bone) 8%, transparent);
+    --bone-a12: color-mix(in oklab, var(--bone) 12%, transparent);
+    --bone-a20: color-mix(in oklab, var(--bone) 20%, transparent);
+    --bone-a40: color-mix(in oklab, var(--bone) 40%, transparent);
+    --bone-a60: color-mix(in oklab, var(--bone) 60%, transparent);
+    --bone-a80: color-mix(in oklab, var(--bone) 80%, transparent);
+
+    /* ============================================================
+       MOTION — duration scale + named easings.
+       --ease-out-expo is preserved (used throughout). Durations
+       give the site a governable "feel knob" instead of ~60 inline
+       0.15s / 0.3s / 0.6s literals.
+       ============================================================ */
+    --dur-fast: 150ms;
+    --dur-base: 300ms;
+    --dur-slow: 600ms;
+    --dur-slower: 1200ms;
+
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* ============================================================
+       RADIUS SCALE — replaces the inline 4/6/8/12/16/20/24/32px ladder.
+       ============================================================ */
+    --r-sm: 4px;
+    --r-md: 8px;
+    --r-lg: 16px;
+    --r-xl: 24px;
+    --r-pill: 999px;
+
+    /* ============================================================
+       SHADOW SCALE — elevation ramp for cards / overlays.
+       (Brand glow shadows stay inline where they encode color.)
+       ============================================================ */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.5);
+
+    /* ============================================================
+       Z-INDEX SCALE — replaces the raw 1 / 10 / 100 / 1000 / 999999
+       ladder with a semantic stack order.
+       ============================================================ */
+    --z-base: 1;
+    --z-content: 2;
+    --z-overlay: 10;
+    --z-nav: 50;
+    --z-modal: 100;
+    --z-loader: 200;
 }
 
 *, *::before, *::after {
@@ -391,7 +476,7 @@ body.hero-ready .hero-image {
     left: -100px;
     width: 36px;
     height: 36px;
-    border: 1px solid rgba(124, 58, 237, 0.4);
+    border: 1px solid var(--violet-a40);
     border-radius: 50%;
     pointer-events: none;
     z-index: 9999;
@@ -878,19 +963,165 @@ body.hero-ready .hero-image {
 
 
 /* ========================================
-   PROFILE IMAGE — floating cutout, centered.
-   Image uses absolute positioning with the
-   same percentages as the reference page
-   (Prerna portfolio).
+   HERO — left identity block, right portrait.
+   The hero is a 2-column grid on desktop (text left,
+   image right). On mobile it stacks: text first, then
+   image, so the verbal identity lands before the photo.
+   ======================================== */
+.hero {
+    min-height: -webkit-fill-available;
+    min-height: 100dvh;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(2rem, 4vw, 4rem);
+    padding: clamp(7rem, 12vh, 10rem) clamp(1.5rem, 5vw, 8rem) clamp(4rem, 6vh, 6rem);
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+/* The identity block — eyebrow / name / pitch / CTAs / meta. */
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(1.25rem, 2.2vw, 1.75rem);
+    max-width: 38rem;
+}
+
+/* Eyebrow row: small lime dot + role/location. */
+.hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.hero-eyebrow-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--lime);
+    box-shadow: 0 0 12px var(--lime);
+    animation: dotFloat-1 3.5s ease-in-out infinite;
+}
+
+/* Display name — large, two-line, with the surname
+   carrying the lime-led gradient (matches section
+   accents for a single brand voice). */
+.hero-name {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    color: var(--text);
+    margin: 0;
+}
+.hero-name .accent {
+    background: linear-gradient(135deg, var(--lime) 0%, var(--bone) 55%, var(--cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* One-line pitch — sets the role and the work in plain
+   prose. Color is muted so the name stays the visual hook. */
+.hero-pitch {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 1.2vw, 1.125rem);
+    line-height: 1.55;
+    color: var(--text-muted);
+    max-width: 32rem;
+    margin: 0;
+}
+
+/* CTA cluster — primary fills with lime, secondary is
+   a ghost button with a lime arrow on hover. */
+.hero-ctas {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+.hero-ctas .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.95rem 1.4rem;
+    background: var(--lime);
+    color: var(--ink);
+    border: 1px solid var(--lime);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: transform 0.3s var(--ease-out-expo), background 0.3s ease;
+}
+.hero-ctas .btn-primary svg { width: 16px; height: 16px; }
+.hero-ctas .btn-primary:hover {
+    transform: translateY(-2px);
+    background: #E1FF66;
+}
+.hero-ctas .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.95rem 1.4rem;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: border-color 0.3s ease, color 0.3s ease;
+}
+.hero-ctas .btn-ghost:hover {
+    border-color: var(--lime);
+    color: var(--lime);
+}
+
+/* Meta row beneath the CTAs — keeps the "open to work"
+   promise in the hero itself, not just the status bar. */
+.hero-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+.hero-meta-sep { color: var(--border); }
+
+/* ========================================
+   PROFILE IMAGE — anchored to the right column.
+   The 3D scene reads as a backdrop; the portrait
+   sits on top of it as the visual thesis.
    ======================================== */
 .hero-image {
     position: relative;
     width: 100%;
     max-width: 540px;
     aspect-ratio: 2 / 3;              /* original portrait cutout ratio (600×903) */
-    align-self: center;               /* explicit vertical anchor */
-    margin-top: 13vh;                 /* push down from center */
-    z-index: 1;                       /* sits above the page background */
+    justify-self: end;               /* anchor to right edge of the right column */
+    align-self: center;
+    z-index: 1;
     will-change: transform;
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
 }
@@ -1055,10 +1286,12 @@ body.hero-ready .hero-image {
 
 /* Sections */
 .section {
-    min-height: -webkit-fill-available;
-    min-height: 100dvh;
-    min-height: 100vh;
-    padding: 8rem 3rem;
+    /* Content-driven padding instead of forcing min-height: 100vh
+       on every section. The 100vh rule made the page read as a
+       wireframe at full-page scale — huge vertical gaps between
+       sections. clamp() scales padding with the viewport so
+       desktop and mobile both feel right. */
+    padding: clamp(5rem, 10vw, 10rem) clamp(1.25rem, 4vw, 8rem);
     position: relative;
     z-index: 1;
 }
@@ -1093,9 +1326,16 @@ html, body, main, .hero, .section, .container {
 }
 
 .section-title .accent {
-    background: var(--gradient);
+    /* Lime-led gradient: the brand's defining accent (section
+       labels, scroll rail, status dot, contact icon, marquee
+       separators) is lime, but the most prominent headline
+       element on every section used the stock violet-to-cyan
+       gradient. Lead with lime so the most visible moment
+       matches the brand voice. */
+    background: linear-gradient(135deg, var(--lime) 0%, var(--bone) 60%, var(--cyan) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 /* About Section */
@@ -1273,7 +1513,7 @@ html, body, main, .hero, .section, .container {
     -webkit-backdrop-filter: blur(20px) saturate(140%);
     border-radius: 24px;
     overflow: hidden;
-    border: 1px solid rgba(124, 58, 237, 0.2);
+    border: 1px solid var(--violet-a20);
     transition: all 0.5s var(--ease-out-expo);
     will-change: transform;
 }
@@ -1354,11 +1594,15 @@ html, body, main, .hero, .section, .container {
    fills the letters via background-clip.
    ============================================ */
 .fill-on-hover {
-    background: linear-gradient(135deg, var(--violet) 0%, var(--cyan) 50%, var(--lime) 100%);
+    /* Lime-led gradient to match the rest of the brand
+       accents. The card-title fill is the moment the user
+       reads the project name — leading with lime ties the
+       Work section to the hero surname and section labels. */
+    background: linear-gradient(135deg, var(--lime) 0%, var(--bone) 50%, var(--cyan) 100%);
     -webkit-background-clip: text;
             background-clip: text;
     color: transparent;
-    -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.55);
+    -webkit-text-stroke: 1.5px rgba(245, 244, 238, 0.55);
     transition: -webkit-text-stroke-color 0.45s ease;
 }
 
@@ -1553,9 +1797,14 @@ html, body, main, .hero, .section, .container {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: transparent;
-    /* Hollow/outlined letters — echoes the hero "ROHITH NAIDU ALLA" backdrop */
-    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.55);
+    /* Filled at low opacity instead of hollow stroke. The 1px
+       outline was technically interesting but read as
+       "thin grey worms" at speed — the strongest section
+       breathers on the page were illegible. Low-opacity bone
+       fill + a lime text-shadow keeps the editorial voice
+       while making the words actually readable. */
+    color: var(--bone-a12);
+    text-shadow: 0 0 24px rgba(212, 255, 58, 0.18);
 }
 
 .section-divider-sep {
@@ -1659,7 +1908,7 @@ html, body, main, .hero, .section, .container {
     background: rgba(17, 17, 20, 0.5);
     backdrop-filter: blur(20px) saturate(140%);
     -webkit-backdrop-filter: blur(20px) saturate(140%);
-    border: 1px solid rgba(124, 58, 237, 0.2);
+    border: 1px solid var(--violet-a20);
     border-radius: 16px;
     text-decoration: none;
     color: var(--text);
@@ -2049,7 +2298,7 @@ body.show-anyway .loader {
 }
 
 @keyframes micPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(212, 255, 58, 0.4); }
+    0%, 100% { box-shadow: 0 0 0 0 var(--lime-a40); }
     50%      { box-shadow: 0 0 0 6px rgba(212, 255, 58, 0); }
 }
 
@@ -2224,7 +2473,11 @@ button:focus-visible {
 }
 
 .section-title .accent {
-    background: var(--gradient);
+    /* Lime-led gradient — same as the primary rule above, kept
+       in sync so the second declaration (which loads later in
+       source order and would otherwise win) does not snap
+       section-title accents back to the stock violet→cyan. */
+    background: linear-gradient(135deg, var(--lime) 0%, var(--bone) 60%, var(--cyan) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
