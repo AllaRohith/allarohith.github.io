@@ -173,17 +173,44 @@
         <canvas id="heroSceneCanvas"></canvas>
     </div>
 
-    <!-- Hero Section — left-aligned identity block + right-side portrait.
-         The 3D scene is page-wide behind this; the portrait is anchored
-         to the right half on desktop so the strongest real estate carries
-         both the person's face and a verbal identity. -->
+    <!-- Hero Section — portrait-centered composition.
+         The image is the visual thesis (centered, dominant). The
+         eyebrow sits above as a small intro; the identity block
+         (name, pitch, CTAs, meta) sits below as the verbal
+         counterpart. The 3D scene is page-wide behind it. -->
     <section class="hero" id="home">
 
+        <div class="hero-eyebrow">
+            <span class="hero-eyebrow-dot" aria-hidden="true"></span>
+            <span>Creative Developer · Bengaluru</span>
+        </div>
+
+        <div class="hero-image" data-parallax>
+            <!-- Image itself (transparent-bg cutout: WebP → PNG fallback) -->
+            <picture>
+                <source srcset="assets/rohioth-sm.webp 400w, assets/rohioth.webp 600w"
+                        sizes="(max-width: 860px) 260px, 540px"
+                        type="image/webp" />
+                <source srcset="assets/rohioth-sm.png 400w, assets/rohioth.png 600w"
+                        sizes="(max-width: 860px) 260px, 540px"
+                        type="image/png" />
+                <img src="assets/rohioth.png"
+                     alt="Rohith Naidu Alla"
+                     width="600" height="903"
+                     decoding="async"
+                     fetchpriority="high"
+                     class="hero-image-photo"
+                     width="600" height="903"
+                     loading="lazy" decoding="async" />
+            </picture>
+
+            <!-- Floating accent dots -->
+            <span class="hero-image-dot hero-image-dot-1" aria-hidden="true"></span>
+            <span class="hero-image-dot hero-image-dot-2" aria-hidden="true"></span>
+            <span class="hero-image-dot hero-image-dot-3" aria-hidden="true"></span>
+        </div>
+
         <div class="hero-content">
-            <div class="hero-eyebrow">
-                <span class="hero-eyebrow-dot" aria-hidden="true"></span>
-                <span>Creative Developer · Bengaluru</span>
-            </div>
             <h1 class="hero-name">
                 Rohith<br>
                 <span class="accent">Naidu Alla.</span>
@@ -216,31 +243,6 @@
                 <span class="hero-meta-sep">/</span>
                 <span>Q3 2026 available</span>
             </div>
-        </div>
-
-        <div class="hero-image" data-parallax>
-            <!-- Image itself (transparent-bg cutout: WebP → PNG fallback) -->
-            <picture>
-                <source srcset="assets/rohioth-sm.webp 400w, assets/rohioth.webp 600w"
-                        sizes="(max-width: 860px) 260px, 540px"
-                        type="image/webp" />
-                <source srcset="assets/rohioth-sm.png 400w, assets/rohioth.png 600w"
-                        sizes="(max-width: 860px) 260px, 540px"
-                        type="image/png" />
-                <img src="assets/rohioth.png"
-                     alt="Rohith Naidu Alla"
-                     width="600" height="903"
-                     decoding="async"
-                     fetchpriority="high"
-                     class="hero-image-photo"
-                     width="600" height="903"
-                     loading="lazy" decoding="async" />
-            </picture>
-
-            <!-- Floating accent dots -->
-            <span class="hero-image-dot hero-image-dot-1" aria-hidden="true"></span>
-            <span class="hero-image-dot hero-image-dot-2" aria-hidden="true"></span>
-            <span class="hero-image-dot hero-image-dot-3" aria-hidden="true"></span>
         </div>
     </section>
 

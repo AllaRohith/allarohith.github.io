@@ -963,31 +963,35 @@ body.hero-ready .hero-image {
 
 
 /* ========================================
-   HERO — left identity block, right portrait.
-   The hero is a 2-column grid on desktop (text left,
-   image right). On mobile it stacks: text first, then
-   image, so the verbal identity lands before the photo.
+   HERO — portrait-centered composition.
+   The image is the centerpiece. Eyebrow sits above
+   (small intro); identity block (name, pitch, CTAs,
+   meta) sits below as the verbal counterpart. Everything
+   centers on the page-axis so the eye lands on the
+   person first and reads outward.
    ======================================== */
 .hero {
     min-height: -webkit-fill-available;
     min-height: 100dvh;
     min-height: 100vh;
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: clamp(2rem, 4vw, 4rem);
-    padding: clamp(7rem, 12vh, 10rem) clamp(1.5rem, 5vw, 8rem) clamp(4rem, 6vh, 6rem);
+    justify-content: center;
+    gap: clamp(0.75rem, 1.5vw, 1.25rem);
+    padding: clamp(4.5rem, 8vh, 6rem) clamp(1.5rem, 5vw, 4rem) clamp(1.5rem, 3vh, 2.5rem);
     position: relative;
     z-index: 1;
     overflow: hidden;
+    text-align: center;
 }
 
 /* The identity block — eyebrow / name / pitch / CTAs / meta. */
 .hero-content {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: clamp(1.25rem, 2.2vw, 1.75rem);
+    align-items: center;
+    gap: clamp(1rem, 2vw, 1.5rem);
     max-width: 38rem;
 }
 
@@ -1017,12 +1021,13 @@ body.hero-ready .hero-image {
    accents for a single brand voice). */
 .hero-name {
     font-family: var(--font-display);
-    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-size: clamp(1.875rem, 4vw, 2.75rem);
     font-weight: 700;
     line-height: 0.95;
     letter-spacing: -0.04em;
     color: var(--text);
     margin: 0;
+    text-align: center;
 }
 .hero-name .accent {
     background: linear-gradient(135deg, var(--lime) 0%, var(--bone) 55%, var(--cyan) 100%);
@@ -1035,11 +1040,12 @@ body.hero-ready .hero-image {
    prose. Color is muted so the name stays the visual hook. */
 .hero-pitch {
     font-family: var(--font-body);
-    font-size: clamp(1rem, 1.2vw, 1.125rem);
+    font-size: clamp(0.9375rem, 1.1vw, 1.0625rem);
     line-height: 1.55;
     color: var(--text-muted);
-    max-width: 32rem;
+    max-width: 30rem;
     margin: 0;
+    text-align: center;
 }
 
 /* CTA cluster — primary fills with lime, secondary is
@@ -1099,6 +1105,8 @@ body.hero-ready .hero-image {
 .hero-meta {
     display: flex;
     align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
     gap: 0.6rem;
     margin-top: 0.5rem;
     font-family: var(--font-mono);
@@ -1117,10 +1125,13 @@ body.hero-ready .hero-image {
 .hero-image {
     position: relative;
     width: 100%;
-    max-width: 540px;
+    /* Centerpiece: tight enough that portrait + name + pitch +
+       CTAs + meta all fit in 100vh without scroll. At 240px
+       wide × 2:3 ratio that's 360px tall — leaves ~480px
+       below for the verbal identity, which is plenty. */
+    max-width: clamp(160px, 22vw, 240px);
     aspect-ratio: 2 / 3;              /* original portrait cutout ratio (600×903) */
-    justify-self: end;               /* anchor to right edge of the right column */
-    align-self: center;
+    margin: 0 auto;
     z-index: 1;
     will-change: transform;
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
