@@ -1187,8 +1187,17 @@ body.hero-ready .hero-image {
 .hero-image {
     position: relative;
     width: 100%;
-    /* Big centerpiece: ~560px on desktop, scales down on mobile. */
-    max-width: clamp(280px, 42vw, 560px);
+    /* Big centerpiece, but constrained by BOTH width AND height so the
+       portrait never crowds out the h1 / pitch / CTAs below it.
+       Two independent caps:
+         - max-width: clamp(260px, 28vw, 420px) → at 1500px viewport = 420px
+         - max-height: 58vh → caps the tall side at 58% of viewport
+       At 2:3 ratio, a 420px-wide image is 630px tall; 58vh at 900px = 522px,
+       so the HEIGHT cap wins and the image shrinks to ~348px wide.
+       This guarantees the eyebrow + image + h1 + pitch + CTAs + meta
+       all fit in 100vh without scrolling. */
+    max-width: clamp(260px, 28vw, 420px);
+    max-height: 58vh;
     aspect-ratio: 2 / 3;              /* original portrait cutout ratio (600×903) */
     margin: 0 auto;
     z-index: 2;                       /* was 1 — bump over the name backdrop */
@@ -1305,11 +1314,13 @@ body.hero-ready .hero-image {
     }
     .hero-image {
         display: inline-block;        /* lets margin: 0 auto center horizontally */
-        /* Dual-constraint max-width per web.dev: pick the smaller of (380px,
-           55vh). Bumped from 320px so the portrait still reads as the hero
-           centerpiece on mobile. Prevents bleed-below on ANY viewport. */
-        max-width: min(380px, 55vh);
-        margin: 30vh auto 0;          /* a touch below middle */
+        /* Dual-constraint: smaller of width cap (320px) and height cap (52vh).
+           The 52vh cap is critical on short viewports — at 800px tall that
+           gives 416px max height; at 2:3 ratio = ~277px wide. Portrait
+           stays the visual anchor without dominating. */
+        max-width: min(320px, 52vh * 2 / 3);
+        max-height: 52vh;
+        margin: 22vh auto 0;          /* reduced from 30vh to leave room for content */
     }
     .hero-name-bg-line {
         /* Scale the watermark down so 3 lines fit on a phone screen.
