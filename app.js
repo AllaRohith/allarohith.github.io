@@ -932,30 +932,10 @@ if (aboutImage) {
 // ============================================
 
 // ============================================
-// LOCAL CLOCK
-// Writes the current IST time into the status bar's
-// #localTime element every minute. The element was
-// previously hard-coded to "--:--:--" — louder than
-// any visual effect on a portfolio whose entire pitch
-// is craft.
+// LOCAL CLOCK — removed. The status bar that displayed
+// the IST time was removed from the layout, so this
+// ticker has nothing to write to.
 // ============================================
-function tickLocalClock() {
-    const el = document.getElementById('localTime');
-    if (!el) return;
-    const fmt = new Intl.DateTimeFormat('en-IN', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-        timeZone: 'Asia/Kolkata',
-    });
-    const update = () => { el.textContent = fmt.format(new Date()); };
-    update();
-    // Align the first tick to the next minute boundary, then tick
-    // every 60s. Cheaper than polling every second and keeps the
-    // displayed value stable between updates.
-    const ms = (60 - new Date().getSeconds()) * 1000;
-    setTimeout(() => { update(); setInterval(update, 60_000); }, ms);
-}
 
 // ============================================
 // EMAIL OBFUSCATION DECODER
@@ -993,9 +973,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Decode obfuscated contact email (must run before users
     // can click it — placed last so all other inits happen first).
     revealContactEmail();
-
-    // Tick the local clock on the status bar.
-    tickLocalClock();
 
     console.log('🚀 Creative Portfolio Loaded!');
 });

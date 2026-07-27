@@ -2794,122 +2794,10 @@ body.show-anyway .loader {
 }
 
 /* ========================================
-   STATUS BAR — signature element
-   Persistent live read-out above all content
+   STATUS BAR — removed. The persistent live read-out
+   above all content was removed from the layout per
+   user request; its CSS is gone with it.
 ======================================== */
-.status-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1100;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 1.5rem;
-    /* Add safe-area top padding so the status strip doesn't tuck under the
-       notch on iPhone X+ and similar devices. */
-    padding-top: calc(0.5rem + env(safe-area-inset-top, 0px));
-    /* Paper-cut status bar: opaque cream strip with a soft stacked shadow
-       that makes it look like a paper layer resting on the page. */
-    background: var(--paper);
-    border-bottom: 1px solid var(--cream-dark);
-    box-shadow: var(--paper-shadow-soft);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    overflow: hidden;
-}
-
-.status-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    /* Yellow sticker dot — was lime with glow, now a paper-cut sticker
-       with a subtle white ring suggesting it's a separate paper layer. */
-    background: var(--yellow);
-    border: 1.5px solid var(--paper);
-    box-shadow: 0 1px 2px rgba(58, 50, 42, 0.15);
-    animation: statusPulse 2.4s ease-in-out infinite;
-    flex-shrink: 0;
-}
-
-@keyframes statusPulse {
-    0%, 100% { transform: scale(1);    opacity: 1; }
-    50%      { transform: scale(1.18); opacity: 0.85; }
-}
-
-.status-item {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.5rem;
-    white-space: nowrap;
-}
-
-.status-label {
-    color: var(--text-dim);
-    font-weight: 500;
-}
-
-.status-value {
-    color: var(--text);
-    font-weight: 500;
-}
-
-/* "Open to work" — coral badge text now (lime → coral rebrand) */
-.status-available { color: var(--coral-dark); }
-
-.status-sep {
-    color: var(--border);
-    user-select: none;
-}
-
-.status-spacer { flex: 1; }
-
-.status-kbd {
-    display: inline-block;
-    padding: 1px 6px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 0.625rem;
-    color: var(--bone);
-    background: var(--surface);
-    margin-right: 0.4rem;
-}
-
-@media (max-width: 768px) {
-    .status-bar { font-size: 0.625rem; padding: 0.4rem 1rem; gap: 0.5rem; }
-    .status-hint { display: none; }
-}
-
-/* Phones — keep the status strip ultra-compact so it doesn't dominate the
-   hero. Hide the secondary meta column entirely; keep only the live "OPEN
-   TO WORK" indicator + the audio toggle. */
-@media (max-width: 540px) {
-    .status-bar {
-        font-size: 0.55rem;
-        padding: 0.35rem 0.85rem;
-        gap: 0.4rem;
-    }
-    /* Hide every flex-segment except :first-of-kind + last (.audio-toggle) */
-    .status-time { display: none; }
-    .status-info { gap: 0.4rem; }
-    .status-info .status-label { display: none; }
-    /* Keep only the dot + value for each item */
-    .status-info > span:not(:first-child) { display: none; }
-}
-
-@media (max-width: 360px) {
-    .status-bar {
-        font-size: 0.5rem;
-        padding: 0.3rem 0.75rem;
-        letter-spacing: 0.02em;
-    }
-    /* On tiny phones, hide the audio toggle too — keep only the "live" dot+text */
-    .audio-toggle { display: none; }
-}
 
 /* Audio-reactive toggle button in status bar */
 .audio-toggle {
@@ -3269,8 +3157,7 @@ button:focus-visible {
 
 /* Extra small devices — 320px and below (iPhone SE 1st gen, etc.) */
 @media (max-width: 360px) {
-    .status-bar { font-size: 0.5rem; padding: 0.35rem 0.75rem; }
-    .status-bar .status-hint, .audio-toggle { display: none; }
+    .audio-toggle { display: none; }
     .hero { padding: 5rem 1rem 2rem; }
     .hero-title { font-size: 1.75rem; line-height: 1; letter-spacing: -0.02em; }
     .hero-eyebrow { font-size: 0.625rem; padding: 0.3rem 0.6rem; }
@@ -3299,8 +3186,6 @@ button:focus-visible {
 
 /* Small phones — 480px and below */
 @media (max-width: 480px) {
-    .status-bar { font-size: 0.5625rem; padding: 0.4rem 0.75rem; gap: 0.4rem; }
-    .status-bar .status-hint { display: none; }
     .hero { padding: 5.5rem 1.25rem 2.5rem; }
     .hero-title { font-size: 2rem; }
     .hero-eyebrow { font-size: 0.6875rem; }
@@ -3320,8 +3205,6 @@ button:focus-visible {
 
 /* Tablets portrait — 768px */
 @media (max-width: 768px) {
-    .status-bar .status-time .status-label,
-    .status-bar .status-hint { display: none; }
     .hero { grid-template-columns: 1fr; padding: 6rem 1.5rem 3rem; text-align: center; }
     .hero-content { max-width: 100%; }
     .hero-eyebrow { margin-left: auto; margin-right: auto; }
@@ -3415,7 +3298,7 @@ button:focus-visible {
 /* Print styles — render as document for printing */
 @media print {
     body { background: white; color: black; }
-    .status-bar, .scroll-rail, .loader, .nebula,
+    .scroll-rail, .loader, .nebula,
     .cursor, .audio-toggle { display: none !important; }
     .hero-title { color: black; background: none; -webkit-text-fill-color: black; }
     a { color: black; text-decoration: underline; }
