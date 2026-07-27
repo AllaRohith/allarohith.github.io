@@ -170,27 +170,29 @@
     --shadow-md: 0 4px 16px rgba(58, 50, 42, 0.10);
     --shadow-lg: 0 12px 48px rgba(58, 50, 42, 0.12);
 
-    /* Paper-cut signature: white outline ring + thin paper separator + soft drop stack */
+    /* Paper-cut signature: THICK white outline ring + thin paper separator + pronounced drop stack.
+       Bumped from 4px → 10px white ring so the sticker effect actually reads
+       at typical viewing distances (was too subtle to register). */
     --paper-shadow-sticker:
-        0 0 0 4px #FFFCF5,
-        0 0 0 5px var(--cream-dark),
-        0 8px 16px -4px rgba(58, 50, 42, 0.15),
-        0 16px 32px -8px rgba(58, 50, 42, 0.10);
+        0 0 0 10px #FFFCF5,
+        0 0 0 11px var(--cream-dark),
+        0 12px 24px -6px rgba(58, 50, 42, 0.22),
+        0 24px 48px -12px rgba(58, 50, 42, 0.15);
 
-    /* 3-layer stacked shadow for surface depth */
+    /* 3-layer stacked shadow for surface depth — stronger for visible paper depth */
     --paper-shadow-stacked:
-        0 2px 4px rgba(58, 50, 42, 0.08),
-        0 8px 16px rgba(58, 50, 42, 0.08),
-        0 16px 32px rgba(58, 50, 42, 0.06);
+        0 3px 6px rgba(58, 50, 42, 0.10),
+        0 12px 24px rgba(58, 50, 42, 0.10),
+        0 24px 48px rgba(58, 50, 42, 0.08);
 
     /* Single soft shadow for subtle elements */
-    --paper-shadow-soft: 0 4px 12px rgba(58, 50, 42, 0.10);
+    --paper-shadow-soft: 0 6px 16px rgba(58, 50, 42, 0.12);
 
-    /* Lifted hover shadow */
+    /* Lifted hover shadow — strong enough to read as "card lifts off the page" */
     --paper-shadow-hover:
-        0 4px 8px rgba(58, 50, 42, 0.10),
-        0 16px 32px rgba(58, 50, 42, 0.12),
-        0 32px 64px -8px rgba(58, 50, 42, 0.15);
+        0 6px 12px rgba(58, 50, 42, 0.12),
+        0 20px 40px rgba(58, 50, 42, 0.16),
+        0 40px 80px -12px rgba(58, 50, 42, 0.18);
 
     /* ============================================================
        Z-INDEX SCALE — replaces the raw 1 / 10 / 100 / 1000 / 999999
@@ -265,19 +267,21 @@ body {
        element. */
     -webkit-tap-highlight-color: transparent;
 
-    /* Paper-cut page background: 3 stacked layers of cream + faint noise.
+    /* Paper-cut page background: 3 stacked layers of cream + visible paper grain.
        Reads as physical kraft paper, not a flat fill. */
     background-color: var(--cream);
     background-image:
         /* Top: warm highlight band, like a window's light falling on paper */
         radial-gradient(ellipse 80% 50% at 50% 0%, var(--paper-warm) 0%, transparent 65%),
-        /* Bottom: subtle darker wash for depth */
+        /* Bottom: deeper wash for visible paper depth */
         radial-gradient(ellipse 100% 60% at 50% 100%, var(--cream-darker) 0%, transparent 70%),
-        /* Faint paper grain via SVG fractal noise — opacity 0.4 reads as
-           tactile paper texture, not a pattern. */
-        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.227 0 0 0 0 0.196 0 0 0 0 0.165 0 0 0 0.45 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-attachment: fixed, fixed, fixed;
-    background-size: 100% 100%, 100% 100%, 200px 200px;
+        /* TWO noise layers — large warm fibers + small dark specks.
+           The combined effect reads as actual craft paper texture. */
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.78 0 0 0 0 0.65 0 0 0 0 0.45 0 0 0 0.7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.227 0 0 0 0 0.196 0 0 0 0 0.165 0 0 0 0.65 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-attachment: fixed, fixed, fixed, fixed;
+    background-size: 100% 100%, 100% 100%, 240px 240px, 120px 120px;
+    background-blend-mode: normal, normal, multiply, multiply;
 }
 
 /* Hide custom cursor and restore native cursor on touch / coarse-pointer devices */
@@ -1039,6 +1043,111 @@ body.hero-ready .hero-image {
     max-width: 38rem;
 }
 
+/* ========================================
+   PAPER CONFETTI — scattered paper-cut shapes
+   floating around the hero. Each is a small
+   sticker with white border + soft shadow +
+   gentle float animation. Makes the storybook
+   papercraft aesthetic unmistakable.
+   ======================================== */
+.paper-confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--text);
+    background: var(--paper);
+    border: 2px solid var(--paper);
+    box-shadow: var(--paper-shadow-soft);
+    font-size: 1rem;
+    line-height: 1;
+    user-select: none;
+    animation: confettiFloat 6s ease-in-out infinite;
+}
+
+/* Star #1 — top-left, coral fill, large */
+.confetti-star-1 {
+    width: 38px;
+    height: 38px;
+    top: 14%;
+    left: 8%;
+    background: var(--coral);
+    color: var(--paper);
+    font-size: 1.25rem;
+    border-radius: 8px;
+    animation-delay: 0s;
+}
+
+/* Circle — top-right, blue */
+.confetti-circle {
+    width: 24px;
+    height: 24px;
+    top: 22%;
+    right: 12%;
+    background: var(--blue-dark);
+    animation-delay: -1.5s;
+}
+
+/* Heart — bottom-left of hero, rose */
+.confetti-heart {
+    width: 32px;
+    height: 32px;
+    bottom: 18%;
+    left: 6%;
+    background: var(--rose);
+    color: var(--rose-dark);
+    font-size: 1.1rem;
+    border-radius: 8px;
+    animation-delay: -3s;
+}
+
+/* Star #2 — bottom-right, yellow */
+.confetti-star-2 {
+    width: 30px;
+    height: 30px;
+    bottom: 14%;
+    right: 10%;
+    background: var(--yellow);
+    color: var(--yellow-dark);
+    font-size: 1.1rem;
+    border-radius: 8px;
+    animation-delay: -4.5s;
+}
+
+/* Square — middle-right, peach */
+.confetti-square {
+    width: 22px;
+    height: 22px;
+    top: 50%;
+    right: 6%;
+    background: var(--peach);
+    border-radius: 4px;
+    animation-delay: -2.2s;
+}
+
+@keyframes confettiFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-10px) rotate(8deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .confetti { animation: none !important; }
+}
+
+/* Hide confetti on very small screens — too cluttered */
+@media (max-width: 480px) {
+    .confetti-star-1, .confetti-square { display: none; }
+}
+
 /* Eyebrow row: small lime dot + role/location. */
 .hero-eyebrow {
     display: inline-flex;
@@ -1236,16 +1345,40 @@ body.hero-ready .hero-image {
     margin: 0 auto;
     z-index: 2;
     transform: translateZ(0);
-    /* Paper-cut sticker outline: white ring + thin paper separator + soft
-       drop shadow stack. Reads as a die-cut sticker on cream paper.
-       The user can tune the 4px ring thickness to match their own
-       portrait once they generate the paper-cut illustration. */
-    padding: 8px;
+    /* Paper-cut sticker: white frame + visible back-paper layers peeking out.
+       Two ::before layers sit behind the image: a coral back-paper offset
+       down-right and a peach back-paper offset up-left, so the portrait
+       visibly sits on top of a small stack of paper. */
+    padding: 14px;
     background: var(--paper);
     border-radius: var(--r-lg);
-    box-shadow:
-        0 0 0 1px var(--cream-dark),
-        var(--paper-shadow-stacked);
+    box-shadow: var(--paper-shadow-stacked);
+}
+
+/* Back-paper layer #1: coral, offset down-right (visible bottom-right corner) */
+.hero-image::before {
+    content: '';
+    position: absolute;
+    inset: -8px -8px auto auto;
+    width: 80%;
+    height: 12%;
+    background: var(--coral);
+    border-radius: var(--r-md);
+    z-index: -2;
+    box-shadow: 0 4px 8px rgba(58, 50, 42, 0.10);
+}
+
+/* Back-paper layer #2: blue, offset up-left (visible top-left corner) */
+.hero-image::after {
+    content: '';
+    position: absolute;
+    inset: auto auto -8px -8px;
+    width: 70%;
+    height: 10%;
+    background: var(--blue);
+    border-radius: var(--r-md);
+    z-index: -1;
+    box-shadow: 0 4px 8px rgba(58, 50, 42, 0.10);
 }
 
 /* Image itself — fits inside the white sticker border */
@@ -1647,34 +1780,62 @@ html, body, main, .hero, .section, .container {
 .work-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
+    /* Larger gap so the back-paper layer on each card has room to peek out
+       without being clipped by the next card. */
+    gap: 2.5rem;
+    overflow: visible;
 }
 
 .work-card {
     position: relative;
-    /* Paper-cut card: cream paper surface with stacked shadow. No glass. */
+    /* Paper-cut card: cream paper surface with stacked shadow + visible
+       back-paper layer peeking out behind it. The ::before pseudo-element
+       creates a coral back-paper offset down-right so each card visibly
+       sits on a stack of paper, not floating alone. */
     background: var(--paper);
     border-radius: var(--r-xl);
-    overflow: hidden;
+    overflow: visible;
     border: 1px solid var(--cream-darker);
     box-shadow: var(--paper-shadow-stacked);
     transition: all 0.5s var(--ease-out-expo);
     will-change: transform;
 }
 
+/* Back-paper layer: coral, offset down-right.
+   Sits behind the card body, only the offset corners are visible. */
 .work-card::before {
     content: '';
     position: absolute;
+    inset: 8px -10px -10px 8px;
+    background: var(--coral);
+    border-radius: var(--r-xl);
+    z-index: -1;
+    box-shadow: 0 6px 12px rgba(58, 50, 42, 0.10);
+    transition: inset 0.5s var(--ease-out-expo);
+}
+
+/* Subtle peach gradient overlay */
+.work-card::after {
+    content: '';
+    position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, var(--peach-a20, transparent), transparent 50%);
+    background: linear-gradient(135deg, rgba(245, 213, 189, 0.18) 0%, transparent 40%);
     pointer-events: none;
     z-index: 1;
+    border-radius: var(--r-xl);
 }
 
 .work-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-12px);
     border-color: var(--coral);
     box-shadow: var(--paper-shadow-hover);
+}
+
+/* On hover, the back-paper layer also lifts and shifts — creates a
+   visible "stacked paper" lift effect. */
+.work-card:hover::before {
+    inset: 14px -16px -16px 14px;
+    box-shadow: 0 12px 24px rgba(58, 50, 42, 0.16);
 }
 
 .work-image {
