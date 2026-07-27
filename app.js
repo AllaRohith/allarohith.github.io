@@ -157,11 +157,11 @@ class Animations {
         ];
 
         const total = GREETINGS.length;
-        // Rapid-fire cycle: 150ms visible + 75ms fade = ~225ms/word.
-        // 20 × 225 ≈ 4.5s of greetings, plus ~0.9s flourish + exit ≈ 5.4s total.
-        const PER_WORD_MS = 150;
-        const FADE_MS = 75;
-        const FINAL_HOLD_MS = 350;
+        // Whiplash cycle: 75ms visible + 30ms fade = ~105ms/word.
+        // 20 × 105 ≈ 2.1s of greetings, plus ~0.4s flourish + exit ≈ 2.5s total.
+        const PER_WORD_MS = 75;
+        const FADE_MS = 30;
+        const FINAL_HOLD_MS = 120;
 
         totalEl.textContent = String(total).padStart(2, '0');
 
@@ -237,12 +237,12 @@ class Animations {
             return;
         }
         loader.classList.add('exiting');
-        // After the 500ms exit animation, remove the loader
+        // After the 240ms exit animation, remove the loader
         // from the DOM and fire the hero reveal.
         setTimeout(() => {
             loader.style.display = 'none';
             this.triggerHeroAnimations();
-        }, 520);
+        }, 260);
     }
 
     // ============================================

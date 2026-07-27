@@ -457,9 +457,9 @@ body {
     transform: translateY(12px) scale(0.94);
     filter: blur(6px);
     transition:
-        opacity 75ms cubic-bezier(0.16, 1, 0.3, 1),
-        transform 75ms cubic-bezier(0.16, 1, 0.3, 1),
-        filter 75ms cubic-bezier(0.16, 1, 0.3, 1);
+        opacity 30ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 30ms cubic-bezier(0.16, 1, 0.3, 1),
+        filter 30ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .loader-word-wrap.in .loader-word {
     opacity: 1;
@@ -523,8 +523,8 @@ body {
     background-size: 200% 100%;
     border-radius: var(--r-pill);
     animation:
-        loaderProgress 5.4s linear forwards,
-        loaderShimmer 2s linear infinite;
+        loaderProgress 2.5s linear forwards,
+        loaderShimmer 1s linear infinite;
     box-shadow: 0 0 12px rgba(216, 122, 107, 0.35);
 }
 @keyframes loaderProgress {
@@ -539,7 +539,7 @@ body {
 /* Exit state — applied by JS after the last word holds for
    350ms. Scale up + blur out + fade, then display:none. */
 .page-loader.exiting {
-    animation: loaderExit 500ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    animation: loaderExit 240ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 @keyframes loaderExit {
     0%   { opacity: 1; transform: scale(1);    filter: blur(0);   }
