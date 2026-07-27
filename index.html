@@ -146,6 +146,12 @@
                 <span>Welcome · In 20 Languages</span>
             </div>
 
+            <!-- VFX layer — sound wave rings + sparkle particles emanate
+                 from the word on each transition. Purely decorative,
+                 aria-hidden on the parent. JS injects .loader-soundwave
+                 and .loader-sparkle elements into this container. -->
+            <div class="loader-vfx" aria-hidden="true"></div>
+
             <!-- The main rotating word. JS swaps text + font-family + color. -->
             <h1 class="loader-word-wrap" aria-label="Greeting">
                 <span class="loader-word" id="loaderWord" lang="en">Hello</span>

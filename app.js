@@ -123,6 +123,7 @@ class Animations {
         const langEl   = document.getElementById('loaderLang');
         const countEl  = document.getElementById('loaderCount');
         const totalEl  = document.getElementById('loaderTotal');
+        const vfxEl    = document.querySelector('.loader-vfx');
 
         if (!loader || !wordEl || !langEl || !countEl || !totalEl) {
             // Bail out gracefully if the markup isn't there — just reveal.
@@ -176,6 +177,68 @@ class Animations {
             { enterX:  0,  enterY:  60, enterRot: -3, exitX: 0,   exitY: -60, exitRot: 3  }, // bot   → top
         ];
 
+        // VFX HELPERS — sound wave rings + sparkle particles.
+        // Visual stand-in for "audio": each word change emanates
+        // a concentric ring and a few ✦ sparkles from the word's
+        // center, colored to match the word. The final "Welcome"
+        // gets a bigger flourish burst.
+        const _spawnWave = (color) => {
+            if (!vfxEl) return;
+            const wave = document.createElement('div');
+            wave.className = 'loader-soundwave pulse';
+            wave.style.color = color;
+            vfxEl.appendChild(wave);
+            setTimeout(() => wave.remove(), 850);
+        };
+
+        const _spawnSparkle = (color, dx, dy, glyph, size) => {
+            if (!vfxEl) return;
+            const s = document.createElement('span');
+            s.className = 'loader-sparkle burst';
+            s.textContent = glyph;
+            s.style.color = color;
+            s.style.fontSize = (size || 22) + 'px';
+            s.style.setProperty('--dx', dx + 'px');
+            s.style.setProperty('--dy', dy + 'px');
+            vfxEl.appendChild(s);
+            setTimeout(() => s.remove(), 800);
+        };
+
+        const triggerWordVFX = (color) => {
+            if (!vfxEl || reducedMotion) return;
+            _spawnWave(color);
+            // 3 sparkles per word — angles spread evenly with jitter
+            // so they don't look mechanical. Distance randomized so
+            // some fly far, some fly close.
+            for (let i = 0; i < 3; i++) {
+                const angle = (i / 3) * Math.PI * 2 + (Math.random() - 0.5) * 0.7;
+                const distance = 70 + Math.random() * 80;
+                _spawnSparkle(color, Math.cos(angle) * distance, Math.sin(angle) * distance, '✦', 18 + Math.random() * 10);
+            }
+        };
+
+        const triggerFlourishVFX = (color) => {
+            if (!vfxEl || reducedMotion) return;
+            // Triple ring, staggered — bigger feel without overwhelming
+            // the word itself.
+            _spawnWave(color);
+            setTimeout(() => _spawnWave(color), 120);
+            setTimeout(() => _spawnWave(color), 240);
+            // 8 sparkles in a full 360° spread + mixed glyphs.
+            const glyphs = ['✦', '✿', '♡', '✦'];
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2 + Math.random() * 0.3;
+                const distance = 130 + Math.random() * 100;
+                _spawnSparkle(
+                    color,
+                    Math.cos(angle) * distance,
+                    Math.sin(angle) * distance,
+                    glyphs[i % glyphs.length],
+                    22 + Math.random() * 14
+                );
+            }
+        };
+
         // Show one greeting — set text, font, color, dir, language label,
         // counter, AND the per-word entry/exit direction.
         let index = 0;
@@ -214,6 +277,10 @@ class Animations {
             // eslint-disable-next-line no-unused-expressions
             wordWrap.offsetWidth;
             wordWrap.classList.add('in');
+
+            // Audio-style VFX — sound wave ring + 3 sparkles in the
+            // word's color. Matches the "audio effect" brief.
+            triggerWordVFX(g.color);
         };
 
         // After PER_WORD_MS, fade out and queue the next greeting.
@@ -232,6 +299,9 @@ class Animations {
                     wordEl.setAttribute('dir', 'ltr');
                     langEl.textContent = 'Welcome';
                     countEl.textContent = '00';
+                    // Flourish VFX — bigger burst (triple wave + 8
+                    // sparkles in mixed glyphs) signals the finale.
+                    triggerFlourishVFX('var(--coral)');
                     wordWrap.classList.remove('out', 'final');
                     // eslint-disable-next-line no-unused-expressions
                     wordWrap.offsetWidth;
