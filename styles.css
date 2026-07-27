@@ -457,9 +457,9 @@ body {
     transform: translateY(12px) scale(0.94);
     filter: blur(6px);
     transition:
-        opacity 220ms cubic-bezier(0.16, 1, 0.3, 1),
-        transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
-        filter 220ms cubic-bezier(0.16, 1, 0.3, 1);
+        opacity 130ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 130ms cubic-bezier(0.16, 1, 0.3, 1),
+        filter 130ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .loader-word-wrap.in .loader-word {
     opacity: 1;
@@ -539,7 +539,7 @@ body {
 /* Exit state — applied by JS after the last word holds for
    350ms. Scale up + blur out + fade, then display:none. */
 .page-loader.exiting {
-    animation: loaderExit 700ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    animation: loaderExit 550ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 @keyframes loaderExit {
     0%   { opacity: 1; transform: scale(1);    filter: blur(0);   }

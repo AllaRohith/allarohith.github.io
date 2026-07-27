@@ -157,8 +157,11 @@ class Animations {
         ];
 
         const total = GREETINGS.length;
-        const PER_WORD_MS = 500;   // 500ms × 20 = 10s
-        const FINAL_HOLD_MS = 350; // last word lingers just a beat longer
+        // Snappy cycle: ~300ms visible + ~130ms fade gap = ~430ms/word.
+        // 20 × 430 ≈ 8.6s of greetings, plus ~1s flourish + exit ≈ 10s total.
+        const PER_WORD_MS = 300;
+        const FADE_MS = 130;
+        const FINAL_HOLD_MS = 500;
 
         totalEl.textContent = String(total).padStart(2, '0');
 
@@ -204,14 +207,14 @@ class Animations {
                     wordWrap.offsetWidth;
                     wordWrap.classList.add('in', 'final');
 
-                    setTimeout(() => this.exitLoader(), 900);
-                }, 220);
+                    setTimeout(() => this.exitLoader(), FINAL_HOLD_MS);
+                }, FADE_MS);
                 return;
             }
             setTimeout(() => {
                 show(GREETINGS[index]);
                 setTimeout(advance, PER_WORD_MS);
-            }, 220);
+            }, FADE_MS);
         };
 
         // Kickoff — show greeting 0, then schedule advance after PER_WORD_MS.
@@ -234,12 +237,12 @@ class Animations {
             return;
         }
         loader.classList.add('exiting');
-        // After the 700ms exit animation, remove the loader
+        // After the 550ms exit animation, remove the loader
         // from the DOM and fire the hero reveal.
         setTimeout(() => {
             loader.style.display = 'none';
             this.triggerHeroAnimations();
-        }, 720);
+        }, 580);
     }
 
     // ============================================
