@@ -9,9 +9,9 @@
     <meta name="description" content="Rohith Naidu Alla — Creative Developer & Designer crafting digital experiences with modern web technologies, stunning visuals, and smooth interactions.">
     <meta name="author" content="Rohith Naidu Alla">
     <!-- theme-color must match body bg, otherwise Safari paints white/black
-         bars during overscroll on iPhone. -->
-    <meta name="theme-color" content="#0a0a0b" media="(prefers-color-scheme: dark)">
-    <meta name="theme-color" content="#0a0a0b">
+         bars during overscroll on iPhone. Cream now (paper-cut rebrand). -->
+    <meta name="theme-color" content="#FAF5EC" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#FAF5EC">
     <!-- Disable iOS tap highlight, automatic phone-number detection, etc. -->
     <meta name="format-detection" content="telephone=no">
     <!-- iOS web-app config: status bar style + title for "Add to Home Screen". -->
@@ -70,7 +70,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Multilingual font set — covers the 20 languages the pre-loader cycles through.
+         display=swap so the body text remains readable while these load. -->
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Be+Vietnam+Pro:wght@400;700&family=Cormorant+Garamond:wght@500;700&family=Italianno&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+Bengali:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&family=Noto+Sans+Hebrew:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;700&family=Noto+Sans+Kannada:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&family=Noto+Sans+SC:wght@400;700&family=Noto+Sans+Tamil:wght@400;700&family=Noto+Sans+Thai:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
     <!-- Preload the heaviest display weights so Safari doesn't flash the system
          font before Syne arrives. Crossorigin is mandatory for font files. -->
     <link rel="preload" as="font" type="font/woff2"
@@ -113,7 +116,57 @@
         <span class="status-spacer"></span>
     </div>
 
-    <!-- Loader was removed — it caused page hangs -->
+    <!-- ============================================
+         PAGE LOADER — multilingual "Hello" rotating display.
+         20 greetings × ~500ms each = 10s. Each word renders
+         in its native font and color (matched to the
+         paper-cut palette). After all 20, the loader fades
+         out and the hero reveals via .hero-ready.
+         ============================================ -->
+    <div class="page-loader" id="pageLoader" role="status" aria-live="polite" aria-label="Loading portfolio">
+        <!-- Paper-cut backdrop: cream surface + soft grain -->
+        <div class="loader-paper-bg" aria-hidden="true"></div>
+
+        <!-- Decorative paper confetti scattered behind the word.
+             Purely visual — aria-hidden on the parent. -->
+        <div class="loader-confetti" aria-hidden="true">
+            <span class="lc lc-1">✦</span>
+            <span class="lc lc-2"></span>
+            <span class="lc lc-3">✿</span>
+            <span class="lc lc-4"></span>
+            <span class="lc lc-5">✦</span>
+            <span class="lc lc-6"></span>
+        </div>
+
+        <!-- Centred content stack -->
+        <div class="loader-content">
+            <!-- Tiny eyebrow tag at the top -->
+            <div class="loader-eyebrow">
+                <span class="loader-eyebrow-dot" aria-hidden="true"></span>
+                <span>Welcome · In 20 Languages</span>
+            </div>
+
+            <!-- The main rotating word. JS swaps text + font-family + color. -->
+            <h1 class="loader-word-wrap" aria-label="Greeting">
+                <span class="loader-word" id="loaderWord" lang="en">Hello</span>
+            </h1>
+
+            <!-- Bottom row: language label (left) + counter (right) -->
+            <div class="loader-meta">
+                <span class="loader-lang" id="loaderLang">English</span>
+                <span class="loader-counter">
+                    <span class="loader-counter-num" id="loaderCount">01</span>
+                    <span class="loader-counter-sep">/</span>
+                    <span class="loader-counter-total" id="loaderTotal">20</span>
+                </span>
+            </div>
+
+            <!-- Linear progress bar — fills smoothly over 10s. -->
+            <div class="loader-progress" aria-hidden="true">
+                <div class="loader-progress-bar" id="loaderProgressBar"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- Navigation -->
     <nav class="nav" id="nav">

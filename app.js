@@ -99,19 +99,153 @@ class Animations {
     }
 
     init() {
+        this.setupLoader();
+        // The remaining setup runs once the loader's done — see setupLoader().
+        // It registers everything except the hero reveal, which only fires
+        // after the loader fades (10s + 700ms exit).
         this.setupScrollAnimations();
         this.setupSkillBars();
         this.setupStatCounters();
         this.setupNavToggle();
-        // Hero entrance reveal — plays on first load.
-        // Replaces the old setupLoader() / 3.3s cinematic pre-loader.
-        this.triggerHeroAnimations();
+    }
+
+    // ============================================
+    // PAGE LOADER — multilingual "Hello" rotator.
+    // Cycles 20 greetings × 500ms each = 10s, then
+    // fades the loader out and reveals the hero.
+    // Colors are picked to harmonize with the cream
+    // paper backdrop (no saturated neons).
+    // ============================================
+    setupLoader() {
+        const loader = document.getElementById('pageLoader');
+        const wordWrap = document.querySelector('.loader-word-wrap');
+        const wordEl   = document.getElementById('loaderWord');
+        const langEl   = document.getElementById('loaderLang');
+        const countEl  = document.getElementById('loaderCount');
+        const totalEl  = document.getElementById('loaderTotal');
+
+        if (!loader || !wordEl || !langEl || !countEl || !totalEl) {
+            // Bail out gracefully if the markup isn't there — just reveal.
+            this.triggerHeroAnimations();
+            return;
+        }
+
+        // Each entry: { text, lang, langCode, font, color, dir }.
+        // font uses Google Fonts family names (loaded by the
+        // <link> in <head>). dir is "rtl" for Arabic/Hebrew.
+        const GREETINGS = [
+            { text: 'Hello',      lang: 'English',         langCode: 'en', font: "'Syne', sans-serif",                         color: 'var(--coral)' },
+            { text: 'Hola',       lang: 'Spanish',         langCode: 'es', font: "'Syne', sans-serif",                         color: 'var(--coral-dark)' },
+            { text: 'Bonjour',    lang: 'French',          langCode: 'fr', font: "'Cormorant Garamond', serif",                color: 'var(--lavender-dark)' },
+            { text: 'Hallo',      lang: 'German',          langCode: 'de', font: "'Syne', sans-serif",                         color: 'var(--blue-dark)' },
+            { text: 'Ciao',       lang: 'Italian',         langCode: 'it', font: "'Italianno', cursive",                        color: 'var(--coral-dark)' },
+            { text: 'こんにちは',  lang: 'Japanese',        langCode: 'ja', font: "'Noto Sans JP', sans-serif",                  color: 'var(--coral)' },
+            { text: '你好',        lang: 'Chinese (Simp.)', langCode: 'zh', font: "'Noto Sans SC', sans-serif",                  color: 'var(--green-dark)' },
+            { text: '안녕하세요',   lang: 'Korean',          langCode: 'ko', font: "'Noto Sans KR', sans-serif",                  color: 'var(--blue-dark)' },
+            { text: 'مرحبا',       lang: 'Arabic',          langCode: 'ar', font: "'Noto Sans Arabic', sans-serif",             color: 'var(--green-dark)', dir: 'rtl' },
+            { text: 'שלום',        lang: 'Hebrew',          langCode: 'he', font: "'Noto Sans Hebrew', sans-serif",             color: 'var(--rose-dark)',   dir: 'rtl' },
+            { text: 'Привет',     lang: 'Russian',         langCode: 'ru', font: "'Syne', sans-serif",                         color: 'var(--mint-dark)' },
+            { text: 'Γειά σου',  lang: 'Greek',           langCode: 'el', font: "'Syne', sans-serif",                         color: 'var(--blue-dark)' },
+            { text: 'नमस्ते',      lang: 'Hindi',           langCode: 'hi', font: "'Noto Sans Devanagari', sans-serif",         color: 'var(--coral-dark)' },
+            { text: 'নমস্কার',     lang: 'Bengali',         langCode: 'bn', font: "'Noto Sans Bengali', sans-serif",            color: 'var(--green-dark)' },
+            { text: 'வணக்கம்',    lang: 'Tamil',           langCode: 'ta', font: "'Noto Sans Tamil', sans-serif",              color: 'var(--lavender-dark)' },
+            { text: 'ನಮಸ್ಕಾರ',    lang: 'Kannada',         langCode: 'kn', font: "'Noto Sans Kannada', sans-serif",            color: 'var(--coral)' },
+            { text: 'നമസ്കാരം',  lang: 'Malayalam',       langCode: 'ml', font: "'Noto Sans Malayalam', sans-serif",          color: 'var(--mint-dark)' },
+            { text: 'สวัสดี',     lang: 'Thai',            langCode: 'th', font: "'Noto Sans Thai', sans-serif",               color: 'var(--yellow-dark)' },
+            { text: 'Xin chào',  lang: 'Vietnamese',      langCode: 'vi', font: "'Be Vietnam Pro', sans-serif",               color: 'var(--rose-dark)' },
+            { text: 'Merhaba',    lang: 'Turkish',         langCode: 'tr', font: "'Syne', sans-serif",                         color: 'var(--coral-dark)' },
+        ];
+
+        const total = GREETINGS.length;
+        const PER_WORD_MS = 500;   // 500ms × 20 = 10s
+        const FINAL_HOLD_MS = 350; // last word lingers just a beat longer
+
+        totalEl.textContent = String(total).padStart(2, '0');
+
+        // Show one greeting — set text, font, color, dir, language label,
+        // counter. Adds .in (fade in) then .out (fade out) on schedule.
+        let index = 0;
+        const show = (g) => {
+            wordEl.textContent = g.text;
+            wordEl.style.fontFamily = g.font;
+            wordEl.style.color = g.color;
+            wordEl.setAttribute('lang', g.langCode);
+            wordEl.setAttribute('dir', g.dir || 'ltr');
+            langEl.textContent = g.lang;
+            countEl.textContent = String(index + 1).padStart(2, '0');
+
+            // Force a reflow so re-adding the same .in class
+            // re-triggers the transition (browsers coalesce
+            // identical class sequences).
+            wordWrap.classList.remove('in', 'out', 'final');
+            // eslint-disable-next-line no-unused-expressions
+            wordWrap.offsetWidth;
+            wordWrap.classList.add('in');
+        };
+
+        // After PER_WORD_MS, fade out and queue the next greeting.
+        const advance = () => {
+            wordWrap.classList.remove('in');
+            wordWrap.classList.add('out');
+            index += 1;
+            if (index >= total) {
+                // Show a final flourish in English — gives the
+                // loader a satisfying punctuation mark.
+                setTimeout(() => {
+                    wordEl.textContent = 'Hello';
+                    wordEl.style.fontFamily = "'Syne', sans-serif";
+                    wordEl.style.color = 'var(--coral)';
+                    wordEl.setAttribute('lang', 'en');
+                    wordEl.setAttribute('dir', 'ltr');
+                    langEl.textContent = 'Welcome';
+                    countEl.textContent = '00';
+                    wordWrap.classList.remove('out', 'final');
+                    // eslint-disable-next-line no-unused-expressions
+                    wordWrap.offsetWidth;
+                    wordWrap.classList.add('in', 'final');
+
+                    setTimeout(() => this.exitLoader(), 900);
+                }, 220);
+                return;
+            }
+            setTimeout(() => {
+                show(GREETINGS[index]);
+                setTimeout(advance, PER_WORD_MS);
+            }, 220);
+        };
+
+        // Kickoff — show greeting 0, then schedule advance after PER_WORD_MS.
+        show(GREETINGS[0]);
+        setTimeout(advance, PER_WORD_MS);
+
+        // Reduced motion: skip the whole cycle. Show the final
+        // word for a beat, then exit.
+        if (reducedMotion) {
+            // Skip ahead to the final flourish immediately.
+            for (let i = 0; i < total; i++) advance();
+            return;
+        }
+    }
+
+    exitLoader() {
+        const loader = document.getElementById('pageLoader');
+        if (!loader) {
+            this.triggerHeroAnimations();
+            return;
+        }
+        loader.classList.add('exiting');
+        // After the 700ms exit animation, remove the loader
+        // from the DOM and fire the hero reveal.
+        setTimeout(() => {
+            loader.style.display = 'none';
+            this.triggerHeroAnimations();
+        }, 720);
     }
 
     // ============================================
     // HERO REVEAL ANIMATION
-    // Plays on page load — replaces the old
-    // setupLoader() that ran the cinematic pre-loader.
+    // Plays AFTER the 10s multilingual loader + 700ms
+    // exit fade. Wired by setupLoader() → exitLoader().
     // ============================================
     triggerHeroAnimations() {
         // The hero now only contains the .hero-image — animate that as the reveal.

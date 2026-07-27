@@ -301,10 +301,280 @@ body {
     color: var(--text);
 }
 
-/* Page loader removed — the cinematic pre-loader is gone.
-   The hero entrance animation (gsap.from on .hero-image +
-   .hero-name-bg-line) plays on DOMContentLoaded instead, called
-   from the Animations class init(). */
+/* ========================================
+   PAGE LOADER — multilingual "Hello" rotator.
+   20 greetings × 500ms each = 10s. Each word
+   renders in its native font and color (matched
+   to the paper-cut palette). After all 20, the
+   loader fades out and the hero reveals via
+   .hero-ready (defined below).
+
+   Hierarchy:
+     .page-loader       fixed full-viewport shell
+       .loader-paper-bg cream backdrop with grain
+       .loader-confetti scattered paper-cut shapes
+       .loader-content  centred vertical stack
+         .loader-word    THE rotating element
+         .loader-meta    language + counter row
+         .loader-progress linear progress bar
+   ======================================== */
+
+.page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-loader);
+    display: grid;
+    place-items: center;
+    background: var(--cream);
+    overflow: hidden;
+    /* Sits above everything. Body content is visually hidden
+       behind it until .exiting triggers the fade. */
+}
+
+/* Cream paper backdrop — one strong gradient + a subtle
+   texture. Keeps the loader feeling of-a-piece with the site. */
+.loader-paper-bg {
+    position: absolute;
+    inset: 0;
+    background-color: var(--cream);
+    background-image:
+        radial-gradient(ellipse 70% 50% at 50% 0%, var(--paper-warm) 0%, transparent 65%),
+        radial-gradient(ellipse 90% 60% at 50% 100%, var(--cream-darker) 0%, transparent 70%),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.227 0 0 0 0 0.196 0 0 0 0 0.165 0 0 0 0.45 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 100% 100%, 100% 100%, 200px 200px;
+    background-blend-mode: normal, normal, multiply;
+    pointer-events: none;
+}
+
+/* Floating paper confetti behind the word — slowly drifting.
+   Each shape uses a different pastel + paper-shadow-stacked
+   so it reads as a real paper-cut sticker floating around. */
+.loader-confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+.loader-confetti .lc {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--paper);
+    box-shadow: var(--paper-shadow-soft);
+    animation: lcDrift 8s ease-in-out infinite;
+}
+/* Sized + positioned as 6 scattered shapes. Each gets its
+   own drift phase so the cluster feels alive, not synced. */
+.lc-1 { top: 12%; left: 8%;  width: 38px; height: 38px; border-radius: 50%; background: var(--coral);    color: var(--paper); font-size: 22px; animation-delay: 0s;   }
+.lc-2 { top: 22%; right: 10%; width: 22px; height: 22px; border-radius: 50%; background: var(--yellow);   animation-delay: 1.2s; }
+.lc-3 { bottom: 18%; left: 12%; width: 44px; height: 44px; border-radius: 14px; background: var(--lavender); color: var(--paper); font-size: 22px; animation-delay: 2.4s; }
+.lc-4 { bottom: 28%; right: 9%; width: 28px; height: 28px; border-radius: 50%; background: var(--mint);     animation-delay: 3.6s; }
+.lc-5 { top: 50%; left: 4%;   width: 30px; height: 30px; border-radius: 50%; background: var(--peach);    color: var(--paper); font-size: 18px; animation-delay: 4.8s; }
+.lc-6 { top: 48%; right: 5%;  width: 26px; height: 26px; border-radius: 8px;  background: var(--blue);     animation-delay: 6.0s; }
+
+@keyframes lcDrift {
+    0%, 100% { transform: translateY(0)    rotate(0deg);  }
+    50%      { transform: translateY(-14px) rotate(8deg); }
+}
+
+/* Centred vertical stack of content. z-index 2 keeps the
+   word above the drifting confetti. */
+.loader-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: min(92vw, 1100px);
+    padding: 0 1.5rem;
+    text-align: center;
+    gap: 1.5rem;
+}
+
+/* Small eyebrow tag at the top of the stack */
+.loader-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.4rem 0.95rem;
+    border-radius: var(--r-pill);
+    background: var(--paper);
+    border: 1.5px solid var(--cream-dark);
+    box-shadow: var(--paper-shadow-soft);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.loader-eyebrow-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--coral);
+    box-shadow: 0 0 0 2px var(--paper);
+    animation: pulseDot 1.6s ease-in-out infinite;
+}
+@keyframes pulseDot {
+    0%, 100% { transform: scale(1);   opacity: 1;   }
+    50%      { transform: scale(1.3); opacity: 0.7; }
+}
+
+/* The word — gigantic, centred, swaps font + color per cycle.
+   clamp() ensures it scales gracefully from mobile (3.5rem)
+   to ultrawide (9rem). Min-height keeps the layout from
+   jumping between languages with different vertical metrics. */
+.loader-word-wrap {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: clamp(120px, 18vw, 220px);
+    /* No overflow:hidden — some scripts have diacritics
+       (Vietnamese, Greek) that climb above the cap height. */
+}
+.loader-word {
+    display: inline-block;
+    /* font-family is set inline per-language (JS) so each
+       script uses its native typeface. */
+    font-weight: 700;
+    font-size: clamp(3.25rem, 12vw, 9rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--coral);             /* JS overrides per-cycle */
+    /* Soft cream paper shadow under the text reads as
+       "die-cut paper letters sitting on cream paper" */
+    text-shadow:
+        0 2px 0 var(--paper),
+        0 8px 18px rgba(58, 50, 42, 0.15);
+    /* RTL scripts (Arabic, Hebrew) need direction set inline */
+    will-change: opacity, transform, filter;
+    /* The actual fade is driven by JS adding/removing
+       .in and .out classes on the wrapper. */
+    opacity: 0;
+    transform: translateY(12px) scale(0.94);
+    filter: blur(6px);
+    transition:
+        opacity 220ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+        filter 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.loader-word-wrap.in .loader-word {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+}
+.loader-word-wrap.out .loader-word {
+    opacity: 0;
+    transform: translateY(-10px) scale(1.04);
+    filter: blur(4px);
+}
+
+/* Bottom row: language label (left) and counter (right). */
+.loader-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 560px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.loader-lang {
+    font-weight: 500;
+}
+.loader-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--text-dim);
+}
+.loader-counter-num {
+    color: var(--text);
+    font-weight: 700;
+}
+.loader-counter-sep {
+    opacity: 0.4;
+}
+
+/* Linear progress bar — fills over 10s in lockstep with the
+   word cycle. The animation runs continuously; JS just adds
+   the .exiting class to stop it. */
+.loader-progress {
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    height: 3px;
+    background: var(--cream-dark);
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(58, 50, 42, 0.08);
+}
+.loader-progress-bar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0%;
+    background: linear-gradient(90deg, var(--coral), var(--peach), var(--yellow), var(--green), var(--blue), var(--lavender));
+    background-size: 200% 100%;
+    border-radius: var(--r-pill);
+    animation:
+        loaderProgress 10s linear forwards,
+        loaderShimmer 4s linear infinite;
+    box-shadow: 0 0 12px rgba(216, 122, 107, 0.35);
+}
+@keyframes loaderProgress {
+    from { width: 0%;   }
+    to   { width: 100%; }
+}
+@keyframes loaderShimmer {
+    from { background-position: 0%   0; }
+    to   { background-position: 200% 0; }
+}
+
+/* Exit state — applied by JS after the last word holds for
+   350ms. Scale up + blur out + fade, then display:none. */
+.page-loader.exiting {
+    animation: loaderExit 700ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+@keyframes loaderExit {
+    0%   { opacity: 1; transform: scale(1);    filter: blur(0);   }
+    100% { opacity: 0; transform: scale(1.18); filter: blur(14px); }
+}
+
+/* The final flourish word holds a touch longer and gets a
+   gentle pop. Triggered by adding .final to the wrapper. */
+.loader-word-wrap.final .loader-word {
+    font-family: var(--font-display) !important;
+    color: var(--coral) !important;
+    font-weight: 800;
+    text-shadow:
+        0 2px 0 var(--paper),
+        0 12px 28px rgba(216, 122, 107, 0.35);
+}
+
+/* Mobile: tighter type, smaller confetti, eyebrow hidden. */
+@media (max-width: 640px) {
+    .loader-content  { gap: 1.1rem; }
+    .loader-word     { letter-spacing: -0.01em; }
+    .loader-meta     { font-size: 0.68rem; letter-spacing: 0.12em; }
+    .lc-1, .lc-3, .lc-5 { width: 26px !important; height: 26px !important; font-size: 14px !important; }
+    .lc-2, .lc-4, .lc-6 { width: 18px !important; height: 18px !important; }
+}
+
+/* Accessibility: respect reduced motion. Skip the cycle and
+   the long exit — show the final state briefly then reveal. */
+@media (prefers-reduced-motion: reduce) {
+    .loader-progress-bar { animation-duration: 0.01s; }
+    .loader-confetti .lc { animation: none; }
+    .loader-eyebrow-dot  { animation: none; }
+    .page-loader.exiting { animation-duration: 0.01s; }
+    .loader-word         { transition-duration: 0.01s; }
+}
 
 /* ========================================
    HERO LANDING — hero-ready is fired by JS, but
