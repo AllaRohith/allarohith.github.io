@@ -759,6 +759,7 @@ body {
     body.hero-ready .hero-content .hero-ctas,
     body.hero-ready .hero-content .hero-meta,
     body.hero-ready .paper-confetti .confetti { animation-duration: 0.01s; animation-delay: 0.01s; }
+    body.hero-ready .nav { animation-duration: 0.01s; animation-delay: 0.01s; }
 }
 
 /* ========================================
@@ -1172,6 +1173,18 @@ body.hero-ready .paper-confetti .confetti { animation-duration: 800ms; }
     z-index: 1000;
     transition: all 0.4s var(--ease-out-expo);
     background: transparent;
+    /* Hidden during the loader so the logo + menu don't sit on
+       top of the cream paper backdrop. .hero-ready (added when
+       the loader exits) fades the nav in alongside the hero. */
+    opacity: 0;
+    pointer-events: none;
+}
+body.hero-ready .nav {
+    animation: navFadeIn 700ms cubic-bezier(0.16, 1, 0.3, 1) 200ms forwards;
+}
+@keyframes navFadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0);    }
 }
 
 /* Scrolled nav: opaque cream paper with the signature stacked shadow.
