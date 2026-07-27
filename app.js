@@ -165,17 +165,47 @@ class Animations {
 
         totalEl.textContent = String(total).padStart(2, '0');
 
+        // Four flying-in directions that cycle through the 20 words.
+        // Each word enters from one side and exits the opposite side,
+        // so the rapid sequence reads as a kinetic sweep through the
+        // viewport instead of a static fade.
+        const DIRECTIONS = [
+            { enterX: -90, enterY: 0,   enterRot: -4, exitX: 90,  exitY: 0,   exitRot: 4  }, // left  → right
+            { enterX:  90, enterY: 0,   enterRot:  4, exitX: -90, exitY: 0,   exitRot: -4 }, // right → left
+            { enterX:  0,  enterY: -60, enterRot:  3, exitX: 0,   exitY: 60,  exitRot: -3 }, // top   → bottom
+            { enterX:  0,  enterY:  60, enterRot: -3, exitX: 0,   exitY: -60, exitRot: 3  }, // bot   → top
+        ];
+
         // Show one greeting — set text, font, color, dir, language label,
-        // counter. Adds .in (fade in) then .out (fade out) on schedule.
+        // counter, AND the per-word entry/exit direction.
         let index = 0;
-        const show = (g) => {
+        const show = (g, i) => {
             wordEl.textContent = g.text;
             wordEl.style.fontFamily = g.font;
             wordEl.style.color = g.color;
             wordEl.setAttribute('lang', g.langCode);
             wordEl.setAttribute('dir', g.dir || 'ltr');
             langEl.textContent = g.lang;
-            countEl.textContent = String(index + 1).padStart(2, '0');
+            countEl.textContent = String(i + 1).padStart(2, '0');
+
+            // Pick a direction. RTL scripts (Arabic, Hebrew) always
+            // enter from the right — reads as more "natural" for
+            // right-to-left text. Otherwise cycle through the 4
+            // directions so consecutive words come from different
+            // sides (avoids monotonous left-right-left-right).
+            let dirIdx;
+            if (g.dir === 'rtl') {
+                dirIdx = 1; // right
+            } else {
+                dirIdx = i % 4;
+            }
+            const d = DIRECTIONS[dirIdx];
+            wordWrap.style.setProperty('--enter-x',     d.enterX + 'px');
+            wordWrap.style.setProperty('--enter-y',     d.enterY + 'px');
+            wordWrap.style.setProperty('--enter-rot',   d.enterRot + 'deg');
+            wordWrap.style.setProperty('--exit-x',      d.exitX + 'px');
+            wordWrap.style.setProperty('--exit-y',      d.exitY + 'px');
+            wordWrap.style.setProperty('--exit-rot',    d.exitRot + 'deg');
 
             // Force a reflow so re-adding the same .in class
             // re-triggers the transition (browsers coalesce
@@ -212,13 +242,13 @@ class Animations {
                 return;
             }
             setTimeout(() => {
-                show(GREETINGS[index]);
+                show(GREETINGS[index], index);
                 setTimeout(advance, PER_WORD_MS);
             }, FADE_MS);
         };
 
         // Kickoff — show greeting 0, then schedule advance after PER_WORD_MS.
-        show(GREETINGS[0]);
+        show(GREETINGS[0], 0);
         setTimeout(advance, PER_WORD_MS);
 
         // Reduced motion: skip the whole cycle. Show the final

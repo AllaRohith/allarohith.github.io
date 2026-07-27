@@ -452,23 +452,33 @@ body {
     /* RTL scripts (Arabic, Hebrew) need direction set inline */
     will-change: opacity, transform, filter;
     /* The actual fade is driven by JS adding/removing
-       .in and .out classes on the wrapper. */
+       .in and .out classes on the wrapper.
+       Initial transform is driven by --enter-* custom props set by JS
+       (see setupLoader() in app.js), so each word flies in from a
+       different side: left/right/top/bottom + a slight rotation.
+       Exit goes the OPPOSITE way, creating a sweep-through effect. */
     opacity: 0;
-    transform: translateY(12px) scale(0.94);
+    transform:
+        translate(var(--enter-x, 0), var(--enter-y, 0))
+        scale(var(--enter-scale, 0.9))
+        rotate(var(--enter-rot, 0deg));
     filter: blur(6px);
     transition:
-        opacity 30ms cubic-bezier(0.16, 1, 0.3, 1),
-        transform 30ms cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 30ms cubic-bezier(0.34, 1.56, 0.64, 1),
+        transform 30ms cubic-bezier(0.34, 1.56, 0.64, 1),
         filter 30ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .loader-word-wrap.in .loader-word {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate(0, 0) scale(1) rotate(0);
     filter: blur(0);
 }
 .loader-word-wrap.out .loader-word {
     opacity: 0;
-    transform: translateY(-10px) scale(1.04);
+    transform:
+        translate(var(--exit-x, 0), var(--exit-y, 0))
+        scale(var(--exit-scale, 1.05))
+        rotate(var(--exit-rot, 0deg));
     filter: blur(4px);
 }
 
