@@ -782,12 +782,24 @@ body.hero-ready .hero-content .hero-meta,
 body.hero-ready .paper-confetti .confetti {
     animation: heroFadeIn 700ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
 }
-body.hero-ready .hero-image        { animation-duration: 900ms; }
+/* The hero portrait gets its own dramatic camera-dolly reveal
+   instead of the simple fade. Starts zoomed-in (scale 1.25) with
+   a heavy blur — feels like the camera is right against the
+   subject — then pulls back to scale 1 with crisp focus as the
+   blur clears. Slower (1500ms) for cinematic pacing. */
+body.hero-ready .hero-image {
+    animation: heroPortraitDolly 1500ms cubic-bezier(0.16, 1, 0.3, 1) 250ms both;
+}
 body.hero-ready .paper-confetti .confetti { animation-duration: 800ms; }
 
 @keyframes heroFadeIn {
     from { opacity: 0; }
     to   { opacity: 1; }
+}
+@keyframes heroPortraitDolly {
+    0%   { opacity: 0; transform: translateY(40px) scale(1.28); filter: blur(14px); }
+    45%  { opacity: 0.75; filter: blur(4px); }
+    100% { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0);   }
 }
 
 /* Cursor — base shape + transitions */
@@ -1259,6 +1271,87 @@ body.hero-ready .paper-confetti .confetti { animation-duration: 800ms; }
 /* ========================================
    HERO — full viewport, single centered cutout
    ======================================== */
+
+/* Paper-peel reveal layers — three full-viewport cream sheets that
+   sit between the loader (z-index 200) and the hero. Initially
+   invisible (opacity 0). When .hero-ready is added, each one
+   animates from opacity 1 → 0 while translating off-screen on a
+   different direction — creates a 3-layer book-page reveal right
+   after the loader exits. Delays are tuned so they stack AFTER
+   the 1100ms loader slide, not during it. */
+.hero-peel {
+    position: fixed;
+    inset: 0;
+    background: var(--cream);
+    pointer-events: none;
+    z-index: 150;
+    opacity: 0;
+    will-change: transform, opacity;
+}
+.hero-peel-1 { transform-origin: top center; }
+.hero-peel-2 { transform-origin: left center; }
+.hero-peel-3 { transform-origin: right center; }
+body.hero-ready .hero-peel-1 {
+    animation: heroPeelUp    950ms cubic-bezier(0.65, 0, 0.35, 1) 1100ms forwards;
+}
+body.hero-ready .hero-peel-2 {
+    animation: heroPeelRight 950ms cubic-bezier(0.65, 0, 0.35, 1) 1280ms forwards;
+}
+body.hero-ready .hero-peel-3 {
+    animation: heroPeelLeft  950ms cubic-bezier(0.65, 0, 0.35, 1) 1460ms forwards;
+}
+@keyframes heroPeelUp {
+    0%   { opacity: 1; transform: translateY(0)    rotate(0);    }
+    100% { opacity: 0; transform: translateY(-105%) rotate(-4deg); }
+}
+@keyframes heroPeelRight {
+    0%   { opacity: 1; transform: translateX(0)    rotate(0);    }
+    100% { opacity: 0; transform: translateX(105%)  rotate(5deg); }
+}
+@keyframes heroPeelLeft {
+    0%   { opacity: 1; transform: translateX(0)     rotate(0);     }
+    100% { opacity: 0; transform: translateX(-105%) rotate(-5deg); }
+}
+
+/* Floating paper dust motes — small paper-cut stickers that drift
+   continuously upward across the hero. Each has a different size,
+   speed, and starting position so the cluster feels organic rather
+   than synchronized. The drift crosses the full viewport height
+   over 16-26s, then loops forever. */
+.hero-dust {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 2;
+}
+.hero-dust-mote {
+    position: absolute;
+    background: var(--paper);
+    border: 1px solid var(--cream-dark);
+    border-radius: 50%;
+    box-shadow: var(--paper-shadow-soft);
+    bottom: -20px;
+    left: 50%;
+    opacity: 0;
+    animation: heroDustDrift linear infinite;
+    will-change: transform, opacity;
+}
+.hero-dust-mote:nth-child(1) { left: 8%;  width: 7px;  height: 7px;  animation-duration: 19s; animation-delay: 0s;  }
+.hero-dust-mote:nth-child(2) { left: 22%; width: 11px; height: 11px; animation-duration: 24s; animation-delay: 3s;  border-radius: 3px; }
+.hero-dust-mote:nth-child(3) { left: 35%; width: 6px;  height: 6px;  animation-duration: 17s; animation-delay: 7s;  }
+.hero-dust-mote:nth-child(4) { left: 48%; width: 9px;  height: 9px;  animation-duration: 22s; animation-delay: 1s;  }
+.hero-dust-mote:nth-child(5) { left: 62%; width: 13px; height: 13px; animation-duration: 26s; animation-delay: 5s;  border-radius: 4px; }
+.hero-dust-mote:nth-child(6) { left: 75%; width: 8px;  height: 8px;  animation-duration: 20s; animation-delay: 9s;  }
+.hero-dust-mote:nth-child(7) { left: 85%; width: 10px; height: 10px; animation-duration: 23s; animation-delay: 11s; border-radius: 3px; }
+.hero-dust-mote:nth-child(8) { left: 93%; width: 7px;  height: 7px;  animation-duration: 18s; animation-delay: 4s;  }
+@keyframes heroDustDrift {
+    0%   { transform: translate(0, 0)               rotate(0);    opacity: 0;   }
+    8%   { opacity: 0.6; }
+    92%  { opacity: 0.6; }
+    100% { transform: translate(12vw, -115vh)      rotate(360deg); opacity: 0;   }
+}
+
 .hero {
     /* CSS stacking: -webkit-fill-available → 100dvh → 100vh. Safari iOS reads
        the first one it understands. */
@@ -1272,6 +1365,11 @@ body.hero-ready .paper-confetti .confetti { animation-duration: 800ms; }
     position: relative;
     z-index: 1;
     overflow: hidden;                 /* clip decorative paper confetti at hero edges */
+    /* 3D depth for the immersive entrance — children with their
+       own transforms gain perspective from this. */
+    perspective: 1800px;
+    perspective-origin: 50% 30%;
+    transform-style: preserve-3d;
 }
 
 
@@ -1284,19 +1382,19 @@ body.hero-ready .paper-confetti .confetti { animation-duration: 800ms; }
    person first and reads outward.
    ======================================== */
 .hero {
-    min-height: -webkit-fill-available;
-    min-height: 100dvh;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: clamp(0.75rem, 1.5vw, 1.25rem);
     padding: clamp(4.5rem, 8vh, 6rem) clamp(1.5rem, 5vw, 4rem) clamp(1.5rem, 3vh, 2.5rem);
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
     text-align: center;
+    /* 3D depth — children with their own transforms gain
+       perspective from this. Adds immersive feel to the
+       entrance animation. */
+    perspective: 1800px;
+    perspective-origin: 50% 30%;
+    transform-style: preserve-3d;
 }
 
 /* The identity block — eyebrow / name / pitch / CTAs / meta. */

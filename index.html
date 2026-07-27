@@ -35,7 +35,6 @@
         frame-src 'none';
         object-src 'none';
         base-uri 'self';
-        form-action 'mailto:';
         upgrade-insecure-requests;">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
@@ -211,12 +210,35 @@
 
     <main id="main">
 
+    <!-- Paper-peel reveal layers — three full-viewport cream sheets
+         that sit between the loader and the hero. When .hero-ready
+         is added, they peel away one by one (each on its own
+         direction + easing) right after the loader exits, revealing
+         the hero underneath. Pure visual — aria-hidden. -->
+    <div class="hero-peel hero-peel-1" aria-hidden="true"></div>
+    <div class="hero-peel hero-peel-2" aria-hidden="true"></div>
+    <div class="hero-peel hero-peel-3" aria-hidden="true"></div>
+
     <!-- Hero Section — portrait-centered composition.
          The image is the visual thesis (centered, dominant). The
          eyebrow sits above as a small intro; the identity block
          (name, pitch, CTAs, meta) sits below as the verbal
          counterpart. The 3D scene is page-wide behind it. -->
     <section class="hero" id="home">
+
+        <!-- Floating paper dust motes — small paper-cut stickers that
+             drift continuously upward across the hero. Different sizes,
+             speeds, and starting positions so the cluster feels organic. -->
+        <div class="hero-dust" aria-hidden="true">
+            <span class="hero-dust-mote"></span>
+            <span class="hero-dust-mote"></span>
+            <span class="hero-dust-mote"></span>
+            <span class="hero-dust-mote"></span>
+            <span class="hero-dust-mote"></span>
+            <span class="hero-dust-mote"></span>
+            <span class="hero-dust-mote"></span>
+            <span class="hero-dust-mote"></span>
+        </div>
 
         <!-- Decorative paper confetti — scattered paper-cut shapes that
              make the storybook / papercraft aesthetic unmistakable.

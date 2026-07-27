@@ -191,32 +191,32 @@ class Animations {
             }
         } catch (e) { /* private mode */ }
 
-        // Unlock audio on ANY user interaction with the loader — not
-        // just the toggle button. This is the autoplay-policy workaround:
-        // any pointer/touch/keyboard event counts as a user gesture.
-        if (loader) {
-            const gestureEvents = ['pointerdown', 'touchstart', 'mousedown', 'keydown'];
-            const handler = () => {
-                unlockAudio();
-                // After the first successful unlock, remove the listeners
-                // (we don't need to re-resume on every interaction).
-                if (audioUnlocked) {
-                    gestureEvents.forEach(ev => loader.removeEventListener(ev, handler));
-                }
-            };
-            gestureEvents.forEach(ev => loader.addEventListener(ev, handler, { passive: true }));
-        }
+        // Unlock audio on ANY user gesture anywhere on the page
+        // (document-level with capture, so it fires before any
+        // other handler that might consume the event). The toggle
+        // click also unlocks, but listening at document level
+        // means even a click on the page chrome counts.
+        const unlockHandler = () => {
+            if (audioUnlocked) return;
+            const ctx = ensureAudioCtx();
+            if (!ctx) return;
+            if (ctx.state !== 'running' && typeof ctx.resume === 'function') {
+                ctx.resume()
+                    .then(() => { audioUnlocked = true; })
+                    .catch((e) => console.warn('[loader-audio] resume failed:', e));
+            } else {
+                audioUnlocked = true;
+            }
+        };
+        ['pointerdown', 'touchstart', 'mousedown', 'keydown'].forEach(ev => {
+            document.addEventListener(ev, unlockHandler, { capture: true, passive: true });
+        });
 
         if (audioBtn) {
             audioBtn.addEventListener('click', (e) => {
-                // Don't let this click bubble to the loader — the loader
-                // handler would also unlock, but we want to make sure
-                // the toggle's own logic runs cleanly here.
                 e.stopPropagation();
                 const ctx = ensureAudioCtx();
                 if (!ctx) return;
-                // The toggle click is itself a user gesture — resume
-                // immediately and synchronously before toggling state.
                 if (ctx.state === 'suspended') {
                     ctx.resume()
                         .then(() => {
@@ -233,15 +233,15 @@ class Animations {
             });
         }
 
-        // ----- Sound generators (procedural, no files) -----
+        // ----- Sound generators — PAPER PAGE-FLIPPING sounds -----
 
-        // Short filtered noise burst. Sounds like a paper whoosh.
-        // Volume is ~0.15 — loud enough to be heard on laptop speakers,
-        // quiet enough that 20 of them in 2.5s doesn't fatigue the ear.
-        const playWhoosh = () => {
-            if (!audioCtx || !audioEnabled || !audioUnlocked) return;
+        // Single page flip: short burst of high-frequency bandpass-
+        // filtered noise with a quick frequency sweep. Sounds like
+        // paper sliding on paper. ~60ms duration.
+        const _pageFlip = (pitchMult = 1.0) => {
+            if (!audioCtx) return;
             const now = audioCtx.currentTime;
-            const dur = 0.08;
+            const dur = 0.06;
             const bufSize = Math.floor(audioCtx.sampleRate * dur);
             const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
             const ch = buf.getChannelData(0);
@@ -249,69 +249,90 @@ class Animations {
 
             const noise = audioCtx.createBufferSource();
             noise.buffer = buf;
+            noise.playbackRate.value = pitchMult;
 
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.setValueAtTime(1800, now);
-            filter.frequency.exponentialRampToValueAtTime(350, now + dur);
-            filter.Q.setValueAtTime(1.2, now);
+            // Highpass removes the low rumble so we only hear paper.
+            const highpass = audioCtx.createBiquadFilter();
+            highpass.type = 'highpass';
+            highpass.frequency.value = 2000;
+            highpass.Q.value = 0.7;
+
+            // Bandpass centers the noise in the "paper rustling"
+            // sweet spot (~2-4kHz) and sweeps down to simulate the
+            // friction sound tapering off.
+            const bandpass = audioCtx.createBiquadFilter();
+            bandpass.type = 'bandpass';
+            bandpass.frequency.setValueAtTime(3500 * pitchMult, now);
+            bandpass.frequency.exponentialRampToValueAtTime(1200 * pitchMult, now + dur);
+            bandpass.Q.value = 2;
 
             const gain = audioCtx.createGain();
             gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(0.15, now + 0.008);
+            gain.gain.linearRampToValueAtTime(0.22, now + 0.004);
             gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
 
-            noise.connect(filter);
-            filter.connect(gain);
+            noise.connect(highpass);
+            highpass.connect(bandpass);
+            bandpass.connect(gain);
             gain.connect(audioCtx.destination);
             noise.start(now);
             noise.stop(now + dur);
         };
 
-        // Three sine waves at perfect-fifth intervals — C5, E5, G5 —
-        // staggered 80ms apart. Sounds like a small bell chime.
+        // On every word transition — single page flip.
+        const playWhoosh = () => {
+            if (!audioCtx || !audioEnabled || !audioUnlocked) return;
+            _pageFlip(0.95 + Math.random() * 0.15);
+        };
+
+        // On the final "Welcome" flourish — 6 quick page flips
+        // stacked over ~350ms, like fanning through a stack of
+        // pages. Each has a slightly randomized pitch so they
+        // don't sound mechanical.
         const playChime = () => {
             if (!audioCtx || !audioEnabled || !audioUnlocked) return;
-            const now = audioCtx.currentTime;
-            const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
-            notes.forEach((freq, i) => {
-                const start = now + i * 0.08;
-                const osc = audioCtx.createOscillator();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, start);
-                const g = audioCtx.createGain();
-                g.gain.setValueAtTime(0, start);
-                g.gain.linearRampToValueAtTime(0.18, start + 0.012);
-                g.gain.exponentialRampToValueAtTime(0.0001, start + 0.55);
-                osc.connect(g);
-                g.connect(audioCtx.destination);
-                osc.start(start);
-                osc.stop(start + 0.6);
+            const flips = [0, 55, 115, 175, 235, 295];
+            flips.forEach(delay => {
+                setTimeout(() => {
+                    if (!audioCtx || !audioEnabled || !audioUnlocked) return;
+                    _pageFlip(0.85 + Math.random() * 0.35);
+                }, delay);
             });
         };
 
-        // Longer noise sweep for the loader slide exit.
+        // On the loader→hero slide exit — a longer, lower-pitched
+        // paper rustle (book slamming shut).
         const playSwoosh = () => {
             if (!audioCtx || !audioEnabled || !audioUnlocked) return;
             const now = audioCtx.currentTime;
-            const dur = 0.45;
+            const dur = 0.42;
             const bufSize = Math.floor(audioCtx.sampleRate * dur);
             const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
             const ch = buf.getChannelData(0);
             for (let i = 0; i < bufSize; i++) ch[i] = Math.random() * 2 - 1;
+
             const noise = audioCtx.createBufferSource();
             noise.buffer = buf;
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.setValueAtTime(300, now);
-            filter.frequency.exponentialRampToValueAtTime(3000, now + dur);
-            filter.Q.setValueAtTime(1.8, now);
+
+            const highpass = audioCtx.createBiquadFilter();
+            highpass.type = 'highpass';
+            highpass.frequency.value = 1500;
+            highpass.Q.value = 0.5;
+
+            const bandpass = audioCtx.createBiquadFilter();
+            bandpass.type = 'bandpass';
+            bandpass.frequency.setValueAtTime(2500, now);
+            bandpass.frequency.exponentialRampToValueAtTime(700, now + dur);
+            bandpass.Q.value = 1.5;
+
             const gain = audioCtx.createGain();
             gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(0.12, now + 0.05);
+            gain.gain.linearRampToValueAtTime(0.18, now + 0.025);
             gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
-            noise.connect(filter);
-            filter.connect(gain);
+
+            noise.connect(highpass);
+            highpass.connect(bandpass);
+            bandpass.connect(gain);
             gain.connect(audioCtx.destination);
             noise.start(now);
             noise.stop(now + dur);
