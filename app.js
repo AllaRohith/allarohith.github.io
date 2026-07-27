@@ -266,40 +266,35 @@ class Animations {
             this.triggerHeroAnimations();
             return;
         }
+
+        // Kick off the loader exit. CSS handles the per-child unravel
+        // (paper-bg, word, eyebrow, meta, progress, confetti — all on
+        // their own timelines, see styles.css).
         loader.classList.add('exiting');
-        // After the 240ms exit animation, remove the loader
-        // from the DOM and fire the hero reveal.
+
+        // 120ms into the loader exit, add .hero-ready so the hero
+        // cascade (eyebrow → portrait → name → content → confetti)
+        // BEGINS while the loader is still unraveling. The hero
+        // eyebrow slides DOWN at the same time the loader eyebrow
+        // slides UP — they share the same vertical position so it
+        // reads as a seamless handoff rather than two separate scenes.
+        setTimeout(() => this.triggerHeroAnimations(), 120);
+
+        // After the 700ms exit completes, take the loader out of the
+        // DOM. Hero reveal continues independently for another ~900ms.
         setTimeout(() => {
             loader.style.display = 'none';
-            this.triggerHeroAnimations();
-        }, 260);
+        }, 740);
     }
 
     // ============================================
-    // HERO REVEAL ANIMATION
-    // Plays AFTER the 10s multilingual loader + 700ms
-    // exit fade. Wired by setupLoader() → exitLoader().
+    // HERO REVEAL — flips body.hero-ready, which triggers a
+    // CSS-only staggered cascade. The previous GSAP version was
+    // replaced so the handoff timing matches the loader exit
+    // exactly (see styles.css .hero-ready rules).
     // ============================================
     triggerHeroAnimations() {
-        // The hero now only contains the .hero-image — animate that as the reveal.
-        // All other targets (.hero-badge, .title-line, .hero-desc, .hero-cta,
-        // .scroll-indicator) were removed when the hero content was stripped.
-        gsap.from('.hero-image', {
-            opacity: 0,
-            y: 40,
-            duration: 0.9,
-            ease: 'power3.out'
-        });
-        // New: fade up the 3-line name backdrop in sync. Stagger so the lines
-        // cascade slightly behind the portrait for a layered reveal.
-        gsap.from('.hero-name-bg-line', {
-            opacity: 0,
-            y: 30,
-            duration: 1.1,
-            stagger: 0.12,
-            delay: 0.15,
-            ease: 'power3.out'
-        });
+        document.body.classList.add('hero-ready');
     }
 
     setupScrollAnimations() {
