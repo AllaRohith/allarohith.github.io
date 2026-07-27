@@ -547,51 +547,41 @@ body {
 }
 
 /* Exit state — JS adds .exiting after the last word holds for 350ms.
-   Each child unravels on its own timeline:
-     - paper-bg:    scales up + blurs + fades (700ms)
-     - word:        flies up + scales down + blurs (450ms)
-     - eyebrow:     flies up + fades (450ms)
-     - meta:        drops down + fades (450ms)
-     - progress:    squashes to zero height + fades (350ms)
-     - confetti:    shrinks + spins + fades (600ms)
-   The hero reveal (.hero-ready, defined below) starts 120ms into this
-   sequence so the loader hands off to the hero with overlapping motion
-   instead of one finishing before the other starts. */
-.page-loader.exiting .loader-paper-bg {
-    animation: loaderPaperExit 700ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+   ONE coherent page-navigation slide: the entire loader translates up
+   off the viewport like a curtain being pulled, revealing the hero
+   underneath. No per-child keyframes fighting each other.
+
+   The internal content (word / eyebrow / meta / progress) fades out
+   in the FIRST 30% of the slide so it doesn't visually overlap with
+   the hero content as the loader clears. The paper backdrop fades at
+   the END so the cream surface lingers during the slide (otherwise
+   the background disappears and the hero flashes in too abruptly). */
+.page-loader {
+    transform: translateY(0);
+    transition: transform 1100ms cubic-bezier(0.76, 0, 0.24, 1);
+    will-change: transform;
 }
-.page-loader.exiting .loader-eyebrow {
-    animation: loaderEyebrowExit 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.page-loader.exiting {
+    transform: translateY(-100%);
+    pointer-events: none;
 }
-.page-loader.exiting .loader-word-wrap {
-    animation: loaderWordExit 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.page-loader.exiting .loader-meta {
-    animation: loaderMetaExit 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+.page-loader.exiting .loader-eyebrow,
+.page-loader.exiting .loader-word-wrap,
+.page-loader.exiting .loader-meta,
 .page-loader.exiting .loader-progress {
-    animation: loaderProgressExit 350ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(-30px);
+    transition: opacity 350ms ease-out, transform 350ms ease-out;
+}
+.page-loader.exiting .loader-paper-bg {
+    opacity: 0;
+    transition: opacity 400ms ease-out 700ms;
 }
 .page-loader.exiting .loader-confetti .lc {
-    animation: loaderConfettiExit 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-@keyframes loaderPaperExit {
-    to { opacity: 0; transform: scale(1.18); filter: blur(14px); }
-}
-@keyframes loaderEyebrowExit {
-    to { opacity: 0; transform: translateY(-25px) scale(0.95); }
-}
-@keyframes loaderWordExit {
-    to { opacity: 0; transform: translateY(-55px) scale(0.82); filter: blur(6px); }
-}
-@keyframes loaderMetaExit {
-    to { opacity: 0; transform: translateY(20px); }
-}
-@keyframes loaderProgressExit {
-    to { opacity: 0; transform: scaleY(0); }
-}
-@keyframes loaderConfettiExit {
-    to { opacity: 0; transform: scale(0.3) rotate(180deg); }
+    animation-play-state: paused;
+    opacity: 0;
+    transform: scale(0.4);
+    transition: opacity 400ms ease-out, transform 400ms ease-out;
 }
 
 /* The final flourish word holds a touch longer and gets a
@@ -638,65 +628,32 @@ body {
 }
 
 /* ========================================
-   HERO REVEAL — fires when body.hero-ready is added by JS,
-   120ms after the loader exit starts. Creates a layered
-   cascade that overlaps with the loader's unravel:
-     - eyebrow tag    slides DOWN from where the loader
-                       eyebrow was sliding UP (handoff)
-     - portrait       scales up + blurs to zero
-     - name backdrop  3 lines stagger in
-     - content        h1, pitch, CTAs, meta stagger up
-     - confetti       scale + rotate into place
-   Total reveal completes ~1.6s after .hero-ready is added,
-   which is ~1.7s after the loader exit begins — a deliberate
-   ~0.7s overlap where both states are mid-transition.
-   ======================================== */
-body.hero-ready .hero-eyebrow {
-    animation: heroEyebrowReveal 700ms cubic-bezier(0.16, 1, 0.3, 1) 100ms both;
-}
-body.hero-ready .hero-image {
-    animation: heroPortraitReveal 1000ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
-}
-body.hero-ready .hero-name-bg-line {
-    animation: heroNameBgReveal 900ms cubic-bezier(0.16, 1, 0.3, 1) 350ms both;
-}
-body.hero-ready .hero-name-bg-line:nth-child(2) { animation-delay: 450ms; }
-body.hero-ready .hero-name-bg-line:nth-child(3) { animation-delay: 550ms; }
-body.hero-ready .hero-content .hero-name {
-    animation: heroChildReveal 700ms cubic-bezier(0.16, 1, 0.3, 1) 600ms both;
-}
-body.hero-ready .hero-content .hero-pitch {
-    animation: heroChildReveal 700ms cubic-bezier(0.16, 1, 0.3, 1) 720ms both;
-}
-body.hero-ready .hero-content .hero-ctas {
-    animation: heroChildReveal 700ms cubic-bezier(0.16, 1, 0.3, 1) 840ms both;
-}
-body.hero-ready .hero-content .hero-meta {
-    animation: heroChildReveal 700ms cubic-bezier(0.16, 1, 0.3, 1) 960ms both;
-}
-body.hero-ready .paper-confetti .confetti {
-    animation: heroConfettiReveal 900ms cubic-bezier(0.34, 1.56, 0.64, 1) 700ms both;
-}
+   HERO REVEAL — the hero has been sitting at scrollY=0
+   behind the loader the whole time. Once the loader
+   slides up, the hero is naturally revealed.
 
-@keyframes heroEyebrowReveal {
-    from { opacity: 0; transform: translateY(-12px) scale(0.96); }
-    to   { opacity: 1; transform: translateY(0)     scale(1);    }
+   A subtle opacity fade adds polish so the hero doesn't
+   pop in — it eases in over 600ms starting right when
+   the slide begins. We use opacity only (not transform)
+   to avoid clobbering the hero's existing transforms
+   (translateZ(0) GPU layers, parallax rotations, etc.).
+   ======================================== */
+body.hero-ready .hero-eyebrow,
+body.hero-ready .hero-image,
+body.hero-ready .hero-name-bg-line,
+body.hero-ready .hero-content .hero-name,
+body.hero-ready .hero-content .hero-pitch,
+body.hero-ready .hero-content .hero-ctas,
+body.hero-ready .hero-content .hero-meta,
+body.hero-ready .paper-confetti .confetti {
+    animation: heroFadeIn 700ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
 }
-@keyframes heroPortraitReveal {
-    from { opacity: 0; transform: translateY(35px) scale(0.94); filter: blur(8px); }
-    to   { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0);   }
-}
-@keyframes heroNameBgReveal {
-    from { opacity: 0; transform: translateY(22px); }
-    to   { opacity: 1; transform: translateY(0);    }
-}
-@keyframes heroChildReveal {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0);    }
-}
-@keyframes heroConfettiReveal {
-    from { opacity: 0; transform: scale(0.4) rotate(-45deg); }
-    to   { opacity: 1; transform: scale(1)   rotate(0);      }
+body.hero-ready .hero-image        { animation-duration: 900ms; }
+body.hero-ready .paper-confetti .confetti { animation-duration: 800ms; }
+
+@keyframes heroFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
 /* Cursor — base shape + transitions */

@@ -267,31 +267,31 @@ class Animations {
             return;
         }
 
-        // Kick off the loader exit. CSS handles the per-child unravel
-        // (paper-bg, word, eyebrow, meta, progress, confetti — all on
-        // their own timelines, see styles.css).
+        // ONE coherent page-navigation slide. The loader translates up
+        // off the viewport over 1100ms (CSS transition). The hero is
+        // revealed underneath as the loader clears.
         loader.classList.add('exiting');
 
-        // 120ms into the loader exit, add .hero-ready so the hero
-        // cascade (eyebrow → portrait → name → content → confetti)
-        // BEGINS while the loader is still unraveling. The hero
-        // eyebrow slides DOWN at the same time the loader eyebrow
-        // slides UP — they share the same vertical position so it
-        // reads as a seamless handoff rather than two separate scenes.
-        setTimeout(() => this.triggerHeroAnimations(), 120);
+        // Add .hero-ready at the same moment — the hero fades in over
+        // 700ms while the loader slides up. They overlap by design so
+        // there is no hard cut between the two states.
+        this.triggerHeroAnimations();
 
-        // After the 700ms exit completes, take the loader out of the
-        // DOM. Hero reveal continues independently for another ~900ms.
+        // After the 1100ms slide finishes, take the loader out of the
+        // DOM. (display:none vs visibility:hidden — we want it fully
+        // removed so the body bg shows the page underneath, not the
+        // loader's residual paper texture.)
         setTimeout(() => {
             loader.style.display = 'none';
-        }, 740);
+        }, 1180);
     }
 
     // ============================================
     // HERO REVEAL — flips body.hero-ready, which triggers a
-    // CSS-only staggered cascade. The previous GSAP version was
-    // replaced so the handoff timing matches the loader exit
-    // exactly (see styles.css .hero-ready rules).
+    // subtle CSS opacity fade on hero elements. Position /
+    // transform / parallax stay where they are — the loader
+    // clearing IS the reveal; we just polish the opacity so
+    // it doesn't pop in. (See styles.css .hero-ready rules.)
     // ============================================
     triggerHeroAnimations() {
         document.body.classList.add('hero-ready');
