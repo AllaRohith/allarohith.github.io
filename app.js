@@ -124,6 +124,151 @@ class Animations {
         const countEl  = document.getElementById('loaderCount');
         const totalEl  = document.getElementById('loaderTotal');
         const vfxEl    = document.querySelector('.loader-vfx');
+        const audioBtn = document.getElementById('loaderAudioToggle');
+
+        // ============================================
+        // AUDIO MODULE — procedurally generated via Web Audio API.
+        // No audio files needed. Three sounds:
+        //   whoosh — short filtered noise burst on each word
+        //   chime  — three-note perfect-fifth chord on flourish
+        //   swoosh — longer noise sweep on the loader slide exit
+        // OFF by default (browsers block autoplay). User must
+        // click the 🔊 toggle to unlock AudioContext. Preference
+        // persists in localStorage so repeat visitors stay opted-in.
+        // ============================================
+        const AUDIO_PREF_KEY = 'rohith-portfolio-audio';
+        let audioCtx = null;
+        let audioEnabled = false;
+
+        const initAudio = () => {
+            if (audioCtx) return audioCtx;
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) return null;
+            audioCtx = new Ctx();
+            return audioCtx;
+        };
+
+        const setAudioEnabled = (on) => {
+            audioEnabled = !!on;
+            try { localStorage.setItem(AUDIO_PREF_KEY, audioEnabled ? '1' : '0'); } catch (e) { /* private mode */ }
+            if (audioBtn) {
+                audioBtn.classList.toggle('enabled', audioEnabled);
+                audioBtn.setAttribute('aria-pressed', audioEnabled ? 'true' : 'false');
+                audioBtn.setAttribute('aria-label', audioEnabled ? 'Disable audio' : 'Enable audio');
+            }
+        };
+
+        // Restore preference. If user previously enabled audio, start
+        // with the toggle in the enabled state — but DON'T init the
+        // AudioContext yet (autoplay policy). The first click on the
+        // page resumes it.
+        try {
+            if (localStorage.getItem(AUDIO_PREF_KEY) === '1') {
+                setAudioEnabled(true);
+            }
+        } catch (e) { /* private mode */ }
+
+        if (audioBtn) {
+            audioBtn.addEventListener('click', () => {
+                const ctx = initAudio();
+                if (!ctx) {
+                    // Browser doesn't support Web Audio — silently no-op.
+                    return;
+                }
+                // AudioContext starts suspended after creation in most
+                // browsers; resume() must be called from a user
+                // gesture handler. This click IS that gesture.
+                if (ctx.state === 'suspended') {
+                    ctx.resume().catch(() => {});
+                }
+                setAudioEnabled(!audioEnabled);
+                // If newly enabled, play a preview tick so the user
+                // can hear that something happened.
+                if (audioEnabled) playWhoosh();
+            });
+        }
+
+        // ----- Sound generators (procedural, no files) -----
+
+        // Short filtered noise burst. Sounds like a paper whoosh.
+        const playWhoosh = () => {
+            if (!audioCtx || !audioEnabled) return;
+            const now = audioCtx.currentTime;
+            const dur = 0.08;
+            const bufSize = Math.floor(audioCtx.sampleRate * dur);
+            const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+            const ch = buf.getChannelData(0);
+            for (let i = 0; i < bufSize; i++) ch[i] = Math.random() * 2 - 1;
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buf;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(1800, now);
+            filter.frequency.exponentialRampToValueAtTime(350, now + dur);
+            filter.Q.setValueAtTime(1.5, now);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.06, now + 0.008);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            noise.start(now);
+            noise.stop(now + dur);
+        };
+
+        // Three sine waves at perfect-fifth intervals — C5, E5, G5 —
+        // staggered 80ms apart. Sounds like a small bell chime.
+        const playChime = () => {
+            if (!audioCtx || !audioEnabled) return;
+            const now = audioCtx.currentTime;
+            const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+            notes.forEach((freq, i) => {
+                const start = now + i * 0.08;
+                const osc = audioCtx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, start);
+                const g = audioCtx.createGain();
+                g.gain.setValueAtTime(0, start);
+                g.gain.linearRampToValueAtTime(0.09, start + 0.012);
+                g.gain.exponentialRampToValueAtTime(0.0001, start + 0.55);
+                osc.connect(g);
+                g.connect(audioCtx.destination);
+                osc.start(start);
+                osc.stop(start + 0.6);
+            });
+        };
+
+        // Longer noise sweep for the loader slide exit.
+        const playSwoosh = () => {
+            if (!audioCtx || !audioEnabled) return;
+            const now = audioCtx.currentTime;
+            const dur = 0.45;
+            const bufSize = Math.floor(audioCtx.sampleRate * dur);
+            const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+            const ch = buf.getChannelData(0);
+            for (let i = 0; i < bufSize; i++) ch[i] = Math.random() * 2 - 1;
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buf;
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(300, now);
+            filter.frequency.exponentialRampToValueAtTime(3000, now + dur);
+            filter.Q.setValueAtTime(2, now);
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.05, now + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            noise.start(now);
+            noise.stop(now + dur);
+        };
 
         if (!loader || !wordEl || !langEl || !countEl || !totalEl) {
             // Bail out gracefully if the markup isn't there — just reveal.
@@ -281,6 +426,9 @@ class Animations {
             // Audio-style VFX — sound wave ring + 3 sparkles in the
             // word's color. Matches the "audio effect" brief.
             triggerWordVFX(g.color);
+            // And actual audio (if the user enabled it via the
+            // 🔊 toggle) — short whoosh on every word transition.
+            playWhoosh();
         };
 
         // After PER_WORD_MS, fade out and queue the next greeting.
@@ -302,6 +450,8 @@ class Animations {
                     // Flourish VFX — bigger burst (triple wave + 8
                     // sparkles in mixed glyphs) signals the finale.
                     triggerFlourishVFX('var(--coral)');
+                    // And audio — a small three-note bell chime.
+                    playChime();
                     wordWrap.classList.remove('out', 'final');
                     // eslint-disable-next-line no-unused-expressions
                     wordWrap.offsetWidth;
@@ -341,6 +491,8 @@ class Animations {
         // off the viewport over 1100ms (CSS transition). The hero is
         // revealed underneath as the loader clears.
         loader.classList.add('exiting');
+        // Audio — a longer noise sweep that matches the slide.
+        playSwoosh();
 
         // Add .hero-ready at the same moment — the hero fades in over
         // 700ms while the loader slides up. They overlap by design so

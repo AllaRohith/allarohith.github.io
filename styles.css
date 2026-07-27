@@ -422,6 +422,73 @@ body {
     50%      { transform: scale(1.3); opacity: 0.7; }
 }
 
+/* AUDIO TOGGLE — paper-cut sticker button, top-right corner of
+   the loader. Cream + muted when off (passive), coral sticker
+   when on (active). Click unlocks the AudioContext (required
+   by browsers' autoplay policy). */
+.loader-audio-toggle {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 1.5px solid var(--cream-dark);
+    box-shadow: var(--paper-shadow-soft);
+    color: var(--text-muted);
+    cursor: pointer;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    -webkit-tap-highlight-color: transparent;
+}
+.loader-audio-toggle:hover {
+    transform: scale(1.06);
+    box-shadow: var(--paper-shadow-hover);
+    color: var(--text);
+}
+.loader-audio-toggle:active {
+    transform: scale(0.94);
+}
+.loader-audio-toggle svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+.loader-audio-toggle .audio-icon-on { display: none; }
+.loader-audio-toggle.enabled .audio-icon-off { display: none; }
+.loader-audio-toggle.enabled .audio-icon-on  { display: block; }
+.loader-audio-toggle.enabled {
+    background: var(--coral);
+    border-color: var(--coral);
+    color: var(--paper);
+    box-shadow: var(--paper-shadow-stacked);
+}
+.loader-audio-toggle.enabled::after {
+    /* Pulsing ring around the button when audio is on, so the
+       user knows sounds are happening. Subtle — opacity 0.4. */
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1.5px solid var(--coral);
+    opacity: 0.5;
+    animation: audioPulse 1.6s ease-out infinite;
+    pointer-events: none;
+}
+@keyframes audioPulse {
+    0%   { transform: scale(1);    opacity: 0.5; }
+    100% { transform: scale(1.35); opacity: 0;   }
+}
+
 /* VFX layer — sound wave rings + sparkle particles.
    Positioned absolute so it can host elements that emanate from
    the word's center without disturbing the content stack layout.
