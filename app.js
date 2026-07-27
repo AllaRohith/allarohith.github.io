@@ -132,20 +132,44 @@ class Animations {
         //   whoosh — short filtered noise burst on each word
         //   chime  — three-note perfect-fifth chord on flourish
         //   swoosh — longer noise sweep on the loader slide exit
-        // OFF by default (browsers block autoplay). User must
-        // click the 🔊 toggle to unlock AudioContext. Preference
-        // persists in localStorage so repeat visitors stay opted-in.
+        //
+        // Audio is OFF by default because browsers block autoplay.
+        // To unlock, the user must interact with the page (any
+        // click/touch/keydown on the loader counts as a gesture).
+        // Once unlocked, the toggle button enables/disables actual
+        // playback. Preference persists in localStorage.
         // ============================================
         const AUDIO_PREF_KEY = 'rohith-portfolio-audio';
         let audioCtx = null;
         let audioEnabled = false;
+        let audioUnlocked = false;
 
-        const initAudio = () => {
+        const ensureAudioCtx = () => {
             if (audioCtx) return audioCtx;
             const Ctx = window.AudioContext || window.webkitAudioContext;
             if (!Ctx) return null;
-            audioCtx = new Ctx();
+            try {
+                audioCtx = new Ctx();
+            } catch (e) {
+                console.warn('[loader-audio] AudioContext creation failed:', e);
+                return null;
+            }
             return audioCtx;
+        };
+
+        // Browser autoplay policy: AudioContext created without a user
+        // gesture starts in 'suspended' state. resume() MUST be called
+        // from a user-gesture event handler or it silently fails.
+        const unlockAudio = () => {
+            const ctx = ensureAudioCtx();
+            if (!ctx) return;
+            if (ctx.state === 'suspended' && typeof ctx.resume === 'function') {
+                ctx.resume()
+                    .then(() => { audioUnlocked = true; })
+                    .catch((e) => console.warn('[loader-audio] resume failed:', e));
+            } else {
+                audioUnlocked = true;
+            }
         };
 
         const setAudioEnabled = (on) => {
@@ -158,32 +182,53 @@ class Animations {
             }
         };
 
-        // Restore preference. If user previously enabled audio, start
-        // with the toggle in the enabled state — but DON'T init the
-        // AudioContext yet (autoplay policy). The first click on the
-        // page resumes it.
+        // Restore saved preference. If user previously enabled audio,
+        // the toggle starts in the enabled state — but the AudioContext
+        // still needs to be unlocked by a user gesture on this visit.
         try {
             if (localStorage.getItem(AUDIO_PREF_KEY) === '1') {
                 setAudioEnabled(true);
             }
         } catch (e) { /* private mode */ }
 
+        // Unlock audio on ANY user interaction with the loader — not
+        // just the toggle button. This is the autoplay-policy workaround:
+        // any pointer/touch/keyboard event counts as a user gesture.
+        if (loader) {
+            const gestureEvents = ['pointerdown', 'touchstart', 'mousedown', 'keydown'];
+            const handler = () => {
+                unlockAudio();
+                // After the first successful unlock, remove the listeners
+                // (we don't need to re-resume on every interaction).
+                if (audioUnlocked) {
+                    gestureEvents.forEach(ev => loader.removeEventListener(ev, handler));
+                }
+            };
+            gestureEvents.forEach(ev => loader.addEventListener(ev, handler, { passive: true }));
+        }
+
         if (audioBtn) {
-            audioBtn.addEventListener('click', () => {
-                const ctx = initAudio();
-                if (!ctx) {
-                    // Browser doesn't support Web Audio — silently no-op.
+            audioBtn.addEventListener('click', (e) => {
+                // Don't let this click bubble to the loader — the loader
+                // handler would also unlock, but we want to make sure
+                // the toggle's own logic runs cleanly here.
+                e.stopPropagation();
+                const ctx = ensureAudioCtx();
+                if (!ctx) return;
+                // The toggle click is itself a user gesture — resume
+                // immediately and synchronously before toggling state.
+                if (ctx.state === 'suspended') {
+                    ctx.resume()
+                        .then(() => {
+                            audioUnlocked = true;
+                            setAudioEnabled(!audioEnabled);
+                            if (audioEnabled) playWhoosh();
+                        })
+                        .catch(() => {});
                     return;
                 }
-                // AudioContext starts suspended after creation in most
-                // browsers; resume() must be called from a user
-                // gesture handler. This click IS that gesture.
-                if (ctx.state === 'suspended') {
-                    ctx.resume().catch(() => {});
-                }
+                audioUnlocked = true;
                 setAudioEnabled(!audioEnabled);
-                // If newly enabled, play a preview tick so the user
-                // can hear that something happened.
                 if (audioEnabled) playWhoosh();
             });
         }
@@ -191,8 +236,10 @@ class Animations {
         // ----- Sound generators (procedural, no files) -----
 
         // Short filtered noise burst. Sounds like a paper whoosh.
+        // Volume is ~0.15 — loud enough to be heard on laptop speakers,
+        // quiet enough that 20 of them in 2.5s doesn't fatigue the ear.
         const playWhoosh = () => {
-            if (!audioCtx || !audioEnabled) return;
+            if (!audioCtx || !audioEnabled || !audioUnlocked) return;
             const now = audioCtx.currentTime;
             const dur = 0.08;
             const bufSize = Math.floor(audioCtx.sampleRate * dur);
@@ -207,11 +254,11 @@ class Animations {
             filter.type = 'bandpass';
             filter.frequency.setValueAtTime(1800, now);
             filter.frequency.exponentialRampToValueAtTime(350, now + dur);
-            filter.Q.setValueAtTime(1.5, now);
+            filter.Q.setValueAtTime(1.2, now);
 
             const gain = audioCtx.createGain();
             gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(0.06, now + 0.008);
+            gain.gain.linearRampToValueAtTime(0.15, now + 0.008);
             gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
 
             noise.connect(filter);
@@ -224,7 +271,7 @@ class Animations {
         // Three sine waves at perfect-fifth intervals — C5, E5, G5 —
         // staggered 80ms apart. Sounds like a small bell chime.
         const playChime = () => {
-            if (!audioCtx || !audioEnabled) return;
+            if (!audioCtx || !audioEnabled || !audioUnlocked) return;
             const now = audioCtx.currentTime;
             const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
             notes.forEach((freq, i) => {
@@ -234,7 +281,7 @@ class Animations {
                 osc.frequency.setValueAtTime(freq, start);
                 const g = audioCtx.createGain();
                 g.gain.setValueAtTime(0, start);
-                g.gain.linearRampToValueAtTime(0.09, start + 0.012);
+                g.gain.linearRampToValueAtTime(0.18, start + 0.012);
                 g.gain.exponentialRampToValueAtTime(0.0001, start + 0.55);
                 osc.connect(g);
                 g.connect(audioCtx.destination);
@@ -245,7 +292,7 @@ class Animations {
 
         // Longer noise sweep for the loader slide exit.
         const playSwoosh = () => {
-            if (!audioCtx || !audioEnabled) return;
+            if (!audioCtx || !audioEnabled || !audioUnlocked) return;
             const now = audioCtx.currentTime;
             const dur = 0.45;
             const bufSize = Math.floor(audioCtx.sampleRate * dur);
@@ -258,10 +305,10 @@ class Animations {
             filter.type = 'bandpass';
             filter.frequency.setValueAtTime(300, now);
             filter.frequency.exponentialRampToValueAtTime(3000, now + dur);
-            filter.Q.setValueAtTime(2, now);
+            filter.Q.setValueAtTime(1.8, now);
             const gain = audioCtx.createGain();
             gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(0.05, now + 0.05);
+            gain.gain.linearRampToValueAtTime(0.12, now + 0.05);
             gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
             noise.connect(filter);
             filter.connect(gain);
