@@ -222,14 +222,14 @@ class Animations {
                         .then(() => {
                             audioUnlocked = true;
                             setAudioEnabled(!audioEnabled);
-                            if (audioEnabled) playWhoosh();
+                            if (audioEnabled) this.playWhoosh();
                         })
                         .catch(() => {});
                     return;
                 }
                 audioUnlocked = true;
                 setAudioEnabled(!audioEnabled);
-                if (audioEnabled) playWhoosh();
+                if (audioEnabled) this.playWhoosh();
             });
         }
 
@@ -238,7 +238,7 @@ class Animations {
         // Single page flip: short burst of high-frequency bandpass-
         // filtered noise with a quick frequency sweep. Sounds like
         // paper sliding on paper. ~60ms duration.
-        const _pageFlip = (pitchMult = 1.0) => {
+        this._pageFlip = (pitchMult = 1.0) => {
             if (!audioCtx) return;
             const now = audioCtx.currentTime;
             const dur = 0.06;
@@ -280,29 +280,29 @@ class Animations {
         };
 
         // On every word transition — single page flip.
-        const playWhoosh = () => {
+        this.playWhoosh = () => {
             if (!audioCtx || !audioEnabled || !audioUnlocked) return;
-            _pageFlip(0.95 + Math.random() * 0.15);
+            this._pageFlip(0.95 + Math.random() * 0.15);
         };
 
         // On the final "Welcome" flourish — 6 quick page flips
         // stacked over ~350ms, like fanning through a stack of
         // pages. Each has a slightly randomized pitch so they
         // don't sound mechanical.
-        const playChime = () => {
+        this.playChime = () => {
             if (!audioCtx || !audioEnabled || !audioUnlocked) return;
             const flips = [0, 55, 115, 175, 235, 295];
             flips.forEach(delay => {
                 setTimeout(() => {
                     if (!audioCtx || !audioEnabled || !audioUnlocked) return;
-                    _pageFlip(0.85 + Math.random() * 0.35);
+                    this._pageFlip(0.85 + Math.random() * 0.35);
                 }, delay);
             });
         };
 
         // On the loader→hero slide exit — a longer, lower-pitched
         // paper rustle (book slamming shut).
-        const playSwoosh = () => {
+        this.playSwoosh = () => {
             if (!audioCtx || !audioEnabled || !audioUnlocked) return;
             const now = audioCtx.currentTime;
             const dur = 0.42;
@@ -496,7 +496,7 @@ class Animations {
             triggerWordVFX(g.color);
             // And actual audio (if the user enabled it via the
             // 🔊 toggle) — short whoosh on every word transition.
-            playWhoosh();
+            this.playWhoosh();
         };
 
         // After PER_WORD_MS, fade out and queue the next greeting.
@@ -519,7 +519,7 @@ class Animations {
                     // sparkles in mixed glyphs) signals the finale.
                     triggerFlourishVFX('var(--coral)');
                     // And audio — a small three-note bell chime.
-                    playChime();
+                    this.playChime();
                     wordWrap.classList.remove('out', 'final');
                     // eslint-disable-next-line no-unused-expressions
                     wordWrap.offsetWidth;
@@ -560,7 +560,7 @@ class Animations {
         // revealed underneath as the loader clears.
         loader.classList.add('exiting');
         // Audio — a longer noise sweep that matches the slide.
-        playSwoosh();
+        this.playSwoosh();
 
         // Add .hero-ready at the same moment — the hero fades in over
         // 700ms while the loader slides up. They overlap by design so
