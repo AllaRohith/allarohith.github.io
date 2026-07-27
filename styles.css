@@ -4,38 +4,71 @@
 ======================================== */
 
 :root {
-    /* Color tokens */
-    --ink: #07070A;
-    --surface: #111114;
-    --surface-2: #1A1A1F;
-    --border: #26262B;
-    --bone: #F5F4EE;
-    --text: #F5F4EE;
-    --text-muted: #A1A1AA;
-    --text-dim: #71717A;
+    /* ============================================================
+       PAPER-CUT PALETTE — soft, handcrafted, storybook.
+       Layered cream surfaces + warm brown text + pastel accents.
+       ============================================================ */
 
-    --violet: #7C3AED;
-    --violet-light: #A78BFA;
-    --cyan: #06B6D4;
-    --cyan-light: #67E8F9;
-    --lime: #D4FF3A;
-    --lime-dim: #84CC16;
+    /* Surface colors (3-layer paper depth) */
+    --cream:        #FAF5EC;   /* main surface — warm cream */
+    --cream-dark:   #EFE7D5;   /* mid layer — slightly darker */
+    --cream-darker: #E5DBC5;   /* deepest layer — base paper */
+    --paper:        #FFFCF5;   /* lightest — highlight paper */
+    --paper-warm:   #F8F1E0;   /* warm highlight */
 
-    /* Semantic (kept for compatibility with existing rules) */
-    --primary: var(--violet);
-    --primary-light: var(--violet-light);
-    --secondary: var(--cyan);
-    --accent: var(--lime);
-    --accent-light: var(--lime-dim);
-    --dark: var(--ink);
-    --dark-2: var(--surface);
-    --dark-3: var(--surface-2);
-    --dark-4: var(--border);
-    --text-light: var(--text-dim);
+    /* Compatibility aliases — old dark names now point to cream tones */
+    --ink:    var(--cream);
+    --surface:    var(--cream);
+    --surface-2:  var(--cream-dark);
+    --border:     var(--cream-dark);
 
-    --gradient: linear-gradient(135deg, var(--violet) 0%, var(--cyan) 100%);
-    --gradient-accent: linear-gradient(135deg, var(--lime) 0%, var(--cyan) 100%);
-    --gradient-text: linear-gradient(135deg, var(--bone) 0%, var(--cyan) 50%, var(--violet) 100%);
+    /* Text colors — warm browns */
+    --text:       #3A322A;   /* primary text — warm dark brown */
+    --text-muted: #7A6F5F;   /* muted brown */
+    --text-dim:   #A89F8E;   /* dimmer brown */
+    --text-soft:  #C4B8A4;   /* softest brown */
+    --bone:       #FFFCF5;   /* highlights — kept for outline strokes */
+
+    /* Legacy "dark" semantic aliases (keep names, point to cream) */
+    --dark:   var(--cream);
+    --dark-2: var(--cream-dark);
+    --dark-3: var(--cream-darker);
+    --dark-4: var(--cream-dark);
+    --text-light: var(--text-muted);
+
+    /* ============================================================
+       ACCENT PASTELS — each with a -dark variant for outlines/depth.
+       Coral is the primary CTA color (replaces the old lime).
+       ============================================================ */
+    --blue:         #B8D8E8;   --blue-dark:    #7FB3D5;
+    --green:        #C5D9B0;   --green-dark:   #93B889;
+    --lavender:     #D4C5E2;   --lavender-dark:#A690C0;
+    --peach:        #F5D5BD;   --peach-dark:   #E8B894;
+    --coral:        #F2A89B;   --coral-dark:   #D87A6B;   /* primary CTA */
+    --yellow:       #F5E5A3;   --yellow-dark:  #D4C273;
+    --mint:         #B8E0D0;   --mint-dark:    #7FB89F;
+    --rose:         #F2C5D5;   --rose-dark:    #D89BAE;
+
+    /* Semantic aliases — old lime/cyan/violet tokens now point to
+       pastel equivalents so existing rules re-theme automatically. */
+    --lime:    var(--coral);       /* lime → coral */
+    --lime-dim: var(--coral-dark);
+    --cyan:    var(--blue);        /* cyan → blue */
+    --cyan-light: var(--blue-dark);
+    --violet:  var(--lavender);    /* violet → lavender */
+    --violet-light: var(--lavender-dark);
+
+    --primary: var(--coral);            /* was violet */
+    --primary-light: var(--coral-dark);
+    --secondary: var(--blue);
+    --accent: var(--yellow);            /* was lime */
+    --accent-light: var(--yellow-dark);
+
+    /* Gradients — pastel harmonious versions */
+    --gradient: linear-gradient(135deg, var(--coral) 0%, var(--blue) 100%);
+    --gradient-accent: linear-gradient(135deg, var(--yellow) 0%, var(--blue) 100%);
+    --gradient-text: linear-gradient(135deg, var(--coral) 0%, var(--blue) 50%, var(--green) 100%);
+    --gradient-paper: linear-gradient(135deg, var(--paper-warm) 0%, var(--cream) 100%);
 
     /* Type
        Order matters: custom first, then -apple-system (Safari specific
@@ -71,24 +104,28 @@
     --space-32: 8rem;     /* 128px */
 
     /* ============================================================
-       ALPHA COLOR LAYER — color-mix(in oklab) over the brand
-       primitives. Replaces the ~79 raw rgba() duplicates that
-       hard-coded the same hues at scattered alphas. One edit here
-       retunes the entire translucent surface / border / glow system.
+       ALPHA COLOR LAYER — color-mix(in oklab) over the pastel
+       primitives. Same color-mix pattern as before — only the hues
+       changed. Old violet/lime/ink/bone alpha tokens now reference the
+       new aliases so existing rules still resolve.
        ============================================================ */
-    --violet-a08: color-mix(in oklab, var(--violet) 8%, transparent);
-    --violet-a12: color-mix(in oklab, var(--violet) 12%, transparent);
-    --violet-a20: color-mix(in oklab, var(--violet) 20%, transparent);
-    --violet-a40: color-mix(in oklab, var(--violet) 40%, transparent);
-    --violet-a60: color-mix(in oklab, var(--violet) 60%, transparent);
+    --violet-a08: color-mix(in oklab, var(--lavender) 8%, transparent);
+    --violet-a12: color-mix(in oklab, var(--lavender) 12%, transparent);
+    --violet-a20: color-mix(in oklab, var(--lavender) 20%, transparent);
+    --violet-a40: color-mix(in oklab, var(--lavender) 40%, transparent);
+    --violet-a60: color-mix(in oklab, var(--lavender) 60%, transparent);
 
-    --lime-a12: color-mix(in oklab, var(--lime) 12%, transparent);
-    --lime-a20: color-mix(in oklab, var(--lime) 20%, transparent);
-    --lime-a40: color-mix(in oklab, var(--lime) 40%, transparent);
+    --lime-a12: color-mix(in oklab, var(--coral) 12%, transparent);
+    --lime-a20: color-mix(in oklab, var(--coral) 20%, transparent);
+    --lime-a40: color-mix(in oklab, var(--coral) 40%, transparent);
 
-    --ink-a60: color-mix(in oklab, var(--ink) 60%, transparent);
-    --ink-a40: color-mix(in oklab, var(--ink) 40%, transparent);
-    --ink-a20: color-mix(in oklab, var(--ink) 20%, transparent);
+    --cyan-a12: color-mix(in oklab, var(--blue) 12%, transparent);
+    --cyan-a20: color-mix(in oklab, var(--blue) 20%, transparent);
+    --cyan-a40: color-mix(in oklab, var(--blue) 40%, transparent);
+
+    --ink-a60: color-mix(in oklab, var(--text) 60%, transparent);
+    --ink-a40: color-mix(in oklab, var(--text) 40%, transparent);
+    --ink-a20: color-mix(in oklab, var(--text) 20%, transparent);
 
     --bone-a08: color-mix(in oklab, var(--bone) 8%, transparent);
     --bone-a12: color-mix(in oklab, var(--bone) 12%, transparent);
@@ -114,21 +151,46 @@
     --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
     /* ============================================================
-       RADIUS SCALE — replaces the inline 4/6/8/12/16/20/24/32px ladder.
+       RADIUS SCALE — slightly sharper than the dark version.
        ============================================================ */
-    --r-sm: 4px;
-    --r-md: 8px;
-    --r-lg: 16px;
-    --r-xl: 24px;
+    --r-sm: 8px;
+    --r-md: 14px;
+    --r-lg: 20px;
+    --r-xl: 28px;
+    --r-sticker: 24px;
     --r-pill: 999px;
 
     /* ============================================================
-       SHADOW SCALE — elevation ramp for cards / overlays.
-       (Brand glow shadows stay inline where they encode color.)
+       SHADOW SCALE — paper-cut style. Soft, warm-brown shadows.
+       --paper-shadow-sticker is the signature: white outline ring +
+       soft drop shadow stack. Drops the harsh black shadows that
+       looked right against dark backgrounds but feel wrong on cream.
        ============================================================ */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 2px rgba(58, 50, 42, 0.08);
+    --shadow-md: 0 4px 16px rgba(58, 50, 42, 0.10);
+    --shadow-lg: 0 12px 48px rgba(58, 50, 42, 0.12);
+
+    /* Paper-cut signature: white outline ring + thin paper separator + soft drop stack */
+    --paper-shadow-sticker:
+        0 0 0 4px #FFFCF5,
+        0 0 0 5px var(--cream-dark),
+        0 8px 16px -4px rgba(58, 50, 42, 0.15),
+        0 16px 32px -8px rgba(58, 50, 42, 0.10);
+
+    /* 3-layer stacked shadow for surface depth */
+    --paper-shadow-stacked:
+        0 2px 4px rgba(58, 50, 42, 0.08),
+        0 8px 16px rgba(58, 50, 42, 0.08),
+        0 16px 32px rgba(58, 50, 42, 0.06);
+
+    /* Single soft shadow for subtle elements */
+    --paper-shadow-soft: 0 4px 12px rgba(58, 50, 42, 0.10);
+
+    /* Lifted hover shadow */
+    --paper-shadow-hover:
+        0 4px 8px rgba(58, 50, 42, 0.10),
+        0 16px 32px rgba(58, 50, 42, 0.12),
+        0 32px 64px -8px rgba(58, 50, 42, 0.15);
 
     /* ============================================================
        Z-INDEX SCALE — replaces the raw 1 / 10 / 100 / 1000 / 999999
@@ -189,7 +251,6 @@ html {
 
 body {
     font-family: var(--font-body);
-    background: var(--dark);
     color: var(--text);
     line-height: 1.6;
     overflow-x: hidden;
@@ -203,6 +264,20 @@ body {
     /* Kill the gray tap-highlight box that Safari draws on every interactive
        element. */
     -webkit-tap-highlight-color: transparent;
+
+    /* Paper-cut page background: 3 stacked layers of cream + faint noise.
+       Reads as physical kraft paper, not a flat fill. */
+    background-color: var(--cream);
+    background-image:
+        /* Top: warm highlight band, like a window's light falling on paper */
+        radial-gradient(ellipse 80% 50% at 50% 0%, var(--paper-warm) 0%, transparent 65%),
+        /* Bottom: subtle darker wash for depth */
+        radial-gradient(ellipse 100% 60% at 50% 100%, var(--cream-darker) 0%, transparent 70%),
+        /* Faint paper grain via SVG fractal noise — opacity 0.4 reads as
+           tactile paper texture, not a pattern. */
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.227 0 0 0 0 0.196 0 0 0 0 0.165 0 0 0 0.45 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-attachment: fixed, fixed, fixed;
+    background-size: 100% 100%, 100% 100%, 200px 200px;
 }
 
 /* Hide custom cursor and restore native cursor on touch / coarse-pointer devices */
@@ -230,7 +305,12 @@ body {
     position: fixed;
     inset: 0;
     z-index: 999999;
-    background: var(--dark, #0a0a0b);
+    /* Paper-cut loader surface: cream with a subtle layered gradient
+       so it reads as a sheet of craft paper, not a flat fill. */
+    background-color: var(--cream);
+    background-image:
+        radial-gradient(ellipse 80% 60% at 50% 30%, var(--paper-warm) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 50% at 50% 80%, var(--cream-darker) 0%, transparent 70%);
     /* CSS Grid + place-items: center is the most reliable full-viewport centering.
        min-height: 100dvh uses the DYNAMIC viewport height so iOS Safari's
        collapsing URL bar doesn't break centering. 100vh is the fallback. */
@@ -271,23 +351,16 @@ body {
     100% { transform: scale(2.5); opacity: 0; filter: blur(14px); }
 }
 
-/* "Portfolio" tag — drops in just under the word */
-/* "PORTFOLIO" tag — drops in just under the word.
-   Was letter-spacing 0.65em + opacity 0.55 + font-size 14px, which
-   spread the 9 letters across ~925px and read as scattered dots
-   rather than a tag. Tightened to 0.32em and bumped opacity + size
-   so the word reads cleanly as a single label. */
+/* "PORTFOLIO" tag — warm brown on cream, no more bone-white on dark. */
 .loader-tag {
     font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
     font-size: 0.95rem;
     font-weight: 500;
-    color: rgba(245, 244, 238, 0.85);
+    color: var(--text-muted);
     margin: 2.75rem 0 0;
     text-transform: uppercase;
     letter-spacing: 0.32em;
-    /* Optical alignment for the wide letter-spacing */
     padding-left: 0.32em;
-    /* Block-level centers reliably across all browsers */
     display: inline-block;
     opacity: 0;
     animation: loaderTagFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
@@ -314,13 +387,11 @@ body {
     font-size: 4em;               /* bumped from 3.2em — bigger, more dramatic */
     font-weight: 800;
     user-select: none;
-    color: #fff;
+    color: var(--text);            /* warm brown, not white */
     letter-spacing: 0.05em;
-    /* Permanent soft glow on the word — even at rest, letters are illuminated */
-    text-shadow:
-        0 0 12px rgba(255, 255, 255, 0.20),
-        0 0 30px rgba(124, 58, 237, 0.18),
-        0 0 60px rgba(6, 182, 212, 0.10);
+    /* Soft paper-cut shadow: warm browns, no neon glows.
+       The drop shadow is the only "lighting" on the word. */
+    text-shadow: 0 2px 0 var(--cream-dark);
 }
 
 .loader {
@@ -461,7 +532,7 @@ body.hero-ready .hero-image {
     left: -100px;
     width: 20px;
     height: 20px;
-    border: 2px solid var(--primary);
+    border: 2px solid var(--coral);       /* was var(--primary) — now coral */
     border-radius: 50%;
     pointer-events: none;
     z-index: 10000;
@@ -472,7 +543,8 @@ body.hero-ready .hero-image {
         border-style 0.18s ease,
         background-color 0.18s ease,
         border-radius 0.18s ease;
-    mix-blend-mode: difference;
+    /* mix-blend-mode: difference removed — works on dark backgrounds,
+       inverts colors on cream. Plain solid reads better on paper. */
 }
 
 /* Cursor follower — larger, slower ring that trails the main cursor */
@@ -482,7 +554,7 @@ body.hero-ready .hero-image {
     left: -100px;
     width: 36px;
     height: 36px;
-    border: 1px solid var(--violet-a40);
+    border: 1px solid var(--lavender);    /* was var(--violet-a40) — now lavender */
     border-radius: 50%;
     pointer-events: none;
     z-index: 9999;
@@ -490,51 +562,47 @@ body.hero-ready .hero-image {
     transition: opacity 0.3s ease;
 }
 
-/* Hover over links / buttons — lime thick border with soft glow */
+/* Hover over links / buttons — coral thick border with soft fill */
 .cursor.cursor-link {
     border-width: 3px;
-    border-color: #D4FF3A;
-    background-color: rgba(212, 255, 58, 0.18);
+    border-color: var(--coral);
+    background-color: color-mix(in oklab, var(--coral) 20%, transparent);
 }
 
-/* Hover over text / headings — cyan hollow ring */
+/* Hover over text / headings — blue hollow ring */
 .cursor.cursor-text {
     border-width: 1.5px;
-    border-color: #06B6D4;
-    background-color: rgba(6, 182, 212, 0.08);
+    border-color: var(--blue-dark);
+    background-color: color-mix(in oklab, var(--blue) 12%, transparent);
 }
 
-/* Hover over work-card / stat-item — violet filled with thick border */
+/* Hover over work-card / stat-item — lavender filled with thick border */
 .cursor.cursor-card {
     border-width: 3px;
-    border-color: #A78BFA;
-    background-color: rgba(124, 58, 237, 0.18);
+    border-color: var(--lavender-dark);
+    background-color: color-mix(in oklab, var(--lavender) 22%, transparent);
 }
 
 /* Hover over image / SVG / video — dashed viewfinder */
 .cursor.cursor-view {
     border-width: 2px;
     border-style: dashed;
-    border-color: #06B6D4;
-    background-color: rgba(6, 182, 212, 0.06);
+    border-color: var(--blue-dark);
+    background-color: color-mix(in oklab, var(--blue) 8%, transparent);
     border-radius: 4px;
 }
 
-/* Legacy .active hook kept for any old element classes that still reference it */
+/* Legacy .active hook — used by JS over interactive elements */
 .cursor.active {
-    border-color: var(--accent);
+    border-color: var(--coral-dark);
+    background-color: color-mix(in oklab, var(--coral) 25%, transparent);
 }
 
 
 
-/* ========================================
 /* ========================================
    NEBULA removed — single centered image hero
 ======================================== */
-
-@media (max-width: 768px) {
-    .nebula { width: 400px; height: 400px; }
-}
 
 /* Noise Overlay */
 .noise {
@@ -813,7 +881,7 @@ body.hero-ready .hero-image {
 /* Navigation */
 .nav {
     position: fixed;
-    top: 32px;
+    top: 0;
     left: 0;
     width: 100%;
     padding: 1.25rem 3rem;
@@ -822,13 +890,16 @@ body.hero-ready .hero-image {
     justify-content: space-between;
     z-index: 1000;
     transition: all 0.4s var(--ease-out-expo);
+    background: transparent;
 }
 
+/* Scrolled nav: opaque cream paper with the signature stacked shadow.
+   Translates from the floating top state to a paper-cut strip. */
 .nav.scrolled {
-    background: rgba(7, 7, 10, 0.8);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    padding: 0.75rem 3rem;
+    background: var(--paper);
+    border-bottom: 1px solid var(--cream-dark);
+    box-shadow: var(--paper-shadow-soft);
+    padding: 0.85rem 3rem;
 }
 
 .nav-logo {
@@ -848,14 +919,18 @@ body.hero-ready .hero-image {
 .logo-dot {
     width: 8px;
     height: 8px;
-    background: var(--accent);
+    /* Was lime with glow — now a coral paper-cut dot with a thin paper
+       ring suggesting it's a separate layer. */
+    background: var(--coral);
+    border: 1.5px solid var(--paper);
     border-radius: 50%;
-    animation: pulse 2s infinite;
+    box-shadow: 0 1px 2px rgba(58, 50, 42, 0.15);
+    animation: pulse 2.4s ease-in-out infinite;
 }
 
 @keyframes pulse {
     0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.2); opacity: 0.7; }
+    50% { transform: scale(1.18); opacity: 0.85; }
 }
 
 .nav-menu {
@@ -879,7 +954,7 @@ body.hero-ready .hero-image {
     position: absolute;
     top: 0;
     left: 0;
-    color: var(--primary);
+    color: var(--coral);              /* was var(--primary) — now coral */
     width: 0%;
     overflow: hidden;
     white-space: nowrap;
@@ -927,44 +1002,7 @@ body.hero-ready .hero-image {
     padding: 6rem 1.5rem 3rem;
     position: relative;
     z-index: 1;
-    overflow: hidden;                 /* clip the Spline scene at hero edges */
-}
-
-/* ========================================
-   HERO SCENE — interactive 3D Spline canvas
-   pinned to the FULL VIEWPORT (fixed, full-bleed)
-   so it acts as a page-wide background.
-   z-index 0 keeps it behind every section
-   (.section, nav, etc. are z-index 1+). Pointer
-   events stay enabled so users can drag the
-   scene in the empty page area; clicks on
-   actual content land on the content because
-   content sits at a higher stacking level.
-   ======================================== */
-.hero-scene {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 0;
-    pointer-events: auto;
-    opacity: 0;                       /* hidden until the runtime finishes loading */
-    transition: opacity 0.8s ease;
-}
-.hero-scene.is-ready {
-    opacity: 1;
-}
-.hero-scene canvas {
-    display: block;
-    width: 100vw !important;
-    height: 100vh !important;
-}
-
-/* Reduced-motion: still show scene, but make it non-interactive so it
-   can't trap focus or follow the cursor. */
-@media (prefers-reduced-motion: reduce) {
-    .hero-scene { pointer-events: none; }
+    overflow: hidden;                 /* clip decorative paper confetti at hero edges */
 }
 
 
@@ -1014,17 +1052,18 @@ body.hero-ready .hero-image {
     color: var(--text-muted);
 }
 .hero-eyebrow-dot {
-    width: 7px;
-    height: 7px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background: var(--lime);
-    box-shadow: 0 0 12px var(--lime);
+    /* Coral sticker with white paper ring — no glow. */
+    background: var(--coral);
+    border: 1.5px solid var(--paper);
+    box-shadow: var(--paper-shadow-soft);
     animation: dotFloat-1 3.5s ease-in-out infinite;
 }
 
 /* Display name — large, two-line, with the surname
-   carrying the lime-led gradient (matches section
-   accents for a single brand voice). */
+   carrying the coral→blue→green gradient (paper-cut palette). */
 .hero-name {
     font-family: var(--font-display);
     font-size: clamp(1.875rem, 4vw, 2.75rem);
@@ -1036,7 +1075,7 @@ body.hero-ready .hero-image {
     text-align: center;
 }
 .hero-name .accent {
-    background: linear-gradient(135deg, var(--lime) 0%, var(--bone) 55%, var(--cyan) 100%);
+    background: var(--gradient-text);  /* was lime→bone→cyan, now coral→blue→green */
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -1054,8 +1093,7 @@ body.hero-ready .hero-image {
     text-align: center;
 }
 
-/* CTA cluster — primary fills with lime, secondary is
-   a ghost button with a lime arrow on hover. */
+/* CTA cluster — primary is coral sticker, secondary is cream ghost */
 .hero-ctas {
     display: flex;
     align-items: center;
@@ -1068,9 +1106,9 @@ body.hero-ready .hero-image {
     align-items: center;
     gap: 0.55rem;
     padding: 0.95rem 1.4rem;
-    background: var(--lime);
-    color: var(--ink);
-    border: 1px solid var(--lime);
+    background: var(--coral);              /* was var(--lime) */
+    color: var(--paper);                    /* was var(--ink) */
+    border: 1px solid var(--coral-dark);
     border-radius: 999px;
     font-family: var(--font-mono);
     font-size: 0.8125rem;
@@ -1078,20 +1116,22 @@ body.hero-ready .hero-image {
     letter-spacing: 0.08em;
     text-transform: uppercase;
     text-decoration: none;
-    transition: transform 0.3s var(--ease-out-expo), background 0.3s ease;
+    box-shadow: var(--paper-shadow-soft);
+    transition: transform 0.3s var(--ease-out-expo), background 0.3s ease, box-shadow 0.3s ease;
 }
 .hero-ctas .btn-primary svg { width: 16px; height: 16px; }
 .hero-ctas .btn-primary:hover {
-    transform: translateY(-2px);
-    background: #E1FF66;
+    transform: translateY(-3px);
+    background: var(--coral-dark);
+    box-shadow: var(--paper-shadow-hover);
 }
 .hero-ctas .btn-ghost {
     display: inline-flex;
     align-items: center;
     padding: 0.95rem 1.4rem;
-    background: transparent;
+    background: var(--paper);
     color: var(--text);
-    border: 1px solid var(--border);
+    border: 1px solid var(--cream-darker);
     border-radius: 999px;
     font-family: var(--font-mono);
     font-size: 0.8125rem;
@@ -1099,11 +1139,14 @@ body.hero-ready .hero-image {
     letter-spacing: 0.08em;
     text-transform: uppercase;
     text-decoration: none;
-    transition: border-color 0.3s ease, color 0.3s ease;
+    box-shadow: var(--paper-shadow-soft);
+    transition: transform 0.3s var(--ease-out-expo), border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 .hero-ctas .btn-ghost:hover {
-    border-color: var(--lime);
-    color: var(--lime);
+    transform: translateY(-3px);
+    border-color: var(--blue-dark);
+    color: var(--blue-dark);
+    box-shadow: var(--paper-shadow-hover);
 }
 
 /* Meta row beneath the CTAs — keeps the "open to work"
@@ -1121,7 +1164,7 @@ body.hero-ready .hero-image {
     text-transform: uppercase;
     color: var(--text-dim);
 }
-.hero-meta-sep { color: var(--border); }
+.hero-meta-sep { color: var(--cream-darker); }
 
 /* ========================================
    HERO NAME BACKDROP — 3 outline lines stacked
@@ -1152,13 +1195,13 @@ body.hero-ready .hero-image {
     letter-spacing: -0.04em;
     text-transform: uppercase;
     color: transparent;
-    -webkit-text-stroke: 1.5px var(--bone);
-    text-stroke: 1.5px var(--bone);
-    opacity: 0.18;                       /* outline only — faint watermark */
+    /* Warm brown stroke — was bone-white, now reads as paper cut edges. */
+    -webkit-text-stroke: 1.5px var(--text-soft);
+    text-stroke: 1.5px var(--text-soft);
+    opacity: 0.22;                       /* outline only — faint watermark */
     white-space: nowrap;
     will-change: opacity;
-    /* Subtle film-grain feel — a faint gradient mask fades the lines
-       at top and bottom so they don't clip harshly against the hero edges. */
+    /* Subtle paper-edge fade — soft mask so lines don't clip harshly. */
     mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
 }
@@ -1187,70 +1230,73 @@ body.hero-ready .hero-image {
 .hero-image {
     position: relative;
     width: 100%;
-    /* Big centerpiece, but constrained by BOTH width AND height so the
-       portrait never crowds out the h1 / pitch / CTAs below it. */
     max-width: clamp(260px, 28vw, 420px);
     max-height: 58vh;
     aspect-ratio: 2 / 3;
     margin: 0 auto;
     z-index: 2;
-    /* NO CSS transition on transform — GSAP owns the transform now (3D tilt).
-       A 0.6s CSS transition here fought every rAF-throttled tween and made
-       the element feel "stuck" because it was always interpolating toward
-       the next mouse position. */
-    transform: translateZ(0);          /* force a stable GPU layer for the tilt */
-    /* Single drop-shadow instead of two stacked — drop-shadow is expensive
-       on large rotated elements, especially on lower-end GPUs. */
-    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.55));
+    transform: translateZ(0);
+    /* Paper-cut sticker outline: white ring + thin paper separator + soft
+       drop shadow stack. Reads as a die-cut sticker on cream paper.
+       The user can tune the 4px ring thickness to match their own
+       portrait once they generate the paper-cut illustration. */
+    padding: 8px;
+    background: var(--paper);
+    border-radius: var(--r-lg);
+    box-shadow:
+        0 0 0 1px var(--cream-dark),
+        var(--paper-shadow-stacked);
 }
 
-/* Image itself — fills the centered container, no stroke */
+/* Image itself — fits inside the white sticker border */
 .hero-image-photo {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     object-position: center center;
     display: block;
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
-    will-change: transform, filter;
+    border-radius: calc(var(--r-lg) - 4px);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
 }
 
 .hero-image:hover .hero-image-photo {
-    transform: scale(1.03) translateY(-4px);
+    transform: scale(1.02);
 }
 
-/* Floating accent dots scattered around the centered image */
+/* Floating accent stickers scattered around the centered image.
+   Now paper-cut stickers (white ring + color fill + soft shadow) instead
+   of glowing dots. */
 .hero-image-dot {
     position: absolute;
     border-radius: 50%;
     pointer-events: none;
-    z-index: 1;
+    z-index: 3;
+    border: 2px solid var(--paper);
+    box-shadow: var(--paper-shadow-soft);
 }
 .hero-image-dot-1 {
-    width: 6px;
-    height: 6px;
-    background: #D4FF3A;
-    box-shadow: 0 0 12px #D4FF3A;
-    top: 8%;
-    right: 8%;                           /* upper-right corner */
+    width: 14px;
+    height: 14px;
+    background: var(--coral);
+    top: -4px;
+    right: 4%;
     animation: dotFloat-1 4s ease-in-out infinite;
 }
 .hero-image-dot-2 {
-    width: 4px;
-    height: 4px;
-    background: #06B6D4;
-    box-shadow: 0 0 10px #06B6D4;
-    bottom: 28%;
-    left: 6%;                            /* lower-left edge */
+    width: 10px;
+    height: 10px;
+    background: var(--blue);
+    bottom: 22%;
+    left: -2%;
     animation: dotFloat-2 5s ease-in-out infinite;
 }
 .hero-image-dot-3 {
-    width: 5px;
-    height: 5px;
-    background: #7C3AED;
-    box-shadow: 0 0 10px #7C3AED;
-    top: 45%;
-    right: 4%;                           /* right-middle edge */
+    width: 12px;
+    height: 12px;
+    background: var(--yellow);
+    top: 38%;
+    right: -2%;
     animation: dotFloat-3 6s ease-in-out infinite;
 }
 @keyframes dotFloat-1 {
@@ -1443,68 +1489,78 @@ html, body, main, .hero, .section, .container {
     position: relative;
     width: 100%;
     aspect-ratio: 1;
+    /* Paper-cut square frame: cream paper with a soft stacked shadow. */
+    background: var(--paper);
+    border-radius: var(--r-xl);
+    box-shadow: var(--paper-shadow-stacked);
+    padding: 10px;
 }
 
 .image-frame::before {
     content: '';
     position: absolute;
-    inset: -3px;
-    background: var(--gradient);
-    border-radius: 24px;
-    opacity: 0.5;
+    inset: -6px;
+    /* Coral→peach pastel halo — was violet→cyan gradient. */
+    background: linear-gradient(135deg, var(--coral) 0%, var(--peach) 100%);
+    border-radius: calc(var(--r-xl) + 4px);
+    opacity: 0.55;
+    z-index: -1;
 }
 
 .image-frame::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: var(--dark);
-    border-radius: 24px;
-    margin: 3px;
+    background: var(--paper);
+    border-radius: var(--r-xl);
+    margin: 5px;
 }
 
 .image-inner {
     position: relative;
     width: 100%;
     height: 100%;
-    background: var(--dark-2);
-    border-radius: 24px;
+    background: linear-gradient(135deg, var(--coral) 0%, var(--peach) 60%, var(--yellow) 100%);
+    border-radius: calc(var(--r-xl) - 6px);
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: var(--font-display);
     font-size: 8rem;
     font-weight: 800;
-    color: var(--primary);
+    color: var(--paper);
     z-index: 1;
+    text-shadow: 0 2px 0 rgba(58, 50, 42, 0.15);
 }
 
 .floating-badge {
     position: absolute;
     bottom: -20px;
     right: -20px;
-    background: var(--dark-3);
-    border: 1px solid var(--dark-4);
-    border-radius: 16px;
+    background: var(--paper);
+    border: 1px solid var(--cream-darker);
+    border-radius: var(--r-lg);
     padding: 1rem 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    animation: badgeFloat 3s ease-in-out infinite;
+    box-shadow: var(--paper-shadow-stacked);
+    animation: badgeFloat 3.5s ease-in-out infinite;
 }
 
 @keyframes badgeFloat {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+    50% { transform: translateY(-8px); }
 }
 
 .badge-number {
     font-family: var(--font-display);
     font-size: 2rem;
     font-weight: 800;
-    background: var(--gradient);
+    background: var(--gradient);       /* now coral → blue */
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .badge-text {
@@ -1530,8 +1586,9 @@ html, body, main, .hero, .section, .container {
     gap: 3rem;
     margin-bottom: 3rem;
     padding: 2rem 0;
-    border-top: 1px solid var(--dark-4);
-    border-bottom: 1px solid var(--dark-4);
+    /* Was dark-4 border — now cream-darker for warm tone */
+    border-top: 1px solid var(--cream-darker);
+    border-bottom: 1px solid var(--cream-darker);
 }
 
 .stat-item {
@@ -1549,7 +1606,7 @@ html, body, main, .hero, .section, .container {
 
 .stat-label {
     font-size: 0.8125rem;
-    color: var(--text-light);
+    color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -1565,18 +1622,20 @@ html, body, main, .hero, .section, .container {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--dark-3);
-    border: 1px solid var(--dark-4);
-    border-radius: 12px;
+    background: var(--paper);
+    border: 1px solid var(--cream-darker);
+    border-radius: var(--r-md);
     color: var(--text-muted);
-    transition: all 0.3s ease;
+    box-shadow: var(--paper-shadow-soft);
+    transition: all 0.3s var(--ease-out-expo);
 }
 
 .social-link:hover {
     background: var(--primary);
-    border-color: var(--primary);
-    color: var(--text);
+    border-color: var(--coral);
+    color: var(--coral-dark);
     transform: translateY(-3px);
+    box-shadow: var(--paper-shadow-hover);
 }
 
 .social-link svg {
@@ -1593,12 +1652,12 @@ html, body, main, .hero, .section, .container {
 
 .work-card {
     position: relative;
-    background: rgba(17, 17, 20, 0.5);
-    backdrop-filter: blur(20px) saturate(140%);
-    -webkit-backdrop-filter: blur(20px) saturate(140%);
-    border-radius: 24px;
+    /* Paper-cut card: cream paper surface with stacked shadow. No glass. */
+    background: var(--paper);
+    border-radius: var(--r-xl);
     overflow: hidden;
-    border: 1px solid var(--violet-a20);
+    border: 1px solid var(--cream-darker);
+    box-shadow: var(--paper-shadow-stacked);
     transition: all 0.5s var(--ease-out-expo);
     will-change: transform;
 }
@@ -1607,32 +1666,34 @@ html, body, main, .hero, .section, .container {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(212, 255, 58, 0.03), transparent 50%);
+    background: linear-gradient(135deg, var(--peach-a20, transparent), transparent 50%);
     pointer-events: none;
+    z-index: 1;
 }
 
 .work-card:hover {
-    transform: translateY(-12px);
-    border-color: var(--lime);
-    box-shadow:
-        0 30px 60px -20px rgba(124, 58, 237, 0.5),
-        0 0 0 1px var(--lime),
-        inset 0 0 40px rgba(212, 255, 58, 0.05);
+    transform: translateY(-8px);
+    border-color: var(--coral);
+    box-shadow: var(--paper-shadow-hover);
 }
 
 .work-image {
     aspect-ratio: 16/10;
-    background: var(--dark-3);
+    background: var(--cream-dark);
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Inset the image so the paper-cut card has a visible paper border. */
+    margin: 12px 12px 0 12px;
+    border-radius: var(--r-lg);
+    overflow: hidden;
 }
 
 .work-placeholder {
     width: 60px;
     height: 60px;
-    color: var(--text-light);
-    opacity: 0.3;
+    color: var(--text-dim);
+    opacity: 0.4;
 }
 
 .work-placeholder svg {
@@ -1654,15 +1715,17 @@ html, body, main, .hero, .section, .container {
 
 .work-year {
     font-size: 0.8125rem;
-    color: var(--text-light);
+    color: var(--text-muted);
 }
 
 .work-category {
     font-size: 0.8125rem;
-    color: var(--primary);
-    background: rgba(99, 102, 241, 0.1);
+    color: var(--coral-dark);
+    background: var(--peach);
     padding: 0.25rem 0.75rem;
     border-radius: 50px;
+    border: 1px solid var(--peach-dark);
+    font-weight: 500;
 }
 
 .work-title {
@@ -1670,30 +1733,24 @@ html, body, main, .hero, .section, .container {
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 0.75rem;
+    color: var(--text);
 }
 
 /* ============================================
    FILL ON HOVER
-   Outlined text by default; on hover (or card
-   hover), the stroke fades and the page gradient
-   fills the letters via background-clip.
+   Outlined text by default; on hover the stroke fades
+   and the gradient fills the letters. Paper-cut palette:
+   coral→peach→yellow.
    ============================================ */
 .fill-on-hover {
-    /* Lime-led gradient to match the rest of the brand
-       accents. The card-title fill is the moment the user
-       reads the project name — leading with lime ties the
-       Work section to the hero surname and section labels. */
-    background: linear-gradient(135deg, var(--lime) 0%, var(--bone) 50%, var(--cyan) 100%);
+    background: linear-gradient(135deg, var(--coral) 0%, var(--peach) 50%, var(--yellow) 100%);
     -webkit-background-clip: text;
             background-clip: text;
     color: transparent;
-    -webkit-text-stroke: 1.5px rgba(245, 244, 238, 0.55);
+    -webkit-text-stroke: 1.5px var(--text-soft);
     transition: -webkit-text-stroke-color 0.45s ease;
 }
 
-/* Card-level trigger: hovering anywhere on the card
-   makes the title fill — feels more responsive than
-   requiring direct hover on the title text itself. */
 .work-card:hover .fill-on-hover,
 .fill-on-hover:hover {
     -webkit-text-stroke-color: transparent;
@@ -1715,17 +1772,19 @@ html, body, main, .hero, .section, .container {
 
 .work-tags span {
     padding: 0.375rem 0.875rem;
-    background: var(--dark-4);
+    background: var(--cream-dark);
+    border: 1px solid var(--cream-darker);
     border-radius: 50px;
     font-size: 0.75rem;
-    color: var(--text-light);
+    color: var(--text-muted);
+    font-weight: 500;
 }
 
 .work-link {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--primary);
+    color: var(--coral-dark);
     text-decoration: none;
     font-size: 0.875rem;
     font-weight: 600;
@@ -1748,10 +1807,11 @@ html, body, main, .hero, .section, .container {
     opacity: 0;
     transition: opacity 0.3s ease;
     z-index: 1;
+    pointer-events: none;
 }
 
 .work-card:hover .work-overlay {
-    opacity: 0.05;
+    opacity: 0.08;
 }
 
 /* Skills Section */
@@ -1851,9 +1911,11 @@ html, body, main, .hero, .section, .container {
     width: 100%;
     overflow: hidden;
     padding: 1.25rem 0;
-    background: var(--ink);
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    /* Paper-cut marquee: cream-dark band instead of dark ink. Reads as
+       a separate paper layer between sections. */
+    background: var(--cream-dark);
+    border-top: 1px solid var(--cream-darker);
+    border-bottom: 1px solid var(--cream-darker);
     position: relative;
     z-index: 2;
     /* Soft fade on left/right edges so text eases in/out smoothly. */
@@ -1882,19 +1944,14 @@ html, body, main, .hero, .section, .container {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    /* Filled at low opacity instead of hollow stroke. The 1px
-       outline was technically interesting but read as
-       "thin grey worms" at speed — the strongest section
-       breathers on the page were illegible. Low-opacity bone
-       fill + a lime text-shadow keeps the editorial voice
-       while making the words actually readable. */
-    color: var(--bone-a12);
-    text-shadow: 0 0 24px rgba(212, 255, 58, 0.18);
+    /* Warm brown text on cream-dark — legible and on-palette. */
+    color: var(--text-muted);
+    text-shadow: 0 1px 0 var(--cream-darker);
 }
 
 .section-divider-sep {
-    /* Filled accent ✦ between items — sits slightly smaller than text */
-    color: var(--lime);
+    /* Coral ✦ — paper-cut sticker feel at small size. */
+    color: var(--coral-dark);
     font-family: var(--font-display);
     font-size: 0.7em;
     -webkit-text-stroke: 0;
@@ -1955,7 +2012,7 @@ html, body, main, .hero, .section, .container {
 }
 
 .contact-email:hover {
-    color: var(--primary);
+    color: var(--coral-dark);
 }
 
 .email-icon {
@@ -1964,19 +2021,23 @@ html, body, main, .hero, .section, .container {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--gradient);
+    /* Paper-cut envelope sticker: coral fill, white border, soft shadow. */
+    background: var(--coral);
+    border: 2px solid var(--paper);
     border-radius: 50%;
+    box-shadow: var(--paper-shadow-soft);
     transition: transform 0.3s ease;
 }
 
 .contact-email:hover .email-icon {
     transform: rotate(45deg);
+    box-shadow: var(--paper-shadow-hover);
 }
 
 .email-icon svg {
     width: 20px;
     height: 20px;
-    color: var(--text);
+    color: var(--paper);
 }
 
 .contact-links {
@@ -1990,19 +2051,19 @@ html, body, main, .hero, .section, .container {
     align-items: center;
     gap: 1.5rem;
     padding: 1.5rem;
-    background: rgba(17, 17, 20, 0.5);
-    backdrop-filter: blur(20px) saturate(140%);
-    -webkit-backdrop-filter: blur(20px) saturate(140%);
-    border: 1px solid var(--violet-a20);
-    border-radius: 16px;
+    background: var(--paper);
+    border: 1px solid var(--cream-darker);
+    border-radius: var(--r-lg);
+    box-shadow: var(--paper-shadow-soft);
     text-decoration: none;
     color: var(--text);
-    transition: all 0.3s ease;
+    transition: all 0.3s var(--ease-out-expo);
 }
 
 .contact-card:hover {
-    border-color: var(--primary);
-    transform: translateX(10px);
+    border-color: var(--coral);
+    transform: translateX(8px);
+    box-shadow: var(--paper-shadow-hover);
 }
 
 .card-icon {
@@ -2011,8 +2072,9 @@ html, body, main, .hero, .section, .container {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--dark-4);
-    border-radius: 12px;
+    background: var(--cream-dark);
+    border: 1px solid var(--cream-darker);
+    border-radius: var(--r-md);
     flex-shrink: 0;
 }
 
@@ -2126,9 +2188,9 @@ body.show-anyway .loader {
 
 .scroll-rail-track {
     position: relative;
-    width: 2px;
+    width: 3px;
     height: 220px;
-    background: var(--border);
+    background: var(--cream-darker);
     border-radius: 2px;
     overflow: hidden;
 }
@@ -2139,10 +2201,11 @@ body.show-anyway .loader {
     left: 0;
     width: 100%;
     height: 0%;
-    background: linear-gradient(to bottom, var(--lime), var(--violet));
+    /* Pastel gradient: coral → blue. No glow — just the warm transition. */
+    background: linear-gradient(to bottom, var(--coral) 0%, var(--blue) 100%);
     border-radius: 2px;
     transition: height 0.15s linear;
-    box-shadow: 0 0 8px var(--lime);
+    box-shadow: var(--paper-shadow-soft);
 }
 
 .scroll-rail-marks {
@@ -2180,7 +2243,7 @@ body.show-anyway .loader {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--ink);
+    background: var(--paper);
     border: 1.5px solid var(--text-dim);
     transition: all 0.3s var(--ease-out-expo);
     flex-shrink: 0;
@@ -2198,13 +2261,13 @@ body.show-anyway .loader {
 }
 
 .scroll-rail-marks a:hover {
-    color: var(--lime);
+    color: var(--coral-dark);
 }
 
 .scroll-rail-marks a:hover .mark-dot {
-    background: var(--lime);
-    border-color: var(--lime);
-    box-shadow: 0 0 10px var(--lime);
+    background: var(--coral);
+    border-color: var(--coral-dark);
+    box-shadow: var(--paper-shadow-soft);
     transform: scale(1.4);
 }
 
@@ -2213,9 +2276,9 @@ body.show-anyway .loader {
 }
 
 .scroll-rail-marks a.active .mark-dot {
-    background: var(--lime);
-    border-color: var(--lime);
-    box-shadow: 0 0 12px var(--lime);
+    background: var(--coral);
+    border-color: var(--coral-dark);
+    box-shadow: var(--paper-shadow-soft);
 }
 
 /* Direction indicator — flips with scroll direction */
@@ -2227,7 +2290,7 @@ body.show-anyway .loader {
 }
 
 .scroll-direction.up svg { transform: rotate(180deg); }
-.scroll-direction.active { color: var(--lime); }
+.scroll-direction.active { color: var(--coral); }
 
 @media (max-width: 1024px) {
     .scroll-rail { display: none; }
@@ -2254,10 +2317,11 @@ body.show-anyway .loader {
     /* Add safe-area top padding so the status strip doesn't tuck under the
        notch on iPhone X+ and similar devices. */
     padding-top: calc(0.5rem + env(safe-area-inset-top, 0px));
-    background: rgba(7, 7, 10, 0.7);
-    backdrop-filter: blur(16px) saturate(140%);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    border-bottom: 1px solid var(--border);
+    /* Paper-cut status bar: opaque cream strip with a soft stacked shadow
+       that makes it look like a paper layer resting on the page. */
+    background: var(--paper);
+    border-bottom: 1px solid var(--cream-dark);
+    box-shadow: var(--paper-shadow-soft);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
     letter-spacing: 0.06em;
@@ -2267,18 +2331,21 @@ body.show-anyway .loader {
 }
 
 .status-dot {
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background: var(--lime);
-    box-shadow: 0 0 0 0 rgba(212, 255, 58, 0.6);
-    animation: statusPulse 2s infinite;
+    /* Yellow sticker dot — was lime with glow, now a paper-cut sticker
+       with a subtle white ring suggesting it's a separate paper layer. */
+    background: var(--yellow);
+    border: 1.5px solid var(--paper);
+    box-shadow: 0 1px 2px rgba(58, 50, 42, 0.15);
+    animation: statusPulse 2.4s ease-in-out infinite;
     flex-shrink: 0;
 }
 
 @keyframes statusPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(212, 255, 58, 0.55); }
-    50%      { box-shadow: 0 0 0 8px rgba(212, 255, 58, 0); }
+    0%, 100% { transform: scale(1);    opacity: 1; }
+    50%      { transform: scale(1.18); opacity: 0.85; }
 }
 
 .status-item {
@@ -2294,11 +2361,12 @@ body.show-anyway .loader {
 }
 
 .status-value {
-    color: var(--bone);
+    color: var(--text);
     font-weight: 500;
 }
 
-.status-available { color: var(--lime); }
+/* "Open to work" — coral badge text now (lime → coral rebrand) */
+.status-available { color: var(--coral-dark); }
 
 .status-sep {
     color: var(--border);
@@ -2930,11 +2998,10 @@ button:focus-visible {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: rgba(124, 58, 237, 0.15);
-    border: 1px solid rgba(124, 58, 237, 0.35);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: var(--bone, #F5F4EE);
+    /* Paper-cut scroll-top: coral sticker with white paper border. */
+    background: var(--coral);
+    border: 2px solid var(--paper);
+    color: var(--paper);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -2943,7 +3010,7 @@ button:focus-visible {
     transform: translateY(20px) scale(0.85);
     pointer-events: none;
     transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1), background 0.3s ease, border-color 0.3s ease;
-    box-shadow: 0 8px 24px -6px rgba(124, 58, 237, 0.45);
+    box-shadow: var(--paper-shadow-stacked);
 }
 .scroll-top svg {
     width: 22px;
@@ -2955,10 +3022,9 @@ button:focus-visible {
     pointer-events: auto;
 }
 .scroll-top:hover {
-    background: rgba(124, 58, 237, 0.30);
-    border-color: rgba(6, 182, 212, 0.6);
+    background: var(--coral-dark);
     transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 12px 30px -6px rgba(6, 182, 212, 0.5);
+    box-shadow: var(--paper-shadow-hover);
 }
 .scroll-top:active {
     transform: translateY(-2px) scale(0.98);
