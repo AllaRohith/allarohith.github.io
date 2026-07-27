@@ -99,47 +99,20 @@ class Animations {
     }
 
     init() {
-        this.setupLoader();
         this.setupScrollAnimations();
         this.setupSkillBars();
         this.setupStatCounters();
         this.setupNavToggle();
+        // Hero entrance reveal — plays on first load.
+        // Replaces the old setupLoader() / 3.3s cinematic pre-loader.
+        this.triggerHeroAnimations();
     }
 
     // ============================================
-    // LOADER + REST BELOW
+    // HERO REVEAL ANIMATION
+    // Plays on page load — replaces the old
+    // setupLoader() that ran the cinematic pre-loader.
     // ============================================
-    setupLoader() {
-        const loader = document.getElementById('pageLoader');
-        const progress = document.getElementById('loaderProgress');
-        if (!loader) return;
-
-        // Simulate loading — paced so users can appreciate the cinematic reveal.
-        // Total: ~2.6s fill + 700ms hold = ~3.3s before the dramatic exit.
-        let width = 0;
-        const interval = setInterval(() => {
-            width += Math.random() * 10;       // slower fill rate
-            if (width >= 100) {
-                width = 100;
-                clearInterval(interval);
-
-                setTimeout(() => {
-                    // Add .leaving so the CSS .page-loader.leaving .loader-content
-                    // animation (scale 1 → 2.5, blur 0 → 14px) actually fires —
-                    // this is the "Netflix zoom-out" burst.
-                    loader.classList.add('leaving');
-
-                    // After the CSS exit animation completes, hide fully + reveal hero.
-                    setTimeout(() => {
-                        loader.classList.add('hidden');
-                        this.triggerHeroAnimations();
-                    }, 1000);                  // matches loaderExit duration
-                }, 700);                       // hold the filled loader longer
-            }
-            if (progress) progress.style.width = width + '%';
-        }, 180);                               // slower tick rate
-    }
-
     triggerHeroAnimations() {
         // The hero now only contains the .hero-image — animate that as the reveal.
         // All other targets (.hero-badge, .title-line, .hero-desc, .hero-cta,
