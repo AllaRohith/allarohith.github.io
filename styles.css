@@ -16,7 +16,11 @@
     --cream-dark:   #16161a;   /* mid layer — slightly lighter */
     --cream-darker: #25252b;   /* deepest layer — base */
     --paper:        #FFFCF5;   /* lightest — kept white for sticker outlines */
-    --paper-warm:   #f4ede0;   /* warm highlight */
+    --paper-warm:   #16161a;   /* was warm cream — now matches --cream-dark so
+                                  no cream halo shows up at the top of the
+                                  page. (Paper-warm still exists as a token
+                                  for any code that references it; it's just
+                                  not light anymore.) */
 
     /* Compatibility aliases — old dark names now point to dark tones */
     --ink:    var(--cream);
@@ -70,7 +74,7 @@
     --gradient: linear-gradient(135deg, var(--coral) 0%, var(--blue) 100%);
     --gradient-accent: linear-gradient(135deg, var(--yellow) 0%, var(--blue) 100%);
     --gradient-text: linear-gradient(135deg, var(--coral) 0%, var(--blue) 50%, var(--green) 100%);
-    --gradient-paper: linear-gradient(135deg, var(--paper-warm) 0%, var(--cream) 100%);
+    --gradient-paper: linear-gradient(135deg, var(--cream-dark) 0%, var(--cream) 100%);
 
     /* Type
        Order matters: custom first, then -apple-system (Safari specific
@@ -273,8 +277,9 @@ body {
 
     /* Dark paper-cut page background: 3 stacked layers of dark + visible
        paper grain. Reads as physical dark kraft paper, not a flat fill.
-       Warm highlight at top (paper-warm = #f4ede0) gives subtle depth
-       against the deep black main surface. Noise layers inverted
+       Top + bottom depth halos use --cream-dark (was --paper-warm = cream
+       #f4ede0 — that created a visible cream U-shape at the top of the
+       page which the user wanted gone). Noise layers inverted
        (light specks on dark) so the texture is still visible. */
     background-color: var(--cream);
     background-image:
