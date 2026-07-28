@@ -1419,9 +1419,13 @@ body.hero-ready .hero-peel-3 {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-end;     /* push portrait to bottom of viewport */
+    justify-content: flex-end;     /* anchor portrait at the bottom */
     gap: clamp(0.75rem, 1.5vw, 1.25rem);
-    padding: clamp(4.5rem, 8vh, 6rem) clamp(1.5rem, 5vw, 4rem) clamp(1.5rem, 3vh, 2.5rem);
+    /* Bottom padding dropped to 0 + bottom edge bleed via
+       .hero-image { margin-bottom } so the portrait extends
+       slightly past the viewport bottom — pushed LOWER than
+       the hero's box. */
+    padding: clamp(4.5rem, 8vh, 6rem) clamp(1.5rem, 5vw, 4rem) 0;
     text-align: center;
     /* 3D depth — children with their own transforms gain
        perspective from this. Adds immersive feel to the
@@ -1766,7 +1770,12 @@ body.hero-ready .hero-peel-3 {
     max-width: clamp(260px, 28vw, 420px);
     max-height: 58vh;
     aspect-ratio: 2 / 3;
-    margin: 0 auto;
+    margin: 0 auto 0;
+    /* Pushed lower than the hero box — bottom 12vh of the portrait
+       extends below the viewport. Combined with overflow:hidden
+       on body, this gives the "head floating above a cut-off
+       body" silhouette effect. */
+    margin-bottom: -12vh;
     z-index: 2;
     transform: translateZ(0);
     /* Explicit transparent — the portrait is a true cutout PNG
