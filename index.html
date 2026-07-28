@@ -246,15 +246,18 @@
             <span>Creative Developer · Bengaluru</span>
         </div>
 
-        <!-- Decorative name watermark — a single oversized outlined line
-             sitting BEHIND the portrait. Sized to fill the viewport and
-             top-cropped so only the bottom portion of the letters is
-             visible — same trick as manndamani.com where "MANN DAMANI"
-             is rendered at ~1000px-per-letter and extends past the
-             viewport above. aria-hidden because the same name is
-             announced by the <h1 class="hero-name"> below. -->
+        <!-- Decorative name watermark — 3 stacked outline lines sitting
+             BEHIND the portrait. Each line is sized to fill the hero
+             width and overflows top + bottom (top-cropped via mask
+             so only the middle band is visible). Same trick as
+             manndamani.com where "MANN DAMANI" is rendered at
+             ~1000px-per-letter, applied here as a 3-line editorial
+             stack. aria-hidden because the same name is announced
+             by the <h1 class="hero-name"> below. -->
         <div class="hero-name-bg" aria-hidden="true">
-            <span class="hero-name-bg-line">Rohith Naidu Alla</span>
+            <span class="hero-name-bg-line">Rohith</span>
+            <span class="hero-name-bg-line">Naidu</span>
+            <span class="hero-name-bg-line">Alla</span>
         </div>
 
         <div class="hero-image" data-parallax>
