@@ -15,7 +15,10 @@
     --cream:        #0a0a0b;   /* main surface — deep black */
     --cream-dark:   #16161a;   /* mid layer — slightly lighter */
     --cream-darker: #25252b;   /* deepest layer — base */
-    --paper:        #FFFCF5;   /* lightest — kept white for sticker outlines */
+    --paper:        #FFFFFF;   /* pure white — used for sticker outlines /
+                              borders / text-color on dark surface. Was
+                              #FFFCF5 (warm off-white) — looked cream at
+                              the top of the hero via the watermark. */
     --paper-warm:   #16161a;   /* was warm cream — now matches --cream-dark so
                                   no cream halo shows up at the top of the
                                   page. (Paper-warm still exists as a token
@@ -28,11 +31,13 @@
     --surface-2:  var(--cream-dark);
     --border:     var(--cream-dark);
 
-    /* Text colors — light, warm, readable on dark */
-    --text:       #f5f0e6;   /* primary text — warm off-white */
-    --text-muted: #b5b0a3;   /* muted warm gray */
-    --text-dim:   #7a7670;   /* dimmer warm gray */
-    --text-soft:  #4a4744;   /* softest warm gray */
+    /* Text colors — pure neutral white-on-dark. No warm cream tint. */
+    --text:       #f0f0f0;   /* primary text — pure off-white (was #f5f0e6
+                                warm cream — now neutral so the page
+                                reads as pure black + white) */
+    --text-muted: #a8a8a8;   /* muted neutral gray (was #b5b0a3 warm) */
+    --text-dim:   #707070;   /* dimmer neutral gray (was #7a7670 warm) */
+    --text-soft:  #454545;   /* softest neutral gray (was #4a4744 warm) */
     --bone:       #0a0a0b;   /* now used as outline-stroke color (was paper-white) */
 
     /* Legacy "dark" semantic aliases */
@@ -182,10 +187,10 @@
        The separator color is --cream-darker (now #25252b) so it's
        slightly visible against the deep black main surface. */
     --paper-shadow-sticker:
-        0 0 0 10px #FFFCF5,
+        0 0 0 10px #FFFFFF,
         0 0 0 11px var(--cream-darker),
-        0 12px 24px -6px rgba(255, 252, 245, 0.08),
-        0 24px 48px -12px rgba(255, 252, 245, 0.05);
+        0 12px 24px -6px rgba(255, 255, 255, 0.08),
+        0 24px 48px -12px rgba(255, 255, 255, 0.05);
 
     /* 3-layer stacked shadow — subtle white glow layered for depth */
     --paper-shadow-stacked:
@@ -277,25 +282,27 @@ body {
 
     /* Dark paper-cut page background: 3 stacked layers of dark + visible
        paper grain. Reads as physical dark kraft paper, not a flat fill.
-       Top + bottom depth halos use --cream-dark (was --paper-warm = cream
-       #f4ede0 — that created a visible cream U-shape at the top of the
-       page which the user wanted gone). Noise layers inverted
-       (light specks on dark) so the texture is still visible. */
+       Top + bottom depth halos use --cream-dark (no more cream — was
+       --paper-warm = cream #f4ede0 which created a visible cream
+       U-shape at the top). Noise layers are now both DARK warm specks
+       with multiply blend — no light/cream noise anywhere on the page,
+       so the surface reads as pure black with subtle paper grain. */
     background-color: var(--cream);
     background-image:
-        /* Top: subtle warm highlight band, like light falling on dark paper */
-        radial-gradient(ellipse 80% 50% at 50% 0%, var(--paper-warm) 0%, transparent 65%),
+        /* Top: subtle depth halo (now dark, not cream) */
+        radial-gradient(ellipse 80% 50% at 50% 0%, var(--cream-darker) 0%, transparent 65%),
         /* Bottom: deeper wash for visible dark depth */
         radial-gradient(ellipse 100% 60% at 50% 100%, var(--cream-darker) 0%, transparent 70%),
-        /* Light fiber noise — was warm brown fibers on cream, now light
-           fibers on dark so the texture still reads. */
-        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.85 0 0 0 0 0.82 0 0 0 0 0.78 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
-        /* Fine dark specks for grain — was light specks on cream, now
-           very subtle dark specks on dark for paper-fiber feel. */
+        /* DARK fiber noise — was light cream fibers on dark (created
+           cream specks across the page). Now uses dark warm RGB with
+           multiply blend so it only ever DARKENS the surface. */
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.227 0 0 0 0 0.196 0 0 0 0 0.165 0 0 0 0.45 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+        /* Fine dark specks for grain — already dark, unchanged. */
         url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.227 0 0 0 0 0.196 0 0 0 0 0.165 0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     background-attachment: fixed, fixed, fixed, fixed;
     background-size: 100% 100%, 100% 100%, 240px 240px, 120px 120px;
-    background-blend-mode: normal, normal, screen, multiply;
+    /* All multiply now — no screen blend, so nothing lightens the bg. */
+    background-blend-mode: normal, normal, multiply, multiply;
 }
 
 /* Hide custom cursor and restore native cursor on touch / coarse-pointer devices */
@@ -1706,11 +1713,13 @@ body.hero-ready .hero-peel-3 {
     letter-spacing: -0.04em;
     text-transform: uppercase;
     color: transparent;
-    /* Outline only — paper-cut style. White on the dark theme at 18%
-       opacity so the letters read as a watermark behind the portrait
-       without competing with the foreground. */
-    -webkit-text-stroke: 2px rgba(255, 252, 245, 0.18);
-    text-stroke: 2px rgba(255, 252, 245, 0.18);
+    /* Outline only — paper-cut style. Stroke at 9% opacity (was 18%)
+       so the watermark is a subtle ghost, not a cream block. The
+       top of the letters used to form a visible cream U-shape from
+       the top of the 'O' in ROHITH — at 9% it reads as a ghost
+       watermark, not a cream element. */
+    -webkit-text-stroke: 2px rgba(255, 252, 245, 0.09);
+    text-stroke: 2px rgba(255, 252, 245, 0.09);
     opacity: 1;
     white-space: nowrap;
     will-change: opacity;
