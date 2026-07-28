@@ -5,31 +5,33 @@
 
 :root {
     /* ============================================================
-       PAPER-CUT PALETTE — soft, handcrafted, storybook.
-       Layered cream surfaces + warm brown text + pastel accents.
+       DARK PAPER-CUT PALETTE — flipped from cream to black.
+       Layered dark surfaces + light warm text + pastel accents.
+       Paper (white) stays as the sticker-outline color so the
+       paper-cut "cut-out" effect still reads against the dark bg.
        ============================================================ */
 
-    /* Surface colors (3-layer paper depth) */
-    --cream:        #FAF5EC;   /* main surface — warm cream */
-    --cream-dark:   #EFE7D5;   /* mid layer — slightly darker */
-    --cream-darker: #E5DBC5;   /* deepest layer — base paper */
-    --paper:        #FFFCF5;   /* lightest — highlight paper */
-    --paper-warm:   #F8F1E0;   /* warm highlight */
+    /* Surface colors (3-layer dark depth) */
+    --cream:        #0a0a0b;   /* main surface — deep black */
+    --cream-dark:   #16161a;   /* mid layer — slightly lighter */
+    --cream-darker: #25252b;   /* deepest layer — base */
+    --paper:        #FFFCF5;   /* lightest — kept white for sticker outlines */
+    --paper-warm:   #f4ede0;   /* warm highlight */
 
-    /* Compatibility aliases — old dark names now point to cream tones */
+    /* Compatibility aliases — old dark names now point to dark tones */
     --ink:    var(--cream);
     --surface:    var(--cream);
     --surface-2:  var(--cream-dark);
     --border:     var(--cream-dark);
 
-    /* Text colors — warm browns */
-    --text:       #3A322A;   /* primary text — warm dark brown */
-    --text-muted: #7A6F5F;   /* muted brown */
-    --text-dim:   #A89F8E;   /* dimmer brown */
-    --text-soft:  #C4B8A4;   /* softest brown */
-    --bone:       #FFFCF5;   /* highlights — kept for outline strokes */
+    /* Text colors — light, warm, readable on dark */
+    --text:       #f5f0e6;   /* primary text — warm off-white */
+    --text-muted: #b5b0a3;   /* muted warm gray */
+    --text-dim:   #7a7670;   /* dimmer warm gray */
+    --text-soft:  #4a4744;   /* softest warm gray */
+    --bone:       #0a0a0b;   /* now used as outline-stroke color (was paper-white) */
 
-    /* Legacy "dark" semantic aliases (keep names, point to cream) */
+    /* Legacy "dark" semantic aliases */
     --dark:   var(--cream);
     --dark-2: var(--cream-dark);
     --dark-3: var(--cream-darker);
@@ -161,38 +163,40 @@
     --r-pill: 999px;
 
     /* ============================================================
-       SHADOW SCALE — paper-cut style. Soft, warm-brown shadows.
-       --paper-shadow-sticker is the signature: white outline ring +
-       soft drop shadow stack. Drops the harsh black shadows that
-       looked right against dark backgrounds but feel wrong on cream.
+       SHADOW SCALE — flipped for dark theme. Drop shadows use
+       subtle white/bone glows instead of warm-brown darks (which
+       would be invisible on a black bg). The signature sticker
+       outline ring stays white (#FFFCF5) — it pops against the
+       dark surface and still reads as a paper-cut sticker.
        ============================================================ */
-    --shadow-sm: 0 1px 2px rgba(58, 50, 42, 0.08);
-    --shadow-md: 0 4px 16px rgba(58, 50, 42, 0.10);
-    --shadow-lg: 0 12px 48px rgba(58, 50, 42, 0.12);
+    --shadow-sm: 0 1px 2px rgba(255, 252, 245, 0.04);
+    --shadow-md: 0 4px 16px rgba(255, 252, 245, 0.06);
+    --shadow-lg: 0 12px 48px rgba(255, 252, 245, 0.08);
 
-    /* Paper-cut signature: THICK white outline ring + thin paper separator + pronounced drop stack.
-       Bumped from 4px → 10px white ring so the sticker effect actually reads
-       at typical viewing distances (was too subtle to register). */
+    /* Paper-cut signature on dark: white outline ring + dark separator
+       (so the cut edge reads against black) + soft white glow underneath.
+       The separator color is --cream-darker (now #25252b) so it's
+       slightly visible against the deep black main surface. */
     --paper-shadow-sticker:
         0 0 0 10px #FFFCF5,
-        0 0 0 11px var(--cream-dark),
-        0 12px 24px -6px rgba(58, 50, 42, 0.22),
-        0 24px 48px -12px rgba(58, 50, 42, 0.15);
+        0 0 0 11px var(--cream-darker),
+        0 12px 24px -6px rgba(255, 252, 245, 0.08),
+        0 24px 48px -12px rgba(255, 252, 245, 0.05);
 
-    /* 3-layer stacked shadow for surface depth — stronger for visible paper depth */
+    /* 3-layer stacked shadow — subtle white glow layered for depth */
     --paper-shadow-stacked:
-        0 3px 6px rgba(58, 50, 42, 0.10),
-        0 12px 24px rgba(58, 50, 42, 0.10),
-        0 24px 48px rgba(58, 50, 42, 0.08);
+        0 3px 6px rgba(255, 252, 245, 0.05),
+        0 12px 24px rgba(255, 252, 245, 0.04),
+        0 24px 48px rgba(255, 252, 245, 0.03);
 
-    /* Single soft shadow for subtle elements */
-    --paper-shadow-soft: 0 6px 16px rgba(58, 50, 42, 0.12);
+    /* Single soft shadow — light glow for subtle elements */
+    --paper-shadow-soft: 0 6px 16px rgba(255, 252, 245, 0.06);
 
     /* Lifted hover shadow — strong enough to read as "card lifts off the page" */
     --paper-shadow-hover:
-        0 6px 12px rgba(58, 50, 42, 0.12),
-        0 20px 40px rgba(58, 50, 42, 0.16),
-        0 40px 80px -12px rgba(58, 50, 42, 0.18);
+        0 6px 12px rgba(255, 252, 245, 0.08),
+        0 20px 40px rgba(255, 252, 245, 0.06),
+        0 40px 80px -12px rgba(255, 252, 245, 0.10);
 
     /* ============================================================
        Z-INDEX SCALE — replaces the raw 1 / 10 / 100 / 1000 / 999999
@@ -267,21 +271,26 @@ body {
        element. */
     -webkit-tap-highlight-color: transparent;
 
-    /* Paper-cut page background: 3 stacked layers of cream + visible paper grain.
-       Reads as physical kraft paper, not a flat fill. */
+    /* Dark paper-cut page background: 3 stacked layers of dark + visible
+       paper grain. Reads as physical dark kraft paper, not a flat fill.
+       Warm highlight at top (paper-warm = #f4ede0) gives subtle depth
+       against the deep black main surface. Noise layers inverted
+       (light specks on dark) so the texture is still visible. */
     background-color: var(--cream);
     background-image:
-        /* Top: warm highlight band, like a window's light falling on paper */
+        /* Top: subtle warm highlight band, like light falling on dark paper */
         radial-gradient(ellipse 80% 50% at 50% 0%, var(--paper-warm) 0%, transparent 65%),
-        /* Bottom: deeper wash for visible paper depth */
+        /* Bottom: deeper wash for visible dark depth */
         radial-gradient(ellipse 100% 60% at 50% 100%, var(--cream-darker) 0%, transparent 70%),
-        /* TWO noise layers — large warm fibers + small dark specks.
-           The combined effect reads as actual craft paper texture. */
-        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.78 0 0 0 0 0.65 0 0 0 0 0.45 0 0 0 0.7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
-        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.227 0 0 0 0 0.196 0 0 0 0 0.165 0 0 0 0.65 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        /* Light fiber noise — was warm brown fibers on cream, now light
+           fibers on dark so the texture still reads. */
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.85 0 0 0 0 0.82 0 0 0 0 0.78 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+        /* Fine dark specks for grain — was light specks on cream, now
+           very subtle dark specks on dark for paper-fiber feel. */
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.227 0 0 0 0 0.196 0 0 0 0 0.165 0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     background-attachment: fixed, fixed, fixed, fixed;
     background-size: 100% 100%, 100% 100%, 240px 240px, 120px 120px;
-    background-blend-mode: normal, normal, multiply, multiply;
+    background-blend-mode: normal, normal, screen, multiply;
 }
 
 /* Hide custom cursor and restore native cursor on touch / coarse-pointer devices */
@@ -400,7 +409,7 @@ body {
     gap: 0.55rem;
     padding: 0.4rem 0.95rem;
     border-radius: var(--r-pill);
-    background: var(--paper);
+    background: var(--cream-dark);
     border: 1.5px solid var(--cream-dark);
     box-shadow: var(--paper-shadow-soft);
     font-family: var(--font-mono);
@@ -433,7 +442,7 @@ body {
     width: 46px;
     height: 46px;
     border-radius: 50%;
-    background: var(--paper);
+    background: var(--cream-dark);
     border: 1.5px solid var(--cream-dark);
     box-shadow: var(--paper-shadow-soft);
     color: var(--text-muted);
@@ -580,7 +589,7 @@ body {
        "die-cut paper letters sitting on cream paper" */
     text-shadow:
         0 2px 0 var(--paper),
-        0 8px 18px rgba(58, 50, 42, 0.15);
+        0 8px 18px rgba(255, 252, 245, 0.15);
     /* RTL scripts (Arabic, Hebrew) need direction set inline */
     will-change: opacity, transform, filter;
     /* The actual fade is driven by JS adding/removing
@@ -655,7 +664,7 @@ body {
     background: var(--cream-dark);
     border-radius: var(--r-pill);
     overflow: hidden;
-    box-shadow: inset 0 1px 2px rgba(58, 50, 42, 0.08);
+    box-shadow: inset 0 1px 2px rgba(255, 252, 245, 0.08);
 }
 .loader-progress-bar {
     position: absolute;
@@ -1190,7 +1199,7 @@ body.hero-ready .nav {
 /* Scrolled nav: opaque cream paper with the signature stacked shadow.
    Translates from the floating top state to a paper-cut strip. */
 .nav.scrolled {
-    background: var(--paper);
+    background: var(--cream-dark);
     border-bottom: 1px solid var(--cream-dark);
     box-shadow: var(--paper-shadow-soft);
     padding: 0.85rem 3rem;
@@ -1218,7 +1227,7 @@ body.hero-ready .nav {
     background: var(--coral);
     border: 1.5px solid var(--paper);
     border-radius: 50%;
-    box-shadow: 0 1px 2px rgba(58, 50, 42, 0.15);
+    box-shadow: 0 1px 2px rgba(255, 252, 245, 0.15);
     animation: pulse 2.4s ease-in-out infinite;
 }
 
@@ -1340,7 +1349,7 @@ body.hero-ready .hero-peel-3 {
 }
 .hero-dust-mote {
     position: absolute;
-    background: var(--paper);
+    background: var(--cream-dark);
     border: 1px solid var(--cream-dark);
     border-radius: 50%;
     box-shadow: var(--paper-shadow-soft);
@@ -1441,7 +1450,7 @@ body.hero-ready .hero-peel-3 {
     justify-content: center;
     border-radius: 50%;
     color: var(--text);
-    background: var(--paper);
+    background: var(--cream-dark);
     border: 2px solid var(--paper);
     box-shadow: var(--paper-shadow-soft);
     font-size: 1rem;
@@ -1614,7 +1623,7 @@ body.hero-ready .hero-peel-3 {
     display: inline-flex;
     align-items: center;
     padding: 0.95rem 1.4rem;
-    background: var(--paper);
+    background: var(--cream-dark);
     color: var(--text);
     border: 1px solid var(--cream-darker);
     border-radius: 999px;
@@ -1726,7 +1735,7 @@ body.hero-ready .hero-peel-3 {
        down-right and a peach back-paper offset up-left, so the portrait
        visibly sits on top of a small stack of paper. */
     padding: 14px;
-    background: var(--paper);
+    background: var(--cream-dark);
     border-radius: var(--r-lg);
     box-shadow: var(--paper-shadow-stacked);
 }
@@ -1741,7 +1750,7 @@ body.hero-ready .hero-peel-3 {
     background: var(--coral);
     border-radius: var(--r-md);
     z-index: -2;
-    box-shadow: 0 4px 8px rgba(58, 50, 42, 0.10);
+    box-shadow: 0 4px 8px rgba(255, 252, 245, 0.10);
 }
 
 /* Back-paper layer #2: blue, offset up-left (visible top-left corner) */
@@ -1754,7 +1763,7 @@ body.hero-ready .hero-peel-3 {
     background: var(--blue);
     border-radius: var(--r-md);
     z-index: -1;
-    box-shadow: 0 4px 8px rgba(58, 50, 42, 0.10);
+    box-shadow: 0 4px 8px rgba(255, 252, 245, 0.10);
 }
 
 /* Image itself — fits inside the white sticker border */
@@ -1968,7 +1977,7 @@ html, body, main, .hero, .section, .container {
     width: 100%;
     aspect-ratio: 1;
     /* Paper-cut square frame: cream paper with a soft stacked shadow. */
-    background: var(--paper);
+    background: var(--cream-dark);
     border-radius: var(--r-xl);
     box-shadow: var(--paper-shadow-stacked);
     padding: 10px;
@@ -1989,7 +1998,7 @@ html, body, main, .hero, .section, .container {
     content: '';
     position: absolute;
     inset: 0;
-    background: var(--paper);
+    background: var(--cream-dark);
     border-radius: var(--r-xl);
     margin: 5px;
 }
@@ -2008,14 +2017,14 @@ html, body, main, .hero, .section, .container {
     font-weight: 800;
     color: var(--paper);
     z-index: 1;
-    text-shadow: 0 2px 0 rgba(58, 50, 42, 0.15);
+    text-shadow: 0 2px 0 rgba(255, 252, 245, 0.15);
 }
 
 .floating-badge {
     position: absolute;
     bottom: -20px;
     right: -20px;
-    background: var(--paper);
+    background: var(--cream-dark);
     border: 1px solid var(--cream-darker);
     border-radius: var(--r-lg);
     padding: 1rem 1.5rem;
@@ -2100,7 +2109,7 @@ html, body, main, .hero, .section, .container {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--paper);
+    background: var(--cream-dark);
     border: 1px solid var(--cream-darker);
     border-radius: var(--r-md);
     color: var(--text-muted);
@@ -2137,7 +2146,7 @@ html, body, main, .hero, .section, .container {
        back-paper layer peeking out behind it. The ::before pseudo-element
        creates a coral back-paper offset down-right so each card visibly
        sits on a stack of paper, not floating alone. */
-    background: var(--paper);
+    background: var(--cream-dark);
     border-radius: var(--r-xl);
     overflow: visible;
     border: 1px solid var(--cream-darker);
@@ -2155,7 +2164,7 @@ html, body, main, .hero, .section, .container {
     background: var(--coral);
     border-radius: var(--r-xl);
     z-index: -1;
-    box-shadow: 0 6px 12px rgba(58, 50, 42, 0.10);
+    box-shadow: 0 6px 12px rgba(255, 252, 245, 0.10);
     transition: inset 0.5s var(--ease-out-expo);
 }
 
@@ -2180,7 +2189,7 @@ html, body, main, .hero, .section, .container {
    visible "stacked paper" lift effect. */
 .work-card:hover::before {
     inset: 14px -16px -16px 14px;
-    box-shadow: 0 12px 24px rgba(58, 50, 42, 0.16);
+    box-shadow: 0 12px 24px rgba(255, 252, 245, 0.16);
 }
 
 .work-image {
@@ -2557,7 +2566,7 @@ html, body, main, .hero, .section, .container {
     align-items: center;
     gap: 1.5rem;
     padding: 1.5rem;
-    background: var(--paper);
+    background: var(--cream-dark);
     border: 1px solid var(--cream-darker);
     border-radius: var(--r-lg);
     box-shadow: var(--paper-shadow-soft);
@@ -2749,7 +2758,7 @@ body.show-anyway .loader {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--paper);
+    background: var(--cream-dark);
     border: 1.5px solid var(--text-dim);
     transition: all 0.3s var(--ease-out-expo);
     flex-shrink: 0;
