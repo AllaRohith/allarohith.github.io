@@ -1767,14 +1767,18 @@ body.hero-ready .hero-peel-3 {
 .hero-image {
     position: relative;
     width: 100%;
-    max-width: clamp(260px, 28vw, 420px);
-    max-height: 58vh;
+    /* Bumped from clamp(260px, 28vw, 420px) to clamp(360px, 40vw,
+       640px) — the portrait is now significantly bigger. On a
+       1440px viewport it goes from ~400px wide to ~576px wide.
+       On mobile (clamp 360px) it never shrinks below a substantial
+       size either. */
+    max-width: clamp(360px, 40vw, 640px);
+    /* Bumped from 58vh to 78vh so the portrait fills most of the
+       viewport vertically. Combined with margin-bottom: -12vh
+       (still in place), the bottom extends well past the viewport. */
+    max-height: 78vh;
     aspect-ratio: 2 / 3;
     margin: 0 auto 0;
-    /* Pushed lower than the hero box — bottom 12vh of the portrait
-       extends below the viewport. Combined with overflow:hidden
-       on body, this gives the "head floating above a cut-off
-       body" silhouette effect. */
     margin-bottom: -12vh;
     z-index: 2;
     transform: translateZ(0);
