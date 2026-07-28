@@ -1769,19 +1769,21 @@ body.hero-ready .hero-peel-3 {
     margin: 0 auto;
     z-index: 2;
     transform: translateZ(0);
-    /* Stripped the paper-cut card frame + back-paper layers per user
-       request — the portrait now sits directly on the dark bg, no
-       card-like frame, no coral/blue peek-out corners. Just the
-       portrait image, clean. */
+    /* Explicit transparent — the portrait is a true cutout PNG
+       (RGBA with alpha channel). Nothing paints a backdrop
+       behind it; the dark page bg shows through wherever the
+       PNG is transparent. */
+    background: transparent;
 }
 
-/* Image itself — sits directly on the dark bg */
+/* Image itself — true cutout, no background, no rounded corners */
 .hero-image-photo {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center center;
     display: block;
+    background: transparent;
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform;
 }
