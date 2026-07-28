@@ -1769,50 +1769,19 @@ body.hero-ready .hero-peel-3 {
     margin: 0 auto;
     z-index: 2;
     transform: translateZ(0);
-    /* Paper-cut sticker: white frame + visible back-paper layers peeking out.
-       Two ::before layers sit behind the image: a coral back-paper offset
-       down-right and a peach back-paper offset up-left, so the portrait
-       visibly sits on top of a small stack of paper. */
-    padding: 14px;
-    background: var(--cream-dark);
-    border-radius: var(--r-lg);
-    box-shadow: var(--paper-shadow-stacked);
+    /* Stripped the paper-cut card frame + back-paper layers per user
+       request — the portrait now sits directly on the dark bg, no
+       card-like frame, no coral/blue peek-out corners. Just the
+       portrait image, clean. */
 }
 
-/* Back-paper layer #1: coral, offset down-right (visible bottom-right corner) */
-.hero-image::before {
-    content: '';
-    position: absolute;
-    inset: -8px -8px auto auto;
-    width: 80%;
-    height: 12%;
-    background: var(--coral);
-    border-radius: var(--r-md);
-    z-index: -2;
-    box-shadow: 0 4px 8px rgba(255, 252, 245, 0.10);
-}
-
-/* Back-paper layer #2: blue, offset up-left (visible top-left corner) */
-.hero-image::after {
-    content: '';
-    position: absolute;
-    inset: auto auto -8px -8px;
-    width: 70%;
-    height: 10%;
-    background: var(--blue);
-    border-radius: var(--r-md);
-    z-index: -1;
-    box-shadow: 0 4px 8px rgba(255, 252, 245, 0.10);
-}
-
-/* Image itself — fits inside the white sticker border */
+/* Image itself — sits directly on the dark bg */
 .hero-image-photo {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center center;
     display: block;
-    border-radius: calc(var(--r-lg) - 4px);
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform;
 }
