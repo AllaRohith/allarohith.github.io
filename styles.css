@@ -1419,7 +1419,7 @@ body.hero-ready .hero-peel-3 {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;     /* push portrait to bottom of viewport */
     gap: clamp(0.75rem, 1.5vw, 1.25rem);
     padding: clamp(4.5rem, 8vh, 6rem) clamp(1.5rem, 5vw, 4rem) clamp(1.5rem, 3vh, 2.5rem);
     text-align: center;
