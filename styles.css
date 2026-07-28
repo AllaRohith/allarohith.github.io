@@ -1671,33 +1671,56 @@ body.hero-ready .hero-peel-3 {
     inset: 0;
     z-index: 0;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: clamp(0.4rem, 1.5vw, 1.25rem);
     pointer-events: none;
     user-select: none;
+    /* Hidden overflow so the giant top-cropped letters don't extend
+       past the hero on tall viewports. The mask below softens the
+       edges where they DO show. */
     overflow: hidden;
     padding: 0 1rem;
 }
 
+/* Single oversized outlined watermark — same trick as manndamani.com
+   where the name is rendered at ~1000px-per-letter and extends past
+   the viewport above (only the bottom portion visible). Here we use
+   30vw font-size so "ROHITH NAIDU ALLA" fills the width and crops at
+   top + bottom. */
 .hero-name-bg-line {
     font-family: var(--font-hero-name), var(--font-display), sans-serif;
     font-weight: 900;
-    font-size: clamp(4.5rem, 14vw, 12rem);
-    line-height: 0.85;
+    /* Massive: 30vw on desktop, scales down for mobile so it doesn't
+       wrap. letter-spacing slightly negative so the letters knit
+       together as a single watermark band. */
+    font-size: clamp(3.5rem, 30vw, 22rem);
+    line-height: 0.9;
     letter-spacing: -0.04em;
     text-transform: uppercase;
     color: transparent;
-    /* Warm brown stroke — was bone-white, now reads as paper cut edges. */
-    -webkit-text-stroke: 1.5px var(--text-soft);
-    text-stroke: 1.5px var(--text-soft);
-    opacity: 0.22;                       /* outline only — faint watermark */
+    /* Outline only — paper-cut style. White on the dark theme, with
+       a thicker stroke so the letters read as a watermark behind the
+       portrait. */
+    -webkit-text-stroke: 2px rgba(255, 252, 245, 0.18);
+    text-stroke: 2px rgba(255, 252, 245, 0.18);
     white-space: nowrap;
     will-change: opacity;
-    /* Subtle paper-edge fade — soft mask so lines don't clip harshly. */
-    mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
+    /* Top + bottom edge fade — soft mask so the giant letters don't
+       crop with hard lines where they exit the viewport. The top
+       fade is heavier (transparent → 18% → 100% by 25%) so it reads
+       as cropped, not as a centered word. */
+    mask-image: linear-gradient(to bottom,
+        transparent 0%,
+        rgba(0,0,0,0.18) 18%,
+        #000 32%,
+        #000 78%,
+        transparent 95%);
+    -webkit-mask-image: linear-gradient(to bottom,
+        transparent 0%,
+        rgba(0,0,0,0.18) 18%,
+        #000 32%,
+        #000 78%,
+        transparent 95%);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -1705,8 +1728,6 @@ body.hero-ready .hero-peel-3 {
         /* Very slow breathing so the watermark feels alive without distracting. */
         animation: heroNameFloat 9s ease-in-out infinite;
     }
-    .hero-name-bg-line:nth-child(2) { animation-delay: -3s; }
-    .hero-name-bg-line:nth-child(3) { animation-delay: -6s; }
 }
 
 @keyframes heroNameFloat {
