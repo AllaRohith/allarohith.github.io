@@ -1945,8 +1945,11 @@ body.hero-ready .hero-peel-3 {
     transform: rotate(-4deg);
     z-index: 4;
 }
-.graffiti-note-6 { /* "1987" — top center, small pale gray */
-    top: 4%; left: 50%;
+.graffiti-note-6 { /* "1987" — top center, small pale gray.
+                  Moved from top: 4% to top: 12% — the 4% position was
+                  hidden behind the fixed nav (top 0–~10.7vh). 12% puts
+                  it in the clear area between the nav and the portrait. */
+    top: 12%; left: 50%;
     transform: translateX(-50%) rotate(-3deg);
     font-family: 'Shadows Into Light', cursive;
     color: #B8B8B8;
@@ -1978,52 +1981,17 @@ body.hero-ready .hero-peel-3 {
     z-index: 4;
 }
 
-/* ----- Parental Advisory sticker ----- */
-.graffiti-advisory {
-    position: absolute;
-    top: 30%;
-    left: 50%;
-    transform: translate(-50%, 0) rotate(-4deg);
-    background: #000000;
-    color: #FFFFFF;
-    padding: 0.65rem 1.1rem 0.5rem;
-    border: 3px solid #FFFFFF;
-    box-shadow: 0 0 0 2px #000000, 0 8px 18px rgba(0,0,0,0.5);
-    text-align: center;
-    z-index: 5;
-    font-family: 'Archivo Black', 'Impact', sans-serif;
-    line-height: 1;
-}
-.graffiti-advisory-line-1 {
-    display: block;
-    font-size: 0.7rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    font-weight: 400;
-    font-family: 'Space Grotesk', sans-serif;
-}
-.graffiti-advisory-line-2 {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 900;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    margin: 0.15rem 0;
-}
-.graffiti-advisory-line-3 {
-    display: block;
-    font-size: 0.55rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    font-weight: 400;
-    font-family: 'Space Grotesk', sans-serif;
-}
+/* ----- Parental Advisory sticker — REMOVED. Was sitting at top: 30%
+       which is right on the portrait's head. User asked to remove it. */
 
 /* ----- Praying hands sketch (top-left) ----- */
 .graffiti-praying {
     position: absolute;
-    top: 6%;
-    left: 12%;
+    /* Moved from top: 6% to top: 14% — the 6% position was hidden
+       behind the fixed nav (top 0–~10.7vh). 14% puts it in the
+       clear area between the nav and the portrait's head. */
+    top: 14%;
+    left: 8%;
     width: 48px;
     height: 48px;
     transform: rotate(-8deg);
@@ -2145,8 +2113,6 @@ body.hero-ready .hero-peel-3 {
 
 /* Mobile: shrink some elements so they don't crowd. */
 @media (max-width: 640px) {
-    .graffiti-advisory { padding: 0.4rem 0.7rem 0.35rem; }
-    .graffiti-advisory-line-2 { font-size: 1rem; }
     .graffiti-note-3 { font-size: 0.85rem; }
     .graffiti-monogram { width: 40px; height: 40px; }
     .graffiti-praying { width: 32px; height: 32px; }
