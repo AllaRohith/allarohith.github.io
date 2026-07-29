@@ -1771,18 +1771,18 @@ body.hero-ready .hero-peel-3 {
        1440px viewport it goes from ~400px wide to ~576px wide.
        On mobile (clamp 360px) it never shrinks below a substantial
        size either. */
-    max-width: clamp(240px, 26vw, 440px);
-    /* Decreased again from 65vh to 58vh — portrait is more
-       compact now. Combined with margin-bottom: -8vh below, the
-       bottom 8vh clips past the viewport edge (subtle silhouette,
-       less than the previous 10vh). On a 1440px viewport the
-       portrait is now ~374px wide and 522px tall. */
-    max-height: 58vh;
+    max-width: clamp(200px, 22vw, 380px);
+    /* Decreased again from 58vh to 50vh — portrait is now
+       noticeably compact. Combined with margin-bottom: -6vh
+       below, only 6vh clips past the viewport edge (very subtle
+       silhouette). On a 1440px viewport the portrait is now
+       ~316px wide and 450px tall. */
+    max-height: 50vh;
     aspect-ratio: 2 / 3;
     margin: 0 auto;
-    /* Reduced from -10vh to -8vh — smaller portrait means less
+    /* Reduced from -8vh to -6vh — smaller portrait means less
        needs to be clipped for the silhouette effect. */
-    margin-bottom: -8vh;
+    margin-bottom: -6vh;
     z-index: 2;
     transform: translateZ(0);
     /* Explicit transparent — the portrait is a true cutout PNG
