@@ -1421,11 +1421,10 @@ body.hero-ready .hero-peel-3 {
     align-items: center;
     justify-content: flex-end;     /* anchor portrait at the bottom */
     gap: clamp(0.75rem, 1.5vw, 1.25rem);
-    /* Bottom padding dropped to 0 + bottom edge bleed via
-       .hero-image { margin-bottom } so the portrait extends
-       slightly past the viewport bottom — pushed LOWER than
-       the hero's box. */
-    padding: clamp(4.5rem, 8vh, 6rem) clamp(1.5rem, 5vw, 4rem) 0;
+    /* Small bottom padding so the portrait doesn't sit flush
+       against the viewport edge — breathing room above the
+       next section. */
+    padding: clamp(4.5rem, 8vh, 6rem) clamp(1.5rem, 5vw, 4rem) clamp(1rem, 3vh, 2rem);
     text-align: center;
     /* 3D depth — children with their own transforms gain
        perspective from this. Adds immersive feel to the
@@ -1773,13 +1772,14 @@ body.hero-ready .hero-peel-3 {
        On mobile (clamp 360px) it never shrinks below a substantial
        size either. */
     max-width: clamp(360px, 40vw, 640px);
-    /* Bumped from 58vh to 78vh so the portrait fills most of the
-       viewport vertically. Combined with margin-bottom: -12vh
-       (still in place), the bottom extends well past the viewport. */
-    max-height: 78vh;
+    /* Dropped from 78vh to 72vh so the full portrait (head + chest)
+       fits inside the hero viewport without the bottom being
+       clipped. User couldn't see the full image because the
+       previous margin-bottom: -12vh pushed the bottom 12vh past
+       the viewport, where the hero's overflow: hidden cut it off. */
+    max-height: 72vh;
     aspect-ratio: 2 / 3;
-    margin: 0 auto 0;
-    margin-bottom: -12vh;
+    margin: 0 auto;
     z-index: 2;
     transform: translateZ(0);
     /* Explicit transparent — the portrait is a true cutout PNG
