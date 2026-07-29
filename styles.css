@@ -1771,17 +1771,18 @@ body.hero-ready .hero-peel-3 {
        1440px viewport it goes from ~400px wide to ~576px wide.
        On mobile (clamp 360px) it never shrinks below a substantial
        size either. */
-    max-width: clamp(200px, 22vw, 380px);
-    /* Decreased again from 58vh to 50vh — portrait is now
-       noticeably compact. Combined with margin-bottom: -6vh
-       below, only 6vh clips past the viewport edge (very subtle
-       silhouette). On a 1440px viewport the portrait is now
-       ~316px wide and 450px tall. */
-    max-height: 50vh;
+    max-width: clamp(220px, 28vw, 480px);
+    /* Bumped from 50vh to 62vh. The portrait is CONSTRAINED BY
+       HEIGHT on wider screens (because aspect-ratio 2:3 means
+       the height sets the width). So to make the portrait wider
+       on laptop, we need a taller max-height. On a 1440px laptop
+       (900px viewport): 62vh = 558px → width = 558 × 2/3 = 372px
+       (vs the previous 300px). On mobile (375px / 667px):
+       62vh = 413px → width stays at the 220px clamp minimum. */
+    max-height: 62vh;
     aspect-ratio: 2 / 3;
     margin: 0 auto;
-    /* Reduced from -8vh to -6vh — smaller portrait means less
-       needs to be clipped for the silhouette effect. */
+    /* Kept at -6vh — silhouette effect on the bottom. */
     margin-bottom: -6vh;
     z-index: 2;
     transform: translateZ(0);
