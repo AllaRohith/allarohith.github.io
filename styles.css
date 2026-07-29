@@ -1859,6 +1859,299 @@ body.hero-ready .hero-peel-3 {
     }
 }
 
+/* ========================================
+   HERO GRAFFITI — mixed-media editorial
+   annotations scattered around the portrait.
+   Hand-drawn cyan-blue + coral-red + black +
+   gray notes, parental advisory sticker, blue
+   monogram, praying hands, arrows, squiggles,
+   contour lines, frame brackets. Same register
+   as Drake/Tyler/Weeknd album art — notebook
+   collage over a studio portrait.
+   ======================================== */
+.hero-graffiti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;            /* sits above watermark (z 0) + paper-confetti,
+                              below portrait (z 2) — but graffit-readability
+                              is orthogonal to portrait thanks to negative
+                              space around the subject */
+    overflow: hidden;
+}
+
+/* Risograph halftone overlay — tiny dots in a regular grid, very low
+   opacity, behind the portrait. Reads as photocopied print texture. */
+.graffiti-halftone {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1.5px);
+    background-size: 4px 4px;
+    pointer-events: none;
+    mix-blend-mode: screen;
+}
+
+/* ----- Handwritten notes ----- */
+.graffiti-note {
+    position: absolute;
+    font-weight: 700;
+    line-height: 1;
+    text-shadow: 0 0 6px rgba(0,0,0,0.7);
+    white-space: nowrap;
+    font-size: clamp(1.25rem, 2.4vw, 2rem);
+    letter-spacing: 0.01em;
+}
+
+/* Different fonts/colors/rotations per note — feels like multiple
+   hands edited the page. */
+.graffiti-note-1 { /* "Papi" — top-left, large cyan-blue marker */
+    top: 10%; left: 5%;
+    font-family: 'Permanent Marker', cursive;
+    color: #4FB6D9;
+    font-size: clamp(2rem, 4vw, 3.25rem);
+    transform: rotate(-6deg);
+    z-index: 4;
+}
+.graffiti-note-2 { /* "6 GOD" — top-right, coral-red marker */
+    top: 16%; right: 6%;
+    font-family: 'Permanent Marker', cursive;
+    color: #E84A4A;
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    transform: rotate(4deg);
+    z-index: 4;
+}
+.graffiti-note-3 { /* "TORONTO" — left, vertical-ish chrome */
+    top: 38%; left: 3%;
+    font-family: 'Permanent Marker', cursive;
+    color: #E84A4A;
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    transform: rotate(-90deg);
+    transform-origin: top left;
+    z-index: 4;
+}
+.graffiti-note-4 { /* "Take Care" — large white caveat across upper-right */
+    top: 36%; right: 4%;
+    font-family: 'Caveat', cursive;
+    color: #FFFFFF;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    transform: rotate(2deg);
+    z-index: 4;
+}
+.graffiti-note-5 { /* "Which one?" — left mid */
+    top: 54%; left: 4%;
+    font-family: 'Caveat', cursive;
+    color: #4FB6D9;
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    transform: rotate(-4deg);
+    z-index: 4;
+}
+.graffiti-note-6 { /* "1987" — top center, small pale gray */
+    top: 4%; left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    font-family: 'Shadows Into Light', cursive;
+    color: #B8B8B8;
+    font-size: clamp(1rem, 1.6vw, 1.4rem);
+    z-index: 4;
+}
+.graffiti-note-7 { /* "✓" — bottom-right, large coral checkmark */
+    bottom: 32%; right: 6%;
+    font-family: 'Caveat', cursive;
+    color: #E84A4A;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    transform: rotate(8deg);
+    z-index: 4;
+}
+.graffiti-note-8 { /* "♡" — small heart, scattered */
+    top: 24%; left: 28%;
+    font-family: 'Caveat', cursive;
+    color: #E84A4A;
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    transform: rotate(-12deg);
+    z-index: 4;
+}
+.graffiti-note-9 { /* "note to self" — small, scratchy */
+    bottom: 22%; left: 8%;
+    font-family: 'Shadows Into Light', cursive;
+    color: #4FB6D9;
+    font-size: clamp(0.85rem, 1.3vw, 1.1rem);
+    transform: rotate(-2deg);
+    z-index: 4;
+}
+
+/* ----- Parental Advisory sticker ----- */
+.graffiti-advisory {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, 0) rotate(-4deg);
+    background: #000000;
+    color: #FFFFFF;
+    padding: 0.65rem 1.1rem 0.5rem;
+    border: 3px solid #FFFFFF;
+    box-shadow: 0 0 0 2px #000000, 0 8px 18px rgba(0,0,0,0.5);
+    text-align: center;
+    z-index: 5;
+    font-family: 'Archivo Black', 'Impact', sans-serif;
+    line-height: 1;
+}
+.graffiti-advisory-line-1 {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 400;
+    font-family: 'Space Grotesk', sans-serif;
+}
+.graffiti-advisory-line-2 {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 0.15rem 0;
+}
+.graffiti-advisory-line-3 {
+    display: block;
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 400;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* ----- Praying hands sketch (top-left) ----- */
+.graffiti-praying {
+    position: absolute;
+    top: 6%;
+    left: 12%;
+    width: 48px;
+    height: 48px;
+    transform: rotate(-8deg);
+    z-index: 4;
+    filter: drop-shadow(0 0 4px rgba(0,0,0,0.6));
+}
+
+/* ----- Blue monogram (top-right) ----- */
+.graffiti-monogram {
+    position: absolute;
+    top: 26%;
+    right: 4%;
+    width: 64px;
+    height: 64px;
+    transform: rotate(12deg);
+    z-index: 4;
+    filter: drop-shadow(0 0 6px rgba(79, 182, 217, 0.5));
+}
+
+/* ----- Arrows ----- */
+.graffiti-arrow {
+    position: absolute;
+    width: 130px;
+    height: 70px;
+    z-index: 3;
+    opacity: 0.9;
+}
+.graffiti-arrow-1 { top: 22%; right: 20%; transform: rotate(-5deg); }
+.graffiti-arrow-2 { bottom: 28%; left: 18%; transform: rotate(8deg); }
+
+/* ----- Squiggles ----- */
+.graffiti-squiggle {
+    position: absolute;
+    width: 90px;
+    height: 18px;
+    z-index: 3;
+    opacity: 0.85;
+}
+.graffiti-squiggle-1 { top: 58%; left: 6%; transform: rotate(-3deg); }
+.graffiti-squiggle-2 { bottom: 24%; right: 22%; transform: rotate(8deg); }
+
+/* ----- Underline marks (white scratches) ----- */
+.graffiti-underline {
+    position: absolute;
+    width: 70px;
+    height: 6px;
+    z-index: 4;
+}
+.graffiti-underline-1 { top: 64%; right: 32%; transform: rotate(-2deg); }
+
+/* ----- Phone number scribble ----- */
+.graffiti-phone {
+    position: absolute;
+    bottom: 16%;
+    left: 20%;
+    font-family: 'Patrick Hand', cursive;
+    font-size: clamp(1rem, 1.6vw, 1.4rem);
+    color: #E84A4A;
+    transform: rotate(-3deg);
+    z-index: 4;
+    text-shadow: 0 0 4px rgba(0,0,0,0.6);
+}
+
+/* ----- Standalone checkmark + cross ----- */
+.graffiti-check {
+    position: absolute;
+    top: 48%;
+    right: 12%;
+    width: 36px;
+    height: 36px;
+    transform: rotate(-8deg);
+    z-index: 4;
+}
+.graffiti-cross {
+    position: absolute;
+    top: 70%;
+    left: 14%;
+    width: 32px;
+    height: 32px;
+    transform: rotate(15deg);
+    z-index: 4;
+}
+
+/* ----- Star sticker ----- */
+.graffiti-star {
+    position: absolute;
+    top: 22%;
+    left: 48%;
+    width: 30px;
+    height: 30px;
+    transform: rotate(-15deg);
+    z-index: 4;
+    filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
+}
+
+/* ----- Coral contour lines around portrait (in front of portrait) ----- */
+.graffiti-contour {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* ----- Frame corner brackets (cyan-blue) ----- */
+.graffiti-frame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+    pointer-events: none;
+}
+
+/* Mobile: shrink some elements so they don't crowd. */
+@media (max-width: 640px) {
+    .graffiti-advisory { padding: 0.4rem 0.7rem 0.35rem; }
+    .graffiti-advisory-line-2 { font-size: 1rem; }
+    .graffiti-note-3 { font-size: 0.85rem; }
+    .graffiti-monogram { width: 40px; height: 40px; }
+    .graffiti-praying { width: 32px; height: 32px; }
+}
+
 /* Loader — removed (all rules deleted). The cinematic pre-loader is gone;
    the hero entrance animation now plays on page load via the Animations class. */
 
